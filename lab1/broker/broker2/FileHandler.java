@@ -4,7 +4,6 @@ import java.util.*;
 
 public class FileHandler {
         public String filename;
-        //public ArrayList<Stock> rows;
         public File f;
         private FileReader fr;
         private FileWriter fw;
@@ -27,7 +26,7 @@ public class FileHandler {
         }
         
         public Long findQuote(String symbol, String delimiter) {
-                	Stock stock = this.findSymbol(symbol, " ");
+                	Stock stock = this.findSymbol(symbol, delimiter);
                         return stock.getQuote();
         }
         
@@ -52,8 +51,35 @@ public class FileHandler {
         }
         
         public removeSymbol(String symbol) {
-        	
-        }
+        	String tempfilename = "temp.txt";
+        	try {
+        		File tempfile = new File(tempfilename);
+        		Filewriter tempfr = new Filewriter(tempfile);
+        		
+        		br = new BufferedReader(f);
+        		bw = new BufferedWriter(tempfr);
+        		
+        		String currentRecord;
+        		String[] currentline = new String[2];
+        		
+        		while((currentRecord = br.readLine()) != null) {
+        			currentline = currentRecord.split(delimiter);
+        			
+        			if (!(symbol.equals(currentline[0]))) {
+                			String new_record = currentRecord + "\n";
+					bw.write(new_record);
+        			}
+        		}
+        		
+                       	bw.close();
+                       	br.close();
+                	
+       		} catch (IOException e) {
+       			System.err.println("ERROR with removal.");
+                        System.exit(1);
+                }
+       		
+       	}
         
         private findSymbol(String symbol) throws IOException {
         	Stock stock = new Stock();
