@@ -57,8 +57,10 @@ public class BrokerClient {
                         if (packetFromServer.type == BrokerPacket.BROKER_QUOTE)
                                 System.out.println("Quote from broker: " + packetFromServer.quote);
 
-			if (packetFromServer.type == BrokerPacket.ERROR_INVALID_SYMBOL)
+			if (packetFromServer.type == BrokerPacket.BROKER_ERROR && 
+			    packetFromServer.error_code == BrokerPacket.ERROR_INVALID_SYMBOL)
 				System.out.println("Symbol not found");
+				
                         /* re-print console prompt */
                         System.out.print("> ");
                 }
