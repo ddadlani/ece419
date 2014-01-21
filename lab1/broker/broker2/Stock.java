@@ -1,6 +1,7 @@
-import java.net.*;
-import java.io.*;
-import java.lang.*;
+/*
+ * Defines a class of type Stock, containing a 
+ * symbol and a quote.
+ */
 
 public class Stock {
         private String symbol;

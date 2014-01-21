@@ -1,12 +1,10 @@
-import java.net.*;
 import java.io.*;
-import java.util.*;
 
 public class FileHandler {
         public String filename;
         public File f;
         private FileReader fr;
-        private FileWriter fw;
+        //private FileWriter fw;
 	public Stock stock;
 	private BufferedReader br;
 	private BufferedWriter bw;
@@ -16,14 +14,10 @@ public class FileHandler {
                 try {
                         f = new File(filename);
                         fr = new FileReader(f);
-                        fw = new FileWriter(f);
                 } catch (FileNotFoundException fnf) {
                         System.err.println("ERROR: File not found!!");
                         System.exit(1);
-                } catch (IOException e) {
-                	e.printStackTrace();
-                }
-                
+                }                 
                 
         }
         
@@ -33,23 +27,31 @@ public class FileHandler {
         }
         
         public Integer addSymbol(String symbol, Long quote) throws IOException {
-        	bw = new BufferedWriter(fw);
-                String new_entry = symbol + " " + quote + "\n";
-                System.out.print("Adding " + new_entry + "to file.\n");
-                try {
-             		bw.write(new_entry);
-                } catch (IOException e) {
-                       	System.err.println("ERROR: Could not write to file!");
-                      	System.exit(1);
-                }
-                try {
-                        bw.close();
-                } catch (IOException e) {
-                        System.err.println("ERROR: BW couldn't close.");
-                        System.exit(1);
-                }
-       	
-                return 0;                      
+        	//String tempfilename = "temp.txt";
+        	try {
+        		//File tempfile = new File(tempfilename);
+        		FileWriter fw = new FileWriter(filename, true);
+        		bw = new BufferedWriter(fw);
+        	
+        		String new_entry = symbol + " " + quote + "\n";
+        		System.out.print("Adding " + new_entry + "to file.\n");
+        	
+        		bw.write(new_entry);
+                	
+               // File nasdaq = new File(filename);
+               // boolean done = tempfile.renameTo(nasdaq);
+               // if (!done) {
+               //  	System.err.println("Could not rename file.");
+               // }
+                bw.close();
+               
+        	} catch (FileNotFoundException fnf) {
+        		System.err.println("ERROR with file");
+        		System.exit(1);
+        	} catch (IOException e) {
+        		e.printStackTrace();
+        	}
+        	return 0;                      
         }
         
         public void removeSymbol(String symbol) {

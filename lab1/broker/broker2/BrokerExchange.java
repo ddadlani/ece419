@@ -1,6 +1,5 @@
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 public class BrokerExchange {
         public static void main(String[] args) throws IOException,
@@ -56,7 +55,7 @@ public class BrokerExchange {
                         //ADD
                         if ((row_array.length == 2) && add_cmd.equals(row_array[0]) && row_array[1].matches("[a-zA-Z]+"))
                         {
-                        	System.out.println("ADDED!");
+                        	//System.out.println("ADDED!");
                         	packetToServer.type = BrokerPacket.EXCHANGE_ADD;
                         	packetToServer.symbol = row_array[1];
                         	cont = false;
@@ -66,23 +65,23 @@ public class BrokerExchange {
                         else if ((row_array.length == 3) && update_cmd.equals(row_array[0]) && row_array[1].matches("[a-zA-Z]+"))
                         {
                         	try  {  
-				Long quote = Long.parseLong(row_array[2]); 
-				System.out.println("UPDATED!");
-                        	packetToServer.type = BrokerPacket.EXCHANGE_UPDATE;
-                        	packetToServer.quote = quote; 
-                        	cont = false;
-				}  
-				catch(NumberFormatException nfe)  {  
-					System.out.println("Not a long!");
-					cont = true;
-				} 
+                        		Long quote = Long.parseLong(row_array[2]); 
+                        		//System.out.println("UPDATED!");
+                        		packetToServer.type = BrokerPacket.EXCHANGE_UPDATE;
+                        		packetToServer.quote = quote; 
+                        		cont = false;
+                        	}  
+                        	catch(NumberFormatException nfe)  {  
+                        		System.out.println("Not a long!");
+                        		cont = true;
+                        	} 
                         	
                         }         
                         
                         //REMOVE                        
                         else if ((row_array.length == 2) && remove_cmd.equals(row_array[0]) && row_array[1].matches("[a-zA-Z]+"))
                         {
-                        	System.out.println("REMOVED!");
+                        	//System.out.println("REMOVED!");
                         	packetToServer.type = BrokerPacket.EXCHANGE_REMOVE;
                         	packetToServer.symbol = row_array[1];
                         	cont = false;
@@ -99,30 +98,29 @@ public class BrokerExchange {
                         /* print server reply */
                         BrokerPacket packetFromServer = new BrokerPacket();
                         try{
-                        packetFromServer = (BrokerPacket) in.readObject();
-                        } catch (EOFException eof)
-                        {
+                        	packetFromServer = (BrokerPacket) in.readObject();
+                        } catch (EOFException eof)  {
                                 System.err.println("No reply received EOF");
                         }
-                        if (packetFromServer.type == BrokerPacket.EXCHANGE_REPLY)
-                        {
+                        if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_SYMBOL)
+                        	System.out.println(packetToServer.symbol + " invalid.");
+				
+                        else if (packetFromServer.error_code == BrokerPacket.ERROR_OUT_OF_RANGE)
+                        	System.out.println(packetToServer.symbol + " out of range.");
+				
+                        else if (packetFromServer.error_code == BrokerPacket.ERROR_SYMBOL_EXISTS)
+                        	System.out.println(packetToServer.symbol + " exists.");
+                       
+                        else if (packetFromServer.type == BrokerPacket.EXCHANGE_REPLY)  {
+                        	
                         	if (add_cmd.equals(row_array[0]))
-                                	System.out.println(packetToServer.symbol + " added.");
-                                else if (update_cmd.equals(row_array[0]))
-                                	System.out.println(packetToServer.symbol + " updated to " + packetToServer.quote + ".");
-                                else
-                                	System.out.println(packetToServer.symbol + " removed.");
+                        		System.out.println(packetToServer.symbol + " added.");
+                        	else if (update_cmd.equals(row_array[0]))
+                        		System.out.println(packetToServer.symbol + " updated to " + packetToServer.quote + ".");
+                        	else
+                        		System.out.println(packetToServer.symbol + " removed.");
                         }
 
-			if (packetFromServer.type == BrokerPacket.ERROR_INVALID_SYMBOL)
-				System.out.println(packetToServer.symbol + " invalid.");
-				
-			if (packetFromServer.type == BrokerPacket.ERROR_OUT_OF_RANGE)
-				System.out.println(packetToServer.symbol + " out of range.");
-				
-			if (packetFromServer.type == BrokerPacket.ERROR_SYMBOL_EXISTS)
-				System.out.println(packetToServer.symbol + " exists.");
-    
                         /* re-print console prompt */
                         System.out.print("> ");
                 }
