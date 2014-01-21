@@ -38,8 +38,8 @@ public class BrokerExchange {
                 String userInput;
 
                 System.out.print("Enter command or quit for exit:\n> ");
-                while ((userInput = stdIn.readLine()) != null
-                                && userInput.toLowerCase().indexOf("x") == -1) {
+                while ((userInput = stdIn.readLine().toLowerCase()) != null
+                                && userInput.indexOf("x") == -1) {
                         
                         /* make a new request packet */
                         BrokerPacket packetToServer = new BrokerPacket();
