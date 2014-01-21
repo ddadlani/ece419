@@ -12,7 +12,7 @@ public class FileHandler {
 	private BufferedWriter bw;
         
         public FileHandler () {
-                this.filename = new String("/homes/d/dadlanid/ece419/lab1/broker/broker1/nasdaq");
+                this.filename = new String("nasdaq");
                 try {
                         f = new File(filename);
                         fr = new FileReader(f);
@@ -20,13 +20,15 @@ public class FileHandler {
                 } catch (FileNotFoundException fnf) {
                         System.err.println("ERROR: File not found!!");
                         System.exit(1);
+                } catch (IOException e) {
+                	e.printStackTrace();
                 }
                 
                 
         }
         
         public Long findQuote(String symbol, String delimiter) {
-                	Stock stock = this.findSymbol(symbol, delimiter);
+                	Stock stock = findSymbol(symbol, delimiter);
                         return stock.getQuote();
         }
         
@@ -50,20 +52,20 @@ public class FileHandler {
                 return 0;                      
         }
         
-        public removeSymbol(String symbol) {
+        public void removeSymbol(String symbol) {
         	String tempfilename = "temp.txt";
         	try {
         		File tempfile = new File(tempfilename);
-        		Filewriter tempfr = new Filewriter(tempfile);
+        		FileWriter tempfr = new FileWriter(tempfile);
         		
-        		br = new BufferedReader(f);
+        		br = new BufferedReader(fr);
         		bw = new BufferedWriter(tempfr);
         		
         		String currentRecord;
         		String[] currentline = new String[2];
         		
         		while((currentRecord = br.readLine()) != null) {
-        			currentline = currentRecord.split(delimiter);
+        			currentline = currentRecord.split(" ");
         			
         			if (!(symbol.equals(currentline[0]))) {
                 			String new_record = currentRecord + "\n";
@@ -81,35 +83,33 @@ public class FileHandler {
        		
        	}
         
-        private findSymbol(String symbol) throws IOException {
+        private Stock findSymbol(String symbol, String delimiter) {
         	Stock stock = new Stock();
                 stock.setQuote(0L);
                 
                 String currentRecord;
                 br = new BufferedReader(fr);
-                
-                while((currentRecord = br.readLine()) != null) {
-                        String[] row_array = new String[2];
-                        row_array = currentRecord.split(delimiter);
-
-			if (symbol.equals(row_array[0]))
-			{
-				stock.setQuote(Long.parseLong(row_array[1], 10));
-				stock.setSymbol(row_array[0]);
-				break;
-			}
-                }
                 try {
+                	while((currentRecord = br.readLine()) != null) {
+                		System.out.println(currentRecord);
+                        	String[] row_array = new String[2];
+                        	row_array = currentRecord.split(delimiter);
+
+				if (symbol.equals(row_array[0]))
+				{
+					stock.setQuote(Long.parseLong(row_array[1], 10));
+					stock.setSymbol(row_array[0]);
+					break;
+				}
+                	}
+                	System.out.println("Closing file.\n");	
                         br.close();
+                
                 } catch (IOException e) {
                         System.err.println("ERROR: BR couldn't close.");
                         System.exit(1);
                 }
+                return stock;
         }
-        
-        
-        //@Override
-       // public String toString() {
-      // return name;
-     // }
+
 }

@@ -34,7 +34,7 @@ public class BrokerServerHandlerThread extends Thread {
                                         packetToClient.quote = fh.findQuote(packetFromClient.symbol, space);
                                         System.out.println("From Client: " + packetFromClient.symbol + "\nTo Client: " + packetToClient.quote);
                                         if (packetToClient.quote == 0L)
-						packetToClient.type = BrokerPacket.ERROR_INVALID_SYMBOL;
+						packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
 					else
 						packetToClient.type = BrokerPacket.BROKER_QUOTE;
                                         /* send reply back to client */
@@ -45,40 +45,42 @@ public class BrokerServerHandlerThread extends Thread {
                                 }
                                 
                                 else if (packetFromClient.type == BrokerPacket.EXCHANGE_ADD) {
+                                	packetToClient.type = BrokerPacket.EXCHANGE_REPLY;
                                 	packetToClient.quote = fh.findQuote(packetFromClient.symbol," ");
                                 	if (packetToClient.quote != 0L) {
-                                		packetToClient.type = ERROR_SYMBOL_EXISTS;
+                                		packetToClient.error_code = BrokerPacket.ERROR_SYMBOL_EXISTS;
     		                        }
                                 	else {
                                 		fh.addSymbol(packetFromClient.symbol, packetFromClient.quote);
-                                		packetToClient.type = EXCHANGE_REPLY;
                                 	}
                                 	toClient.writeObject(packetToClient);
                           		continue;
                                 }
                                 
                                 else if (packetFromClient.type == BrokerPacket.EXCHANGE_REMOVE) {
+                                	packetToClient.type = BrokerPacket.EXCHANGE_REPLY;
                                 	packetToClient.quote = fh.findQuote(packetFromClient.symbol," ");
                                 	if (packetToClient.quote == 0L) {
-                                		packetToClient.type = BrokerPacket.ERROR_INVALID_SYMBOL;
+                                		packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
                                 	}
                                 	else {
                                 		fh.removeSymbol(packetFromClient.symbol);
-                                		packetToClient.type = EXCHANGE_REPLY;
+                                		
                                 	}
                                 	toClient.writeObject(packetToClient);
                                 	continue;
                                 }
                                 
                                 else if (packetFromClient.type == BrokerPacket.EXCHANGE_UPDATE) {
+                                	packetToClient.type = BrokerPacket.EXCHANGE_REPLY;
                                 	packetToClient.quote = fh.findQuote(packetFromClient.symbol," ");
                                 	if (packetToClient.quote == 0L) {
-                                		packetToClient.type = BrokerPacket.ERROR_INVALID_SYMBOL;
+                                		packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
                                 	}
                                 	else {
                                 		fh.removeSymbol(packetFromClient.symbol);
                                 		fh.addSymbol(packetFromClient.symbol, packetFromClient.quote);
-                                		packetToClient.type = EXCHANGE_REPLY;
+                                		
                                 	}
                                 	toClient.writeObject(packetToClient);
                                 	continue;
