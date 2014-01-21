@@ -1,10 +1,10 @@
 import java.io.*;
 
 public class FileHandler {
-        public String filename;
-        public File f;
-        private FileReader fr;
-        //private FileWriter fw;
+	public String filename;
+	public File f;
+	private FileReader fr;
+    
 	public Stock stock;
 	private BufferedReader br;
 	private BufferedWriter bw;
@@ -14,6 +14,7 @@ public class FileHandler {
                 try {
                         f = new File(filename);
                         fr = new FileReader(f);
+                        br = new BufferedReader(fr);
                 } catch (FileNotFoundException fnf) {
                         System.err.println("ERROR: File not found!!");
                         System.exit(1);
@@ -27,7 +28,7 @@ public class FileHandler {
         }
         
         public Integer addSymbol(String symbol, Long quote) throws IOException {
-        	//String tempfilename = "temp.txt";
+        	
         	try {
         		//File tempfile = new File(tempfilename);
         		FileWriter fw = new FileWriter(filename, true);
@@ -38,11 +39,7 @@ public class FileHandler {
         	
         		bw.write(new_entry);
                 	
-               // File nasdaq = new File(filename);
-               // boolean done = tempfile.renameTo(nasdaq);
-               // if (!done) {
-               //  	System.err.println("Could not rename file.");
-               // }
+               
                 bw.close();
                
         	} catch (FileNotFoundException fnf) {
@@ -60,24 +57,31 @@ public class FileHandler {
         		File tempfile = new File(tempfilename);
         		FileWriter tempfr = new FileWriter(tempfile);
         		
-        		br = new BufferedReader(fr);
+        		
         		bw = new BufferedWriter(tempfr);
         		
         		String currentRecord;
         		String[] currentline = new String[2];
         		
         		while((currentRecord = br.readLine()) != null) {
+        			System.out.println(currentRecord);
         			currentline = currentRecord.split(" ");
         			
         			if (!(symbol.equals(currentline[0]))) {
                 			String new_record = currentRecord + "\n";
-					bw.write(new_record);
+                			System.out.println("Writing " + currentRecord + " to temp.txt");
+                			bw.write(new_record);
         			}
         		}
+        		File nasdaq = new File(filename);
+                boolean done = tempfile.renameTo(nasdaq);
+                if (!done) {
+                  	System.err.println("Could not rename file.");
+                }
         		
-                       	bw.close();
-                       	br.close();
-                	
+                bw.close();
+                bw = null;
+                               	
        		} catch (IOException e) {
        			System.err.println("ERROR with removal.");
                         System.exit(1);
@@ -97,21 +101,33 @@ public class FileHandler {
                         	String[] row_array = new String[2];
                         	row_array = currentRecord.split(delimiter);
 
-				if (symbol.equals(row_array[0]))
-				{
-					stock.setQuote(Long.parseLong(row_array[1], 10));
-					stock.setSymbol(row_array[0]);
-					break;
-				}
+                        	if (symbol.equals(row_array[0]))
+                        	{
+                        		stock.setQuote(Long.parseLong(row_array[1], 10));
+                        		stock.setSymbol(row_array[0]);
+                        		break;
+                        	}
                 	}
-                	System.out.println("Closing file.\n");	
-                        br.close();
                 
                 } catch (IOException e) {
-                        System.err.println("ERROR: BR couldn't close.");
+                        System.err.println("ERROR Reading file.");
                         System.exit(1);
                 }
                 return stock;
         }
+        
+        public void close() {
+        	try {
+        		br.close();
+        	} catch (IOException e) {
+        		System.out.println("Error closing file.");
+        		System.exit(1);
+        	} finally {
+        		fr = null;
+        		br = null;
+        		f = null;
+        	}
+        }
+        
 
 }

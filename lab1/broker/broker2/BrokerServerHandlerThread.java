@@ -26,6 +26,12 @@ public class BrokerServerHandlerThread extends Thread {
                         while (( packetFromClient = (BrokerPacket) fromClient.readObject()) != null) {
                                 /* create a packet to send reply back to client */
                                 BrokerPacket packetToClient = new BrokerPacket();
+                                if(packetFromClient.symbol == null) {
+                                	packetToClient.type = BrokerPacket.BROKER_NULL;
+                                	packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
+                                	toClient.writeObject(packetToClient);
+                                	continue;
+                                }
                                 
                                 /* process symbol */
                                 if(packetFromClient.type == BrokerPacket.BROKER_REQUEST) {
@@ -34,9 +40,9 @@ public class BrokerServerHandlerThread extends Thread {
                                         packetToClient.quote = fh.findQuote(packetFromClient.symbol, space);
                                         System.out.println("From Client: " + packetFromClient.symbol + "\nTo Client: " + packetToClient.quote);
                                         if (packetToClient.quote == 0L)
-						packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
-					else
-						packetToClient.type = BrokerPacket.BROKER_QUOTE;
+                                        	packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
+                                        else
+                                        	packetToClient.type = BrokerPacket.BROKER_QUOTE;
                                         /* send reply back to client */
                                         toClient.writeObject(packetToClient);
                                         
@@ -106,6 +112,8 @@ public class BrokerServerHandlerThread extends Thread {
                         fromClient.close();
                         toClient.close();
                         socket.close();
+                        fh.close();
+                        
 
                 } catch (IOException e) {
                         if(!gotByePacket)

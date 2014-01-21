@@ -68,6 +68,7 @@ public class BrokerExchange {
                         		Long quote = Long.parseLong(row_array[2]); 
                         		//System.out.println("UPDATED!");
                         		packetToServer.type = BrokerPacket.EXCHANGE_UPDATE;
+                        		packetToServer.symbol = row_array[1];
                         		packetToServer.quote = quote; 
                         		cont = false;
                         	}  
