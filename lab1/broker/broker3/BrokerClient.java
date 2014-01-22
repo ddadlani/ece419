@@ -6,6 +6,7 @@ public class BrokerClient {
 	public static void main(String[] args) throws IOException,
 			ClassNotFoundException, EOFException {
 
+		// initialize variables
 		Socket LookupSocket = null;
 		ObjectOutputStream outLookup = null;
 		ObjectInputStream inLookup = null;
@@ -17,6 +18,7 @@ public class BrokerClient {
 
 		String local = null;
 
+		// Connect to naming server
 		try {
 			/* variables for hostname/port */
 			String hostname = "localhost";
@@ -43,30 +45,34 @@ public class BrokerClient {
 			System.exit(1);
 		}
 
+		// Set up user input from stdin
 		BufferedReader stdIn = new BufferedReader(new InputStreamReader(
 				System.in));
 		String userInput;
 
 		System.out.println("Enter command, symbol or x for exit:");
 		System.out.print("> ");
-		while ((userInput = stdIn.readLine()) != null
-				&& userInput.toLowerCase().indexOf("x") == -1) {
+		
+		// Client input handler loop
+		while ((userInput = stdIn.readLine()) != null && userInput.toLowerCase().indexOf("x") == -1) {
+			
+			// If local server has not yet been declared
 			while (local == null) {
-				if (!(userInput.toLowerCase().equals("local tse")) && !(userInput.toLowerCase().equals("local nasdaq"))) {
-					System.out.println("Error: Please declare a valid local exchange server.");
-					System.out.println("Enter command, symbol or x for exit:");
-					System.out.print("> ");
-					continue;
-				}
+				/* tse */
 				if (userInput.toLowerCase().equals("local tse")) {
+					// Look up connection params for tse
 					local = new String("tse");
 					lookup = lookupExchange(local,outLookup, inLookup);
+					
+					// Lookup failed
 					if (lookup == null) {
 						System.out.println("Exchange server lookup failed. Please try again later.");
 						local = null;
 						continue;
 					}
-				} else if (userInput.toLowerCase().equals("local nasdaq")) {
+				}
+				/*nasdaq */
+				else if (userInput.toLowerCase().equals("local nasdaq")) {
 					local = new String("nasdaq");
 					lookup = lookupExchange(local, outLookup, inLookup);
 					if (lookup == null) {
@@ -74,32 +80,72 @@ public class BrokerClient {
 						local = null;
 						continue;
 					}
+				}
+				// Invalid server
+				else {
+					System.out.println("Error: Please declare a valid local exchange server.");
+					System.out.print("> ");
+					continue;
 				}
 			}
 			
 			/* connect to broker */
-			BrokerSocket = new Socket(lookup.broker_host, lookup.broker_port);
+			if (BrokerSocket == null) {
+				BrokerSocket = new Socket(lookup.broker_host, lookup.broker_port);
 
-			out = new ObjectOutputStream(BrokerSocket.getOutputStream());
-			in = new ObjectInputStream(BrokerSocket.getInputStream());
+				out = new ObjectOutputStream(BrokerSocket.getOutputStream());
+				in = new ObjectInputStream(BrokerSocket.getInputStream());
+			}
+			
+			if ((BrokerSocket == null) || (out == null) || (in == null)) {
+				System.err.println("Could not connect to broker server. Terminating.\n");
+				System.exit(1);
+			}
+			else {
+				System.out.println(local + " as local.");
+			}
 			
 			/* accept next user input */
-			System.out.println("Enter command, symbol or x for exit:");
 			System.out.print("> ");
 			userInput = stdIn.readLine();
-			if(userInput.length() > 5) {
-				if (userInput.toLowerCase().equals("local tse")) {
-					local = new String("tse");
-					lookup = lookupExchange(local, outLookup, inLookup);
-					if (lookup == null)
-						System.out.println("Exchange server lookup failed. Please try again later.");
-				} else if (userInput.toLowerCase().equals("local nasdaq")) {
-					local = new String("nasdaq");
-					lookup = lookupExchange(local, outLookup, inLookup);
-					if (lookup == null) 
-						System.out.println("Exchange server lookup failed. Please try again later");
+						
+			// if trying to change local broker to tse
+			while (userInput.toLowerCase().equals("local tse")) {
+				local = new String("tse");
+				lookup = lookupExchange(local, outLookup, inLookup);
+				if (lookup == null)
+					System.out.println("Exchange server lookup failed. Please try again later.");
+				else {
+					// connect to broker
+					BrokerSocket = new Socket(lookup.broker_host, lookup.broker_port);
+					out = new ObjectOutputStream(BrokerSocket.getOutputStream());
+					in = new ObjectInputStream(BrokerSocket.getInputStream());
+					
+					System.out.println("tse as local.");
 				}
+				/* accept next user input */
+				System.out.print("> ");
+				userInput = stdIn.readLine();
 			}
+			
+			// if trying to change local broker to nasdaq
+			while (userInput.toLowerCase().equals("local nasdaq")) {
+				local = new String("nasdaq");
+				lookup = lookupExchange(local, outLookup, inLookup);
+				if (lookup == null) 
+					System.out.println("Exchange server lookup failed. Please try again later");
+				else {
+					BrokerSocket = new Socket(lookup.broker_host, lookup.broker_port);
+					out = new ObjectOutputStream(BrokerSocket.getOutputStream());
+					in = new ObjectInputStream(BrokerSocket.getInputStream());
+
+					System.out.println("nasdaq as local.");
+				}
+				/* accept next user input */
+				System.out.print("> ");
+				userInput = stdIn.readLine();
+			}
+			
 			
 			/* make a new request packet */
 			BrokerPacket packetToServer = new BrokerPacket();
@@ -118,10 +164,6 @@ public class BrokerClient {
 				System.out.println("Quote from broker: "
 						+ packetFromServer.quote);
 
-			/*
-			 * if (packetFromServer.type == BrokerPacket.ERROR_INVALID_SYMBOL)
-			 * System.out.println("Symbol not found");
-			 */
 			/* re-print console prompt */
 			System.out.print("> ");
 		}
