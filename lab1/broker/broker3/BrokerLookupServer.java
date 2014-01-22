@@ -10,7 +10,7 @@ public class BrokerLookupServer {
                 if(args.length == 1) {
                         serverSocket = new ServerSocket(Integer.parseInt(args[0]));
                 } else {
-                        System.err.println("ERROR: Invalid arguments! Usage: ./server.sh <portnumber>");
+                        System.err.println("ERROR: Invalid arguments! Usage: ./lookup.sh <portnumber>");
                         System.exit(-1);
                 }
         } catch (IOException e) {

@@ -2,13 +2,13 @@ import java.net.*;
 import java.io.*;
 
 public class LookupServerHandlerThread extends Thread {
-	 private Socket socket = null;
+	private Socket socket = null;
 
-        public LookupServerHandlerThread(Socket socket) {
-                super("LookupServerHandlerThread");
-                this.socket = socket;
-                System.out.println("Created new Thread to handle client");
-        }
+	public LookupServerHandlerThread(Socket socket) {
+		super("LookupServerHandlerThread");
+		this.socket = socket;
+		System.out.println("Created new Thread to handle client");
+	}
 
 	public void run() {
 
@@ -26,30 +26,27 @@ public class LookupServerHandlerThread extends Thread {
 			while ((packetFromClient = (BrokerPacket) fromClient.readObject()) != null) {
 				/* create a packet to send reply back to client */
 				BrokerPacket packetToClient = new BrokerPacket();
-				
-				if(packetFromClient.type == BrokerPacket.LOOKUP_REGISTER)
-                                {
-                                	//write to file
-                                	packetToClient.type = BrokerPacket.LOOKUP_REPLY;
-                                	fh.registerBroker(packetFromClient.exchange, packetFromClient.locations[0].broker_host, packetFromClient.locations[0].broker_port);
-                                	toClient.writeObject(packetToClient);
+
+				if (packetFromClient.type == BrokerPacket.LOOKUP_REGISTER) {
+					// write to file
+					packetToClient.type = BrokerPacket.LOOKUP_REPLY;
+					fh.registerBroker(packetFromClient.exchange,
+							packetFromClient.locations[0].broker_host,
+							packetFromClient.locations[0].broker_port);
+					toClient.writeObject(packetToClient);
 					continue;
-                                	
-                                }
-                                else if(packetFromClient.type == BrokerPacket.LOOKUP_REQUEST)
-                                {	
-                                	//read from file
-                                	//if find failed then return ERROR_INVALID_EXCHANGE
-                                	packetToClient.type = BrokerPacket.LOOKUP_REPLY;
-                                	packetToClient = fh.lookupBroker(packetFromClient.exchange);
-                                	toClient.writeObject(packetToClient);
+
+				} else if (packetFromClient.type == BrokerPacket.LOOKUP_REQUEST) {
+					// read from file
+					// if find failed then return ERROR_INVALID_EXCHANGE
+					packetToClient.type = BrokerPacket.LOOKUP_REPLY;
+					packetToClient = fh.lookupBroker(packetFromClient.exchange);
+					toClient.writeObject(packetToClient);
 					continue;
-                                }
-                                else 
-                                {
-                                	System.err.println("ERROR: Unknown BROKER_* packet!!");
-                                	System.exit(-1);
-                                }		 
+				} else {
+					System.err.println("ERROR: Unknown BROKER_* packet!!");
+					System.exit(-1);
+				}
 			}
 
 			/* cleanup when client exits */
@@ -58,9 +55,9 @@ public class LookupServerHandlerThread extends Thread {
 			socket.close();
 
 		} catch (IOException e) {
-				e.printStackTrace();
+			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 
