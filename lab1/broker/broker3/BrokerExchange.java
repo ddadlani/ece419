@@ -8,32 +8,27 @@ public class BrokerExchange {
                 Socket BrokerExchangeSocket = null;
                 ObjectOutputStream out = null;
                 ObjectInputStream in = null;
+                
+                /* variables for hostname/port */
+                String hostname = "localhost";
+                int port = 4444;
+                String local = null;
 
-                try {
-                        /* variables for hostname/port */
-                        String hostname = "localhost";
-                        int port = 4444;
-                        
-                        if(args.length == 2 ) {
-                                hostname = args[0];
-                                port = Integer.parseInt(args[1]);
-                        } else {
-                                System.err.println("ERROR: Invalid arguments!");
-                                System.exit(-1);
-                        }
-                        BrokerExchangeSocket = new Socket(hostname, port);
-
-                        out = new ObjectOutputStream(BrokerExchangeSocket.getOutputStream());
-                        in = new ObjectInputStream(BrokerExchangeSocket.getInputStream());
-
-                } catch (UnknownHostException e) {
-                        System.err.println("ERROR: Don't know where to connect!!");
-                        System.exit(1);
-                } catch (IOException e) {
-                        System.err.println("ERROR: Couldn't get I/O for the connection.");
-                        System.exit(1);
+                if(args.length == 3 ) {
+	                hostname = args[0];
+                        port = Integer.parseInt(args[1]);
+                        local = args[2];
+                } else {
+                        System.err.println("ERROR: Invalid arguments!");
+                        System.exit(-1);
                 }
 
+		BrokerLocation lookup = lookupExchange(local, hostname, port);
+		BrokerExchangeSocket = new Socket(lookup.broker_host, lookup.broker_port);
+		
+		out = new ObjectOutputStream(BrokerExchangeSocket.getOutputStream());
+		in = new ObjectInputStream(BrokerExchangeSocket.getInputStream());
+		
                 BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
                 String userInput;
 
@@ -127,14 +122,73 @@ public class BrokerExchange {
                 }
 
                 /* tell server that i'm quitting */
-                BrokerPacket packetToServer = new BrokerPacket();
-                packetToServer.type = BrokerPacket.BROKER_BYE;
-                packetToServer.symbol = "Bye!";
-                out.writeObject(packetToServer);
-
-                out.close();
-                in.close();
+                disconnectFromServer(out, in);
                 stdIn.close();
                 BrokerExchangeSocket.close();
         }
+        	
+        private static BrokerLocation lookupExchange(String localserver, String hostname, int port) {
+
+		Socket LookupSocket = null;
+		ObjectOutputStream outLookup = null;
+		ObjectInputStream inLookup = null;
+
+		try {
+			LookupSocket = new Socket(hostname, port);
+			outLookup = new ObjectOutputStream(LookupSocket.getOutputStream());
+			inLookup = new ObjectInputStream(LookupSocket.getInputStream());
+
+		} catch (UnknownHostException e) {
+			System.err.println("ERROR: Don't know where to connect.");
+			System.exit(1);
+		} catch (IOException e) {
+			System.err.println("ERROR: Couldn't get I/O for the connection.");
+			System.exit(1);
+		}
+
+		BrokerPacket packetToServer = new BrokerPacket();
+		BrokerPacket packetFromServer;
+
+		packetToServer.type = BrokerPacket.LOOKUP_REQUEST;
+		packetToServer.exchange = localserver;
+
+		try {
+			outLookup.writeObject(packetToServer);
+			packetFromServer = (BrokerPacket) inLookup.readObject();
+
+			if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_EXCHANGE) {
+				System.err.println("The broker server " + localserver + " was not found. Terminating.");
+				disconnectFromServer(outLookup, inLookup);
+				System.exit(1);
+			} else if (packetFromServer.type == BrokerPacket.LOOKUP_REPLY) {
+				disconnectFromServer(outLookup, inLookup);
+				return packetFromServer.locations[0];
+			} else {
+				System.err.println("An unknown error occurred.");
+				disconnectFromServer(outLookup, inLookup);
+				System.exit(1);
+			}
+
+		} catch (IOException e) {
+			System.err.println("No reply received. Lookup Server shut down.");
+		} catch (ClassNotFoundException cnf) {
+			cnf.printStackTrace();
+		} catch (NullPointerException np) {
+			System.err.println("No reply received. Lookup Server shut down.");
+		}
+		return null;
+	}
+	
+	private static void disconnectFromServer(ObjectOutputStream out, ObjectInputStream in) throws IOException {
+		BrokerPacket packetToServer = new BrokerPacket();
+		packetToServer.type = BrokerPacket.BROKER_BYE;
+		packetToServer.symbol = "Bye!";
+		out.writeObject(packetToServer);
+
+		out.close();
+		in.close();
+
+		out = null;
+		in = null;
+	}
 }

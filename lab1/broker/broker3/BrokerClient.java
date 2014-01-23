@@ -13,12 +13,12 @@ public class BrokerClient {
 		Socket BrokerSocket = null;
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
-
+		
+		// Connect to naming server
 		String local = null;
 		String hostname = null;
 		int port = 0;
-		// Connect to naming server
-
+		
 		/* variables for hostname/port */
 		hostname = "localhost";
 		port = 4444;
