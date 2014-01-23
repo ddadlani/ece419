@@ -47,79 +47,76 @@ public class OnlineBroker {
         serverSocket.close();
     }
     
-    public static BrokerPacket registerBroker(String brokername, String otherbroker_name, String lookuphost, Integer lookupport, Integer port)
-    {
+    public static BrokerPacket registerBroker(String brokername,
+			String otherbroker_name, String lookuphost, Integer lookupport,
+			Integer port) {
 
 		Socket LookupSocket = null;
-	        ObjectOutputStream out = null;
-	        ObjectInputStream in = null;
-	        BrokerPacket packetFromServer = new BrokerPacket();
+		ObjectOutputStream out = null;
+		ObjectInputStream in = null;
+		BrokerPacket packetFromServer = new BrokerPacket();
+		BrokerPacket packetFromServer2 = new BrokerPacket();
+		try {
+			/* register to naming service */
+			LookupSocket = new Socket(lookuphost, lookupport);
 
-	        try {
-	        	/* register to naming service */
-	                LookupSocket = new Socket(lookuphost, lookupport);
+			out = new ObjectOutputStream(LookupSocket.getOutputStream());
+			in = new ObjectInputStream(LookupSocket.getInputStream());
 
-	                out = new ObjectOutputStream(LookupSocket.getOutputStream());
-	                in = new ObjectInputStream(LookupSocket.getInputStream());
-	                
-			
 			String localhost_ = InetAddress.getLocalHost().getHostName();
 			/* make a new request packet */
-		        BrokerPacket packetToServer = new BrokerPacket();
-		        packetToServer.type = BrokerPacket.LOOKUP_REGISTER;
-		        packetToServer.exchange = brokername;
-		        packetToServer.num_locations = 1;
-		        packetToServer.locations = new BrokerLocation[packetToServer.num_locations];
-		        packetToServer.locations[0] = new BrokerLocation(localhost_, port);
-		        out.writeObject(packetToServer);
+			BrokerPacket packetToServer = new BrokerPacket();
+			packetToServer.type = BrokerPacket.LOOKUP_REGISTER;
+			packetToServer.exchange = brokername;
+			packetToServer.num_locations = 1;
+			packetToServer.locations = new BrokerLocation[packetToServer.num_locations];
+			packetToServer.locations[0] = new BrokerLocation(localhost_, port);
+			out.writeObject(packetToServer);
 
-		        /* print server reply */
-		        
-		        packetFromServer = (BrokerPacket) in.readObject();
-		
-		        if (packetFromServer.type != BrokerPacket.LOOKUP_REPLY)
-		        {
-		        	System.exit(-1);
-		        	System.err.println("Server already open from another place");
-			}
-			else
-		        	System.out.println("Server registered!");
-		        
-		        /*lookup other broker location*/
-		        packetToServer.type = BrokerPacket.LOOKUP_REQUEST;
-		        packetToServer.exchange = otherbroker_name;
-		        out.writeObject(packetToServer);
-		        
-		        /* print server reply */
-		        packetFromServer = (BrokerPacket) in.readObject();
-		        if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_EXCHANGE)
-		       	{
-		        	System.out.println("Other server not registered yet.");
-		        	return null;
-			}
-		        /* tell server that i'm quitting */
-		        packetToServer.type = BrokerPacket.BROKER_BYE;
-		        packetToServer.symbol = "Bye!";
-		        out.writeObject(packetToServer);
-		        out.close();
-		        in.close();
-		        LookupSocket.close();    
-		        
-	        	
+			/* print server reply */
 
-	        } catch (UnknownHostException e) {
-	                System.err.println("ERROR: Don't know where to connect!!");
-	                System.exit(1);
-	        } catch (IOException e) {
-	                System.err.println("ERROR: Couldn't get I/O for the connection.");
-	                System.exit(1);
-	        } catch (ClassNotFoundException cnf) {
+			packetFromServer = (BrokerPacket) in.readObject();
+
+			if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_EXCHANGE) {
+				System.err.println("Server already open from another place. Terminating.");
+				System.exit(-1);
+			} else
+				System.out.println("Server registered!");
+
+			/* lookup other broker location */
+			BrokerPacket packetToServer2 = new BrokerPacket();
+			packetToServer2.type = BrokerPacket.LOOKUP_REQUEST;
+			packetToServer2.exchange = otherbroker_name;
+			out.writeObject(packetToServer2);
+
+			/* print server reply */
+			packetFromServer2 = (BrokerPacket) in.readObject();
+			if (packetFromServer2.error_code == BrokerPacket.ERROR_INVALID_EXCHANGE) {
+				System.out.println("Other server not registered yet.");
+				return null;
+			}
+			/* tell server that i'm quitting */
+			BrokerPacket packetToServer3 = new BrokerPacket();
+			packetToServer3.type = BrokerPacket.BROKER_BYE;
+			packetToServer3.symbol = "Bye!";
+			out.writeObject(packetToServer3);
+			out.close();
+			in.close();
+			LookupSocket.close();
+
+		} catch (UnknownHostException e) {
+			System.err.println("ERROR: Don't know where to connect!!");
+			System.exit(1);
+		} catch (IOException e) {
+			System.err.println("ERROR: Couldn't get I/O for the connection.");
+			System.exit(1);
+		} catch (ClassNotFoundException cnf) {
 			System.err.println("ERROR: Class not found");
-		}     
-		
-		return packetFromServer; 
-		        
-    }
+		}
+
+		return packetFromServer2;
+
+	}
 
     
 
