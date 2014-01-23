@@ -7,8 +7,8 @@ public class OnlineBroker {
         boolean listening = true;
 
         try {
-                if(args.length == 1) {
-                        serverSocket = new ServerSocket(Integer.parseInt(args[0]));
+                if(args.length == 4) {
+                        serverSocket = new ServerSocket(Integer.parseInt(args[2]));
                 } else {
                         System.err.println("ERROR: Invalid arguments! Usage: ./server.sh <portnumber>");
                         System.exit(-1);

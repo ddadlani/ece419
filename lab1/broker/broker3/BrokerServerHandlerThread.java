@@ -122,14 +122,18 @@ public class BrokerServerHandlerThread extends Thread {
 			fromClient.close();
 			toClient.close();
 			socket.close();
+			System.exit(1);
 
+		} catch (EOFException e) {
+			System.err.println("Client closed connection. Terminating");
+			System.exit(1);
 		} catch (IOException e) {
 			if (!gotByePacket)
 				e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			if (!gotByePacket)
 				e.printStackTrace();
-		}
+		} 
 	}
 
 }

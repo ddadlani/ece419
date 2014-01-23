@@ -150,7 +150,8 @@ public class FileHandler {
 		packet.type = BrokerPacket.LOOKUP_REPLY;
 		boolean found = false;
 		String currentRecord;
-
+		System.out.println(exchange);
+		
 		try {
 			f = new File(filename);
 			fr = new FileReader(f);
@@ -160,10 +161,12 @@ public class FileHandler {
 				System.out.println(currentRecord);
 				String[] row_array = new String[3];
 				row_array = currentRecord.split(" ");
+				System.out.println(row_array[0]);
 
 				if (exchange.equals(row_array[0])) {
-					packet.locations[0].broker_host = row_array[1];
-					packet.locations[0].broker_port = Integer.parseInt(row_array[2]);
+					Integer port = Integer.parseInt(row_array[2]);
+					packet.locations = new BrokerLocation[packet.num_locations];
+					packet.locations[0] = new BrokerLocation(row_array[1], port);
 					found = true;
 					break;
 				}
@@ -176,6 +179,9 @@ public class FileHandler {
 		} catch (IOException e) {
 			System.err.println("ERROR Reading file.");
 			System.exit(1);
+		} catch (NullPointerException npe) {
+			System.err.println("Segmentation fault.");
+			npe.printStackTrace();
 		}
 		return packet;
 	
