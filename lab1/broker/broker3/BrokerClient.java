@@ -57,8 +57,10 @@ public class BrokerClient {
 				// Lookup failed
 				if (lookup == null) {
 					userInput = null;
-					System.out.println("Broker Server lookup failed. Please try again later.");
+					//System.out.println("Broker Server lookup failed. Please try again later.");
 					local = null;
+					System.out.print("> ");
+					userInput = stdIn.readLine();
 				}
 				continue;
 			}
@@ -70,16 +72,17 @@ public class BrokerClient {
 				// Lookup failed
 				if (lookup == null) {
 					userInput = null;
-					System.out.println("Broker Server lookup failed. Please try again later.");
+					//System.out.println("Broker Server lookup failed. Please try again later.");
 					local = null;
+					System.out.print("> ");
+					userInput = stdIn.readLine();
 				}
 				continue;
 			}
 			// Invalid server
 			else {
 				userInput = null;
-				System.out
-						.println("Error: Please declare a valid local exchange server.");
+				System.out.println("Error: Please declare a valid local exchange server.");
 				System.out.print("> ");
 			}
 
@@ -214,8 +217,8 @@ public class BrokerClient {
 			packetFromServer = (BrokerPacket) inLookup.readObject();
 
 			if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_EXCHANGE) {
-				System.err
-						.println("The exchange server was not found. Please select another exchange server.");
+				System.err.println("The exchange server was not found. Please select another exchange server.");
+				System.out.println();
 				disconnectFromServer(outLookup, inLookup);
 				return null;
 			} else if (packetFromServer.type == BrokerPacket.LOOKUP_REPLY) {

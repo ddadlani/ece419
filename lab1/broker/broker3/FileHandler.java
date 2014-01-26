@@ -86,6 +86,51 @@ public class FileHandler {
 		}
 
 	}
+	
+	
+	// Overload removeSymbol to be called by lookup server
+	public void removeSymbol(String symbol, String filename_) {
+		String tempfilename = "temp2.txt";
+		try {
+			File tempfile = new File(tempfilename);
+			FileWriter tempfr = new FileWriter(tempfile);
+			bw = new BufferedWriter(tempfr);
+
+			f = new File(filename);
+			fr = new FileReader(f);
+			br = new BufferedReader(fr);
+
+			String currentRecord;
+			String[] currentline = new String[2];
+
+			while ((currentRecord = br.readLine()) != null) {
+				System.out.println(currentRecord);
+				currentline = currentRecord.split(" ");
+
+				if (!(symbol.equals(currentline[0]))) {
+					System.out.println("Writing " + currentRecord
+							+ " to temp.txt");
+					bw.write(currentRecord);
+					bw.newLine();
+				}
+			}
+			File lookupTable = new File(filename_);
+			boolean done = tempfile.renameTo(lookupTable);
+			if (!done) {
+				System.err.println("Could not rename file.");
+			}
+
+			bw.close();
+			br.close();
+
+		} catch (FileNotFoundException fnf) {
+			System.err.println("Could not find file.");
+		} catch (IOException e) {
+			System.err.println("ERROR with removal.");
+			System.exit(1);
+		}
+
+	}
 
 	private Stock findSymbol(String symbol, String delimiter) {
 		Stock stock = new Stock();

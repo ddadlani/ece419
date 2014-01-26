@@ -3,6 +3,7 @@ import java.io.*;
 
 public class LookupServerHandlerThread extends Thread {
 	private Socket socket = null;
+	private String broker_name = null;
 
 	public LookupServerHandlerThread(Socket socket) {
 		super("LookupServerHandlerThread");
@@ -42,6 +43,7 @@ public class LookupServerHandlerThread extends Thread {
 						
 						fh.registerBroker(packetFromClient.exchange, packetFromClient.locations[0].broker_host,
 								packetFromClient.locations[0].broker_port);
+						broker_name = packetFromClient.exchange;
 						packetToClient.error_code = BrokerPacket.BROKER_NULL;
 						toClient.writeObject(packetToClient);
 						continue;
@@ -55,7 +57,6 @@ public class LookupServerHandlerThread extends Thread {
 						toClient.writeObject(packetToClient);
 						continue;
 					} else if (packetFromClient.type == BrokerPacket.BROKER_BYE) {
-						// client exiting
 						break;
 					} else {
 						System.err.println("ERROR: Unknown BROKER_* packet!!");
