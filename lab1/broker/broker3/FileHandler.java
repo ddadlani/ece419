@@ -149,6 +149,7 @@ public class FileHandler {
 				row_array = currentRecord.split(delimiter);
 
 				if (symbol.equals(row_array[0])) {
+					System.out.println("" + row_array[0] + " found with quote " + Long.parseLong(row_array[1], 10) );
 					stock.setQuote(Long.parseLong(row_array[1], 10));
 					stock.setSymbol(row_array[0]);
 					break;
