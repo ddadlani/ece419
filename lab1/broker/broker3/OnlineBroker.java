@@ -117,6 +117,41 @@ public class OnlineBroker {
 		return packetFromServer2;
 
 	}
+    
+    public static void deregisterBroker(String brokername, String lookuphost, Integer lookupport, Integer port) {
+
+		Socket LookupSocket = null;
+		ObjectOutputStream out = null;
+		ObjectInputStream in = null;
+		BrokerPacket packetFromServer = new BrokerPacket();
+		try {
+			/* remove yourself from naming service */
+			LookupSocket = new Socket(lookuphost, lookupport);
+
+			out = new ObjectOutputStream(LookupSocket.getOutputStream());
+			in = new ObjectInputStream(LookupSocket.getInputStream());
+
+			/* make a new request packet */
+			BrokerPacket packetToServer = new BrokerPacket();
+			packetToServer.type = BrokerPacket.LOOKUP_REMOVE;
+			packetToServer.exchange = brokername;
+			packetToServer.num_locations = 1;
+			out.writeObject(packetToServer);
+			
+			if (packetFromServer.error_code != BrokerPacket.BROKER_NULL) {
+				System.err.println("ERROR: Something went wrong during deregistration.");
+				System.exit(-1);
+			} else
+				System.out.println("Server deregistered!");
+			
+		} catch (UnknownHostException e) {
+			System.err.println("ERROR: Don't know where to connect!!");
+			System.exit(1);
+		} catch (IOException e) {
+			System.err.println("ERROR: Couldn't get I/O for the connection.");
+			System.exit(1);
+		}
+    }
 
     
 

@@ -58,6 +58,11 @@ public class LookupServerHandlerThread extends Thread {
 						continue;
 					} else if (packetFromClient.type == BrokerPacket.BROKER_BYE) {
 						break;
+					} else if (packetFromClient.type == BrokerPacket.LOOKUP_REMOVE) {
+						// Server wants to shut down
+						fh.removeSymbol(packetFromClient.exchange, "lookupTable");
+						packetToClient.error_code = BrokerPacket.BROKER_NULL;
+						
 					} else {
 						System.err.println("ERROR: Unknown BROKER_* packet!!");
 						System.exit(-1);

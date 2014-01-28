@@ -45,9 +45,14 @@ public class BrokerPacket implements Serializable {
         
         
         /* for part 3 */
+        /* 
+         * LOOKUP_REMOVE is used when the broker server is disconnecting and
+         * wishes to remove itself from the lookup server's database
+         */
         public static final int LOOKUP_REQUEST = 301;
         public static final int LOOKUP_REPLY = 302;
         public static final int LOOKUP_REGISTER = 303;
+        public static final int LOOKUP_REMOVE = 304;
         
         /* error codes */
         /* for part 2/3 */

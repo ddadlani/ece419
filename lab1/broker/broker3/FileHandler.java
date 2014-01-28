@@ -232,4 +232,13 @@ public class FileHandler {
 	
 	}
 	
+	public void clear(String filename_) {
+		File tempfile = new File("temp.txt");
+		f = new File(filename_);
+		
+		tempfile.renameTo(f);
+		return;
+		
+	}
+	
 }
