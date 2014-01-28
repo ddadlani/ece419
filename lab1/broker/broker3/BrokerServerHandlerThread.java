@@ -75,9 +75,9 @@ public class BrokerServerHandlerThread extends Thread {
 						{
 							//symbol not found
 							//forwarding symbol to other broker
-							Long quote = forwardToBroker(otherbrokerloc.locations[0].broker_host, otherbrokerloc.locations[0].broker_port, packetFromClient.symbol);
+							packetToClient.quote = forwardToBroker(otherbrokerloc.locations[0].broker_host, otherbrokerloc.locations[0].broker_port, packetFromClient.symbol);
 							
-							if (quote == 0L)
+							if (packetToClient.quote == 0L)
 								packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
 							else
 								packetToClient.type = BrokerPacket.BROKER_QUOTE;
@@ -135,10 +135,12 @@ public class BrokerServerHandlerThread extends Thread {
 				
 					packetToClient.type = BrokerPacket.BROKER_QUOTE;
 					String space = " ";
+					System.out.println("Entered FORWARD for server: " + this.exchange + "with symbol " + packetFromClient.symbol);
 					packetToClient.quote = fh.findQuote(packetFromClient.symbol, space);
-					
+					System.out.println("At the non local server: " + this.exchange + "found quote: " + packetToClient.quote);
 					if (otherbrokerloc == null)
 					{	//Lookup other broker again
+						System.out.println("other broker location not found in lookup table.");
 						String otherbrokername;
 						if (exchange.equals("nasdaq"))
 							otherbrokername = "tse";
@@ -161,6 +163,12 @@ public class BrokerServerHandlerThread extends Thread {
 						else
 							packetToClient.type = BrokerPacket.BROKER_QUOTE;
 					}
+					
+					else
+						packetToClient.type = BrokerPacket.BROKER_QUOTE;
+					/* send reply back to client */
+					toClient.writeObject(packetToClient);
+					break;
 				
 				}
 
@@ -181,9 +189,12 @@ public class BrokerServerHandlerThread extends Thread {
 			}
 
 			/* cleanup when client exits */
-			fromClient.close();
-			toClient.close();
-			socket.close();
+			if (packetFromClient.type != BrokerPacket.BROKER_FORWARD)
+			{
+				fromClient.close();
+				toClient.close();
+				socket.close();
+			}
 
 		} catch (IOException e) {
 			if (!gotByePacket)
@@ -219,18 +230,23 @@ public class BrokerServerHandlerThread extends Thread {
 		        packetFromServer = (BrokerPacket) in.readObject();
 		
 		        if (packetFromServer.type == BrokerPacket.BROKER_QUOTE)
+		        {
+		        	System.out.println("Got a forwarded quote: " + packetFromServer.quote);
 		        	return packetFromServer.quote;
+		        	
+		        }
 		        else
 		        	return 0L;
 
 		} catch (UnknownHostException e) {
-		        System.err.println("ERROR: Don't know where to connect!!");
+		        System.err.println("ERROR: Unknown Host Exception: " + e.getMessage());
 		        System.exit(1);
 		} catch (IOException e) {
-		        System.err.println("ERROR: Couldn't get I/O for the connection.");
+		        System.err.println("ERROR: General I/O exception: " + e.getMessage());
+  			e.printStackTrace();
 		        System.exit(1);
 		} catch (ClassNotFoundException cnf) {
-			System.err.println("ERROR: Class not found");
+			System.err.println("ERROR: Class not found: " + cnf.getMessage());
 		}    
 		return 0L;
 				
@@ -250,7 +266,10 @@ public class BrokerServerHandlerThread extends Thread {
 
 		        out = new ObjectOutputStream(BrokersSocket.getOutputStream());
 		        in = new ObjectInputStream(BrokersSocket.getInputStream());
-		        packetToServer.type = BrokerPacket.BROKER_QUOTE;
+		        if (quote != 0L)
+		        	packetToServer.type = BrokerPacket.BROKER_QUOTE;
+		        else
+		        	packetToServer.type = BrokerPacket.ERROR_INVALID_SYMBOL;
 		        packetToServer.quote = quote;
 		        out.writeObject(packetToServer);
 
