@@ -210,7 +210,7 @@ public class BrokerClient {
 			System.err.println("ERROR: Don't know where to connect!!");
 			System.exit(1);
 		} catch (IOException e) {
-			System.err.println("ERROR: Couldn't get I/O for the connection.");
+			System.err.println("ERROR: Couldn't connect to lookup server.");
 			System.exit(1);
 		}
 

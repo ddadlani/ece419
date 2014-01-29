@@ -20,21 +20,38 @@ public class BrokerExchange {
                         local = args[2];
                 } else {
                         System.err.println("ERROR: Invalid arguments!");
-                        System.exit(-1);
+                        System.exit(1);
                 }
 
 		BrokerLocation lookup = lookupExchange(local, hostname, port);
+		if (lookup == null)
+		{
+			System.out.println("Exchange server is not connected");
+			System.exit(1);
+		}
+
+		BufferedReader stdIn = null;
+		String userInput;
+	       	try {
 		BrokerExchangeSocket = new Socket(lookup.broker_host, lookup.broker_port);
 		
 		out = new ObjectOutputStream(BrokerExchangeSocket.getOutputStream());
 		in = new ObjectInputStream(BrokerExchangeSocket.getInputStream());
 		
-                BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-                String userInput;
+                stdIn = new BufferedReader(new InputStreamReader(System.in));
 
+		}
+		catch (UnknownHostException e) {
+			System.err.println("ERROR: Don't know where to connect!");
+			System.exit(1);
+		}
+		catch (IOException e) {
+		System.err.println("ERROR: Couldn't connect to server. Terminating.");
+		System.exit(1);
+		}
+	
                 System.out.print("Enter command or quit for exit:\n> ");
-                while ((userInput = stdIn.readLine().toLowerCase()) != null
-                                && userInput.indexOf("x") == -1) {
+                while ((userInput = stdIn.readLine().toLowerCase()) != null && userInput.indexOf("x") == -1) {
                         
                         /* make a new request packet */
                         BrokerPacket packetToServer = new BrokerPacket();
