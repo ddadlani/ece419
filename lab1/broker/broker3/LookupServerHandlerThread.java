@@ -71,6 +71,8 @@ public class LookupServerHandlerThread extends Thread {
 
 				/* cleanup when client exits */
 				close(toClient, fromClient);
+				
+				//clearFile();
 
 			} catch (EOFException e) {
 				System.err.println("Client closed connection.");
@@ -88,5 +90,9 @@ public class LookupServerHandlerThread extends Thread {
 		toClient.close();
 		socket.close();
 	}
-
+	/*public void clearFile() {
+    	FileHandler fh =  new FileHandler();
+    	fh.clear("lookupTable");
+    	return;
+    }*/
 }

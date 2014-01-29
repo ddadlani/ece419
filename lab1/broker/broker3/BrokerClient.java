@@ -162,7 +162,12 @@ public class BrokerClient {
 				BrokerPacket packetToServer = new BrokerPacket();
 				packetToServer.type = BrokerPacket.BROKER_REQUEST;
 				packetToServer.symbol = userInput.toLowerCase();
-				out.writeObject(packetToServer);
+				try {
+					out.writeObject(packetToServer);
+				} catch (SocketException se){
+					System.err.println("Broker server " + local + " crashed. Terminating client application.\n");
+					System.exit(1);
+				}
 
 				/* print server reply */
 				BrokerPacket packetFromServer = new BrokerPacket();
@@ -170,6 +175,9 @@ public class BrokerClient {
 					packetFromServer = (BrokerPacket) in.readObject();
 				} catch (EOFException eof) {
 					System.err.println("No reply received. Broker server shut down.");
+				} catch (SocketException se) {
+					System.err.println("Broker server " + local + " crashed. Terminating client application.\n");
+					System.exit(1);
 				}
 				if (packetFromServer.type == BrokerPacket.BROKER_QUOTE)
 					System.out.println("Quote from broker: " + packetFromServer.quote);
@@ -218,7 +226,6 @@ public class BrokerClient {
 
 			if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_EXCHANGE) {
 				System.err.println("The exchange server was not found. Please select another exchange server.");
-				System.out.println();
 				disconnectFromServer(outLookup, inLookup);
 				return null;
 			} else if (packetFromServer.type == BrokerPacket.LOOKUP_REPLY) {

@@ -24,12 +24,6 @@ public class BrokerLookupServer {
         }
 
         serverSocket.close();
-        clearFile();
-    }
-
-    public static void clearFile() {
-    	FileHandler fh =  new FileHandler();
-    	fh.clear("lookupTable");
-    	return;
+        
     }
 }
