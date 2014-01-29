@@ -12,7 +12,9 @@ Divya Dadlani		999181772
 Additional Files:
 Stock.java : contains Stock class used to communicate between client and server 
 LookupServerHandlerThread.java : handles the Lookup/Naming server
-lookupTable: The file that stores the connection information for the lookup server
+lookupTable: The file that stores the connection information for the Lookup server
 
-NOTE: To run a broker server again after it has crashed, the corresponding 
-entry must first be cleared from the lookupTable file.
+NOTE: During an ADD command by the exchange, the broker server stores the quote as -1,
+so as to disallow UPDATE commands for symbols that do not exist in the file.
+
+

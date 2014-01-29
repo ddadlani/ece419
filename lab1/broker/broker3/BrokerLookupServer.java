@@ -19,7 +19,7 @@ public class BrokerLookupServer {
         }
 
         while (listening) {
-        	System.out.println("Lookup server accepting connections on port number " + args[0] + ".");
+        	//System.out.println("Lookup server accepting connections on port number " + args[0] + ".");
                 new LookupServerHandlerThread(serverSocket.accept()).start();
         }
 

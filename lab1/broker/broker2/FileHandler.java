@@ -25,7 +25,7 @@ public class FileHandler {
 			bw = new BufferedWriter(fw);
 			
 			String new_record = symbol + " " + quote;
-			System.out.print("Adding " + new_record + " to file.\n");
+			//System.out.print("Adding " + new_record + " to file.\n");
 
 			bw.write(new_record);
 			bw.newLine();
@@ -55,12 +55,12 @@ public class FileHandler {
 			String[] currentline = new String[2];
 
 			while ((currentRecord = br.readLine()) != null) {
-				System.out.println(currentRecord);
+				//System.out.println(currentRecord);
 				currentline = currentRecord.split(" ");
 
 				if (!(symbol.equals(currentline[0]))) {
-					System.out.println("Writing " + currentRecord
-							+ " to temp.txt");
+					//System.out.println("Writing " + currentRecord
+					//		+ " to temp.txt");
 					bw.write(currentRecord);
 					bw.newLine();
 				}
@@ -95,7 +95,7 @@ public class FileHandler {
 			br = new BufferedReader(fr);
 			
 			while ((currentRecord = br.readLine()) != null) {
-				System.out.println(currentRecord);
+				//System.out.println(currentRecord);
 				String[] row_array = new String[2];
 				row_array = currentRecord.split(delimiter);
 

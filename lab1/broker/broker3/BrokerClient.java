@@ -82,7 +82,7 @@ public class BrokerClient {
 			// Invalid server
 			else {
 				userInput = null;
-				System.out.println("Error: Please declare a valid local exchange server.");
+				System.err.println("Error: Please declare a valid local exchange server.");
 				System.out.print("> ");
 			}
 
@@ -122,7 +122,7 @@ public class BrokerClient {
 				
 				// Lookup failed
 				if (lookup == null)
-					System.out.println("Broker Server lookup failed. Please try again later.");
+					System.err.println("Broker Server lookup failed. Please try again later.");
 				else {
 					// disconnect from old broker
 					disconnectFromServer(out, in);
@@ -143,7 +143,7 @@ public class BrokerClient {
 				
 				// Lookup failed
 				if (lookup == null)
-					System.out.println("Broker Server lookup failed. Please try again later");
+					System.err.println("Broker Server lookup failed. Please try again later");
 				else {
 					// disconnect from old broker
 					disconnectFromServer(out, in);

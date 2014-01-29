@@ -7,7 +7,7 @@ public class BrokerServerHandlerThread extends Thread {
 	public BrokerServerHandlerThread(Socket socket) {
 		super("BrokerServerHandlerThread");
 		this.socket = socket;
-		System.out.println("Created new Thread to handle client");
+		//System.out.println("Created new Thread to handle client");
 	}
 
 	public void run() {
@@ -49,9 +49,9 @@ public class BrokerServerHandlerThread extends Thread {
 					packetToClient.type = BrokerPacket.BROKER_QUOTE;
 					String space = " ";
 					packetToClient.quote = fh.findQuote(packetFromClient.symbol, space);
-					System.out.println("From Client: "
-							+ packetFromClient.symbol + "\nTo Client: "
-							+ packetToClient.quote);
+					//System.out.println("From Client: "
+					//		+ packetFromClient.symbol + "\nTo Client: "
+					//		+ packetToClient.quote);
 					if (packetToClient.quote == 0L)
 						packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
 					else
@@ -123,6 +123,8 @@ public class BrokerServerHandlerThread extends Thread {
 			toClient.close();
 			socket.close();
 
+		} catch (EOFException e) {
+			
 		} catch (IOException e) {
 			if (!gotByePacket)
 				e.printStackTrace();

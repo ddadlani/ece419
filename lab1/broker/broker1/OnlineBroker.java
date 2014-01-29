@@ -19,7 +19,7 @@ public class OnlineBroker {
         }
 
         while (listening) {
-        	System.out.println("Broker server accepting connections on port number " + args[0] + ".");
+        	//System.out.println("Broker server accepting connections on port number " + args[0] + ".");
                 new BrokerServerHandlerThread(serverSocket.accept()).start();
         }
 

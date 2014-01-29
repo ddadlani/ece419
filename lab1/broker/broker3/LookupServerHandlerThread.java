@@ -8,7 +8,7 @@ public class LookupServerHandlerThread extends Thread {
 	public LookupServerHandlerThread(Socket socket) {
 		super("LookupServerHandlerThread");
 		this.socket = socket;
-		System.out.println("Created new Thread to handle client");
+		//System.out.println("Created new Thread to handle client");
 	}
 
 	public void run() {
@@ -32,12 +32,12 @@ public class LookupServerHandlerThread extends Thread {
 
 					if (packetFromClient.type == BrokerPacket.LOOKUP_REGISTER) {
 						// Check if there is already an entry
-						packetToClient = fh
-								.lookupBroker(packetFromClient.exchange);
+						packetToClient = fh.lookupBroker(packetFromClient.exchange);
 						if (packetToClient.error_code != BrokerPacket.ERROR_INVALID_EXCHANGE) {
-							packetToClient.error_code = BrokerPacket.ERROR_INVALID_EXCHANGE;
-							toClient.writeObject(packetToClient);
-							continue;
+							fh.removeSymbol(packetFromClient.exchange, "lookupTable");
+							//packetToClient.error_code = BrokerPacket.ERROR_INVALID_EXCHANGE;
+							//toClient.writeObject(packetToClient);
+							//continue;
 						}
 						// write to file
 						
@@ -75,7 +75,7 @@ public class LookupServerHandlerThread extends Thread {
 				//clearFile();
 
 			} catch (EOFException e) {
-				System.err.println("Client closed connection.");
+				//System.err.println("Client closed connection.");
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {

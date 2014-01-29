@@ -40,7 +40,7 @@ public class OnlineBroker {
         }
 
         while (listening) {
-        	System.out.println("Broker server accepting connections on port number " + args[0] + ".");
+        	//System.out.println("Broker server accepting connections on port number " + args[0] + ".");
                 new BrokerServerHandlerThread(serverSocket.accept(), broker_name, otherbrokerloc, lookup_host, lookup_port).start();
         }
 
@@ -80,8 +80,8 @@ public class OnlineBroker {
 			if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_EXCHANGE) {
 				System.err.println("Server already open from another place. Terminating.");
 				System.exit(-1);
-			} else
-				System.out.println("Server registered!");
+			} //else
+				//System.out.println("Server registered!");
 
 			/* lookup other broker location */
 			BrokerPacket packetToServer2 = new BrokerPacket();
@@ -92,7 +92,7 @@ public class OnlineBroker {
 			/* print server reply */
 			packetFromServer2 = (BrokerPacket) in.readObject();
 			if (packetFromServer2.error_code == BrokerPacket.ERROR_INVALID_EXCHANGE) {
-				System.out.println("Other server not registered yet.");
+				//System.out.println("Other server not registered yet.");
 				return null;
 			}
 			/* tell server that i'm quitting */
@@ -141,8 +141,8 @@ public class OnlineBroker {
 			if (packetFromServer.error_code != BrokerPacket.BROKER_NULL) {
 				System.err.println("ERROR: Something went wrong during deregistration.");
 				System.exit(-1);
-			} else
-				System.out.println("Server deregistered!");
+			} //else
+				//System.out.println("Server deregistered!");
 			
 		} catch (UnknownHostException e) {
 			System.err.println("ERROR: Don't know where to connect!!");

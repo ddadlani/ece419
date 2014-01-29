@@ -29,7 +29,7 @@ public class FileHandler {
 			bw = new BufferedWriter(fw);
 			
 			String new_record = symbol + " " + quote;
-			System.out.print("Adding " + new_record + " to file.\n");
+			//System.out.print("Adding " + new_record + " to file.\n");
 
 			bw.write(new_record);
 			bw.newLine();
@@ -59,12 +59,12 @@ public class FileHandler {
 			String[] currentline = new String[2];
 
 			while ((currentRecord = br.readLine()) != null) {
-				System.out.println(currentRecord);
+				//System.out.println(currentRecord);
 				currentline = currentRecord.split(" ");
 
 				if (!(symbol.equals(currentline[0]))) {
-					System.out.println("Writing " + currentRecord
-							+ " to temp.txt");
+					//System.out.println("Writing " + currentRecord
+						//	+ " to temp.txt");
 					bw.write(currentRecord);
 					bw.newLine();
 				}
@@ -104,12 +104,12 @@ public class FileHandler {
 			String[] currentline = new String[2];
 
 			while ((currentRecord = br.readLine()) != null) {
-				System.out.println(currentRecord);
+				//System.out.println(currentRecord);
 				currentline = currentRecord.split(" ");
 
 				if (!(symbol.equals(currentline[0]))) {
-					System.out.println("Writing " + currentRecord
-							+ " to temp.txt");
+					//System.out.println("Writing " + currentRecord
+					//		+ " to temp.txt");
 					bw.write(currentRecord);
 					bw.newLine();
 				}
@@ -144,12 +144,12 @@ public class FileHandler {
 			br = new BufferedReader(fr);
 			
 			while ((currentRecord = br.readLine()) != null) {
-				System.out.println(currentRecord);
+				//System.out.println(currentRecord);
 				String[] row_array = new String[2];
 				row_array = currentRecord.split(delimiter);
 
 				if (symbol.equals(row_array[0])) {
-					System.out.println("" + row_array[0] + " found with quote " + Long.parseLong(row_array[1], 10) );
+					//System.out.println("" + row_array[0] + " found with quote " + Long.parseLong(row_array[1], 10) );
 					stock.setQuote(Long.parseLong(row_array[1], 10));
 					stock.setSymbol(row_array[0]);
 					break;
@@ -173,7 +173,7 @@ public class FileHandler {
 			bw = new BufferedWriter(fw);
 			
 			String new_record = exchange + " " + host + " " + port_str;
-			System.out.print("Adding " + new_record + " to lookup register.\n");
+			//System.out.print("Adding " + new_record + " to lookup register.\n");
 
 			bw.write(new_record);
 			bw.newLine();
@@ -196,7 +196,7 @@ public class FileHandler {
 		packet.type = BrokerPacket.LOOKUP_REPLY;
 		boolean found = false;
 		String currentRecord;
-		System.out.println(exchange);
+		//System.out.println(exchange);
 		
 		try {
 			f = new File(filename);
@@ -204,10 +204,10 @@ public class FileHandler {
 			br = new BufferedReader(fr);
 			
 			while ((currentRecord = br.readLine()) != null) {
-				System.out.println(currentRecord);
+				//System.out.println(currentRecord);
 				String[] row_array = new String[3];
 				row_array = currentRecord.split(" ");
-				System.out.println(row_array[0]);
+				//System.out.println(row_array[0]);
 
 				if (exchange.equals(row_array[0])) {
 					Integer port = Integer.parseInt(row_array[2]);

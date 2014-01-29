@@ -26,7 +26,7 @@ public class BrokerExchange {
 		BrokerLocation lookup = lookupExchange(local, hostname, port);
 		if (lookup == null)
 		{
-			System.out.println("Exchange server is not connected");
+			System.err.println("Broker server is not connected");
 			System.exit(1);
 		}
 
@@ -85,7 +85,7 @@ public class BrokerExchange {
                         		cont = false;
                         	}  
                         	catch(NumberFormatException nfe)  {  
-                        		System.out.println("Not a long!");
+                        		System.err.println("Not a long!");
                         		cont = true;
                         	} 
                         	

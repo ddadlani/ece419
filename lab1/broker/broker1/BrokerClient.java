@@ -54,12 +54,12 @@ public class BrokerClient {
                         {
                                 System.err.println("No reply received EOF");
                         }
-                        if (packetFromServer.type == BrokerPacket.BROKER_QUOTE)
+                        if (packetFromServer.type == BrokerPacket.BROKER_QUOTE) 
                                 System.out.println("Quote from broker: " + packetFromServer.quote);
 
-			if (packetFromServer.type == BrokerPacket.BROKER_ERROR && 
+			/*if (packetFromServer.type == BrokerPacket.BROKER_QUOTE && 
 			    packetFromServer.error_code == BrokerPacket.ERROR_INVALID_SYMBOL)
-				System.out.println("Symbol not found");
+				System.out.println("Symbol not found");*/
 				
                         /* re-print console prompt */
                         System.out.print("> ");

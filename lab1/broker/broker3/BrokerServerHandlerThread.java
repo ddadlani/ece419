@@ -15,7 +15,7 @@ public class BrokerServerHandlerThread extends Thread {
 		this.lookuphost = lookuphost;
 		this.lookupport = lookupport;
 		
-		System.out.println("Created new Thread to handle client");
+		//System.out.println("Created new Thread to handle client");
 	}
 
 	public void run() {
@@ -135,12 +135,12 @@ public class BrokerServerHandlerThread extends Thread {
 				
 					packetToClient.type = BrokerPacket.BROKER_QUOTE;
 					String space = " ";
-					System.out.println("Entered FORWARD for server: " + this.exchange + "with symbol " + packetFromClient.symbol);
+					//System.out.println("Entered FORWARD for server: " + this.exchange + "with symbol " + packetFromClient.symbol);
 					packetToClient.quote = fh.findQuote(packetFromClient.symbol, space);
-					System.out.println("At the non local server: " + this.exchange + "found quote: " + packetToClient.quote);
+					//System.out.println("At the non local server: " + this.exchange + "found quote: " + packetToClient.quote);
 					if (otherbrokerloc == null)
 					{	//Lookup other broker again
-						System.out.println("other broker location not found in lookup table.");
+						//System.out.println("other broker location not found in lookup table.");
 						String otherbrokername;
 						if (exchange.equals("nasdaq"))
 							otherbrokername = "tse";
@@ -196,6 +196,8 @@ public class BrokerServerHandlerThread extends Thread {
 				socket.close();
 			}
 
+		} catch (EOFException e) {
+			socket = null;
 		} catch (IOException e) {
 			if (!gotByePacket)
 				e.printStackTrace();
@@ -231,7 +233,7 @@ public class BrokerServerHandlerThread extends Thread {
 		
 		        if (packetFromServer.type == BrokerPacket.BROKER_QUOTE)
 		        {
-		        	System.out.println("Got a forwarded quote: " + packetFromServer.quote);
+		        	//System.out.println("Got a forwarded quote: " + packetFromServer.quote);
 		        	return packetFromServer.quote;
 		        	
 		        }
@@ -334,7 +336,7 @@ public class BrokerServerHandlerThread extends Thread {
 			packetFromServer = (BrokerPacket) inLookup.readObject();
 
 			if (packetFromServer.error_code == BrokerPacket.ERROR_INVALID_EXCHANGE) {
-				System.err.println("The broker server " + localserver + " was not found. Terminating.");
+				//System.err.println("The broker server " + localserver + " was not found. Terminating.");
 				disconnectFromServer(outLookup, inLookup);
 			} else if (packetFromServer.type == BrokerPacket.LOOKUP_REPLY) {
 				disconnectFromServer(outLookup, inLookup);

@@ -73,7 +73,7 @@ public class BrokerExchange {
                         		cont = false;
                         	}  
                         	catch(NumberFormatException nfe)  {  
-                        		System.out.println("Not a long!");
+                        		//System.out.println("Not a long!");
                         		cont = true;
                         	} 
                         	

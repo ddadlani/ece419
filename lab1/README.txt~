@@ -12,3 +12,4 @@ Divya Dadlani		999181772
 Additional Files:
 Stock.java : contains Stock class used to communicate between client and server 
 LookupServerHandlerThread.java : handles the Lookup/Naming server
+lookupTable: The file that stores the connection information for the Lookup server
