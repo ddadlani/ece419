@@ -242,9 +242,14 @@ public class BrokerServerHandlerThread extends Thread {
 		        System.err.println("ERROR: Unknown Host Exception: " + e.getMessage());
 		        System.exit(1);
 		} catch (IOException e) {
-		        System.err.println("ERROR: General I/O exception: " + e.getMessage());
-  			e.printStackTrace();
-		        System.exit(1);
+		        //System.err.println("ERROR: General I/O exception: " + e.getMessage());
+  			//e.printStackTrace();
+		        //System.exit(1);
+
+			out = null;
+			in = null;
+			BrokersSocket = null;
+			
 		} catch (ClassNotFoundException cnf) {
 			System.err.println("ERROR: Class not found: " + cnf.getMessage());
 		}    
@@ -277,8 +282,11 @@ public class BrokerServerHandlerThread extends Thread {
 		        System.err.println("ERROR: Don't know where to connect!!");
 		        System.exit(1);
 		} catch (IOException e) {
-		        System.err.println("ERROR: Couldn't get I/O for the connection.");
-		        System.exit(1);
+		        /*System.err.println("ERROR: Couldn't get I/O for the connection.");
+			  System.exit(1);*/
+			out = null;
+			in = null;
+			BrokersSocket = null;
 		} 
 				
 	 }
