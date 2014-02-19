@@ -5,4 +5,7 @@
 *.war
 *.ear
 *.java~
-*.classs
+*.class
+*.sh
+Makefile
+Makefile.dep
