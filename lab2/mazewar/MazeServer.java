@@ -5,6 +5,7 @@ import java.util.*;
 public class MazeServer {
 	public Integer clientID;
     public Queue<MazePacket> q;
+    public ArrayList<Address> addressBook;
     
     public MazeServer() {
     	this.clientID = 0;
@@ -33,7 +34,7 @@ public class MazeServer {
     		{
     			maze.clientID ++;
     		}
-            new MazeServerHandlerThread(serverSocket.accept(), maze.clientID, maze.q).start();
+            new MazeServerListenerThread(serverSocket.accept(), maze.clientID, maze.q).start();
                 
         }
 
