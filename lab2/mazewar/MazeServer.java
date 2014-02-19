@@ -4,11 +4,11 @@ import java.util.*;
 
 public class MazeServer {
 	public Integer clientID;
-    public Queue<MovePacket> q;
+    public Queue<MazePacket> q;
     
     public MazeServer() {
     	this.clientID = 0;
-    	this.q = new LinkedList<MovePacket>();
+    	this.q = new LinkedList<MazePacket>();
     }
     
 	public static void main(String[] args) throws IOException {

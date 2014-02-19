@@ -29,8 +29,8 @@ public class ClientEvent {
         /**
          * Internal representations of events.
          */
-        private static final int MOVE_FORWARD = 0;
-        private static final int MOVE_BACKWARD = 1;
+        private static final int MAZE_FORWARD = 0;
+        private static final int MAZE_BACKWARD = 1;
         private static final int TURN_LEFT = 2;
         private static final int TURN_RIGHT = 3;
         private static final int FIRE = 4;
@@ -53,12 +53,12 @@ public class ClientEvent {
         /** 
          * Generated when a {@link Client} moves forward.
          */
-        public static final ClientEvent moveForward = new ClientEvent(MOVE_FORWARD);
+        public static final ClientEvent moveForward = new ClientEvent(MAZE_FORWARD);
 
         /**
          * Generated when a {@link Client} moves backward.
          */
-        public static final ClientEvent moveBackward = new ClientEvent(MOVE_BACKWARD);
+        public static final ClientEvent moveBackward = new ClientEvent(MAZE_BACKWARD);
 
         /**
          * Generated when a {@link Client} turns left.
