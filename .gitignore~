@@ -7,5 +7,3 @@
 *.java~
 *.class
 *.sh
-Makefile
-Makefile.dep
