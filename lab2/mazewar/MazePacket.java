@@ -24,6 +24,7 @@ public class MazePacket {
 	/**
 	 * Fields in the packet 
 	 */
+	private String clientName;
 	private Integer clientID;
 	private ClientEvent event;
 	private Integer seqNum;
@@ -34,6 +35,7 @@ public class MazePacket {
 	 * Default constructor
 	 */
 	public MazePacket() {
+		this.clientName = null;
 		this.clientID = MAZE_NULL;
 		this.event = null;
 		this.seqNum = MAZE_NULL;
@@ -42,9 +44,15 @@ public class MazePacket {
 	}
 	
 	/**
-	 * Used to get the client ID.
-	 * @return Returns an {@link Integer} which is the client ID
+	 * Getter functions
+	 * Used to get various parts of the MazePacket.
+	 * @return Returns the value of the required field
 	 */
+	
+	public String getclientName() {
+		return this.clientName;
+	}
+	
 	public Integer getclientID() {
 		return this.clientID;
 	}
@@ -61,12 +69,29 @@ public class MazePacket {
 		return this.msgType;
 	}
 	
-	public Integer getRecipient() {
+	public Integer getrecipient() {
 		return this.recipient;
 	}
 	
-	public void setclientID(Integer cid) {
-		this.clientID = cid;
+	
+	/**
+	 * Setter functions
+	 * Used to set particular values of the MazePacket
+	 * @param Takes in the value of the required field
+	 */
+	public void setclientName(String name_) {
+		this.clientName = name_;
+	}
+	public void setclientID(Integer cid_) {
+		this.clientID = cid_;
+	}
+	
+	public void setevent(ClientEvent event_) {
+		this.event = event_;
+	}
+	
+	public void setseqNum(Integer seq_) {
+		this.seqNum = seq_;
 	}
 	
 	public void setmsgType(Integer msgType) {
