@@ -39,7 +39,7 @@ public class MazeServerHandlerThread extends Thread {
 																	// event,
 																	// seqNum,
 																	// msgType
-					packetToClient.setclientID(clientID);
+					//packetToClient.setclientInfo(clientID);
 					packetToClient.setmsgType(MazePacket.CONNECTION_REPLY);
 					toClient.writeObject(packetToClient);
 
@@ -57,7 +57,7 @@ public class MazeServerHandlerThread extends Thread {
 						q.add(packetFromClient);
 						packetToClient = q.remove();
 					}
-					// !! Check if local or remote client here?
+			
 					// !! Send to all clients, not just one
 					packetToClient.setmsgType(MazePacket.MAZE_REPLY);
 					toClient.writeObject(packetToClient);

@@ -14,18 +14,19 @@ public class MazePacket {
 	public static int CONNECTION_REPLY = 102;
 	public static int MAZE_REQUEST = 103;
 	public static int MAZE_REPLY = 104;
+	public static int NEW_REMOTE_CONNECTION = 105;
+	public static int MAZE_DISCONNECT = 106;
 	
 	/**
 	 * Message recipient constants 
 	 */
 	public static int REMOTE_CLIENT = 201;
-	public static int LOCAL_CLIENT = 201;
+	public static int LOCAL_CLIENT = 202;
 	
 	/**
 	 * Fields in the packet 
 	 */
-	private String clientName;
-	private Integer clientID;
+	private Address clientInfo;
 	private ClientEvent event;
 	private Integer seqNum;
 	private Integer msgType;
@@ -35,8 +36,7 @@ public class MazePacket {
 	 * Default constructor
 	 */
 	public MazePacket() {
-		this.clientName = null;
-		this.clientID = MAZE_NULL;
+		this.clientInfo = null;
 		this.event = null;
 		this.seqNum = MAZE_NULL;
 		this.msgType = MAZE_NULL;
@@ -49,12 +49,8 @@ public class MazePacket {
 	 * @return Returns the value of the required field
 	 */
 	
-	public String getclientName() {
-		return this.clientName;
-	}
-	
-	public Integer getclientID() {
-		return this.clientID;
+	public Address getclientInfo() {
+		return this.clientInfo;
 	}
 	
 	public ClientEvent getevent() {
@@ -79,11 +75,8 @@ public class MazePacket {
 	 * Used to set particular values of the MazePacket
 	 * @param Takes in the value of the required field
 	 */
-	public void setclientName(String name_) {
-		this.clientName = name_;
-	}
-	public void setclientID(Integer cid_) {
-		this.clientID = cid_;
+	public void setclientInfo(Address info) {
+		this.clientInfo = info;
 	}
 	
 	public void setevent(ClientEvent event_) {
