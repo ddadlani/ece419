@@ -1,3 +1,7 @@
+import java.net.*;
+import java.io.*;
+import java.util.*;
+
 /*
 Copyright (C) 2004 Geoffrey Alan Washburn
       
@@ -29,11 +33,16 @@ import java.awt.event.KeyEvent;
 
 public class GUIClient extends LocalClient implements KeyListener {
 
+	
+	public Queue<MazePacket> receive_queue;  
+	public ServerSocket ReceiverSocket;
+	
         /**
          * Create a GUI controlled {@link LocalClient}.  
          */
         public GUIClient(String name) {
                 super(name);
+                
         }
         
         /**
@@ -41,25 +50,93 @@ public class GUIClient extends LocalClient implements KeyListener {
          * @param e The {@link KeyEvent} that occurred.
          */
         public void keyPressed(KeyEvent e) {
-                // If the user pressed Q, invoke the cleanup code and quit. 
-                if((e.getKeyChar() == 'q') || (e.getKeyChar() == 'Q')) {
-                        Mazewar.quit();
-                // Up-arrow moves forward.
-                } else if(e.getKeyCode() == KeyEvent.VK_UP) {
-                        forward();
-                // Down-arrow moves backward.
-                } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-                        backup();
-                // Left-arrow turns left.
-                } else if(e.getKeyCode() == KeyEvent.VK_LEFT) {
-                        turnLeft();
-                // Right-arrow turns right.
-                } else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                        turnRight();
-                // Spacebar fires.
-                } else if(e.getKeyCode() == KeyEvent.VK_SPACE) {
-                        fire();
+        
+        	
+                try {
+                
+                	ReceiverSocket = null;
+		        new ClientListenerThread(ReceiverSocket.accept(), receive_queue).start();  
+		        new ClientExecutionThread(receive_queue).start();  	
+			
+			/* make a new request packet */
+			
+			Socket SenderSocket = null;
+		        ObjectOutputStream out = null;
+                        /* variables for hostname/port */
+                        String hostname = "ug160.eecg.utoronto.ca";
+                        int port = 4444;
+                        
+                        SenderSocket = new Socket(hostname, port);
+
+                        out = new ObjectOutputStream(SenderSocket.getOutputStream());
+                        
+                        
+		        MazePacket packetToServer = new MazePacket();
+		        
+		        // If the user pressed Q, invoke the cleanup code and quit. 
+		        if((e.getKeyChar() == 'q') || (e.getKeyChar() == 'Q')) {
+		        
+		        	packetToServer.setmsgType(MazePacket.MAZE_DISCONNECT);
+		        	//SEND DATA NEEDED TO DISCONNECT: Address, location? 
+		        	out.writeObject(packetToServer);
+		                
+		        // Up-arrow moves forward.
+		        } else if(e.getKeyCode() == KeyEvent.VK_UP) {
+		        
+		        	packetToServer.setmsgType(MazePacket.MAZE_REQUEST);
+		        	ClientEvent c = ClientEvent.moveForward;
+		        	packetToServer.setevent(c);
+		        	out.writeObject(packetToServer);
+
+		                
+		        // Down-arrow moves backward.
+		        } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+		        
+		        	packetToServer.setmsgType(MazePacket.MAZE_REQUEST);
+		        	ClientEvent c = ClientEvent.moveBackward;
+		        	packetToServer.setevent(c);
+		        	out.writeObject(packetToServer);
+
+		                
+		        // Left-arrow turns left.
+		        } else if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+		        
+		        	packetToServer.setmsgType(MazePacket.MAZE_REQUEST);
+		        	ClientEvent c = ClientEvent.turnLeft;
+		        	packetToServer.setevent(c);
+		        	out.writeObject(packetToServer);      
+
+		        	
+		        // Right-arrow turns right.
+		        } else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+		        
+		        	packetToServer.setmsgType(MazePacket.MAZE_REQUEST);
+		        	ClientEvent c = ClientEvent.turnRight;
+		        	packetToServer.setevent(c);
+		        	out.writeObject(packetToServer);
+
+		        	
+		        // Spacebar fires.
+		        } else if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+		        
+		        	packetToServer.setmsgType(MazePacket.MAZE_REQUEST);
+		        	ClientEvent c = ClientEvent.fire;
+		        	packetToServer.setevent(c);
+		        	out.writeObject(packetToServer);
+
+		        }
+
+		        out.close();
+		        SenderSocket.close();    
+                
+                } catch (UnknownHostException err) {
+                        System.err.println("ERROR: Don't know where to connect!!");
+                        System.exit(1);
+                } catch (IOException err) {
+                        System.err.println("ERROR: Couldn't get I/O for the connection.");
+                        System.exit(1);
                 }
+     
         }
         
         /**

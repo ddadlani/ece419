@@ -9,19 +9,18 @@ public class MazePacket {
 	/**
 	 *  Message type constants 
 	 */
-	public static int MAZE_NULL = 100;
-	public static int CONNECTION_REQUEST = 101;
-	public static int CONNECTION_REPLY = 102;
-	public static int MAZE_REQUEST = 103;
-	public static int MAZE_REPLY = 104;
-	public static int NEW_REMOTE_CONNECTION = 105;
-	public static int MAZE_DISCONNECT = 106;
+	public static final int MAZE_NULL = 0;
+	public static final int CONNECTION_REQUEST = 100;
+	public static final int CONNECTION_REPLY = 101;
+	public static final int MAZE_REQUEST = 102;
+	public static final int MAZE_REPLY = 103;
+	public static final int NEW_REMOTE_CONNECTION = 104;
+	public static final int MAZE_DISCONNECT = 105;
 	
 	/**
-	 * Message recipient constants 
+	 * Message error constants 
 	 */
-	public static int REMOTE_CLIENT = 201;
-	public static int LOCAL_CLIENT = 202;
+	public static final int ERROR_INVALID_TYPE = 201;
 	
 	/**
 	 * Fields in the packet 
@@ -30,7 +29,8 @@ public class MazePacket {
 	private ClientEvent event;
 	private Integer seqNum;
 	private Integer msgType;
-	private Integer recipient;
+	private Integer errorCode;
+	public Address[] remotes;
 	
 	/**
 	 * Default constructor
@@ -40,7 +40,8 @@ public class MazePacket {
 		this.event = null;
 		this.seqNum = MAZE_NULL;
 		this.msgType = MAZE_NULL;
-		this.recipient = MAZE_NULL;
+		this.errorCode = MAZE_NULL;
+		this.remotes = null;
 	}
 	
 	/**
@@ -65,8 +66,8 @@ public class MazePacket {
 		return this.msgType;
 	}
 	
-	public Integer getrecipient() {
-		return this.recipient;
+	public Integer geterrorCode() {
+		return this.errorCode;
 	}
 	
 	
@@ -91,7 +92,8 @@ public class MazePacket {
 		this.msgType = msgType;
 	}
 	
-	public void setRecipient(Integer recipient_) {
-		this.recipient = recipient_;
+	public void seterrorCode(Integer error_) {
+		this.errorCode = error_;
 	}
+	
 }

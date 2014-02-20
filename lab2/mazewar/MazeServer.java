@@ -1,15 +1,21 @@
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class MazeServer {
 	public Integer clientID;
-    public Queue<MazePacket> q;
+	public Integer sequenceNum;
+    public Queue<MazePacket> queue;
     public ArrayList<Address> addressBook;
     
     public MazeServer() {
     	this.clientID = 0;
-    	this.q = new LinkedList<MazePacket>();
+    	this.sequenceNum = 0;
+    	this.queue = new LinkedList<MazePacket>();
+    	this.addressBook = new ArrayList<Address>();
     }
     
 	public static void main(String[] args) throws IOException {
@@ -29,15 +35,22 @@ public class MazeServer {
         }
 
         while (listening) {
-        	//System.out.println("Broker server accepting connections on port number " + args[0] + ".");
-    		synchronized(maze)
-    		{
-    			maze.clientID ++;
-    		}
-            new MazeServerListenerThread(serverSocket.accept(), maze.clientID, maze.q).start();
-                
+            new MazeServerListenerThread(serverSocket.accept(), maze.clientID, maze.queue).start();
+            synchronized(maze)	{
+    			maze.clientID++;
+    			maze.sequenceNum++;
+    		}    
         }
 
         serverSocket.close();
     }
+	
+	public static Integer searchInAddressBook(final Integer clientID, final ArrayList<Address> addressBook) {
+		for(Integer i = 0; i < addressBook.size(); i++) {
+			if (addressBook.get(i).id == clientID)
+				return i;
+			else;
+		}
+		return -1;
+	}
 }

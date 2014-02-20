@@ -16,7 +16,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
-  
+
+import java.net.*;
+import java.io.*;
+import java.util.*;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
@@ -142,6 +145,68 @@ public class Mazewar extends JFrame {
                 // You may want to put your network initialization code somewhere in
                 // here.
                 
+		Socket MazeSocket = null;
+                ObjectOutputStream out = null;
+                ObjectInputStream in = null;
+
+                try {
+                        /* variables for hostname/port */
+                        String hostname = "ug160.eecg.utoronto.ca";
+                        int port = 4444;
+                        
+                        MazeSocket = new Socket(hostname, port);
+
+                        out = new ObjectOutputStream(MazeSocket.getOutputStream());
+                        in = new ObjectInputStream(MazeSocket.getInputStream());
+                        
+		        /* make a new request packet */
+		        MazePacket packetToServer = new MazePacket();
+		        Address client_addr = new Address();
+		        client_addr.hostname = InetAddress.getLocalHost().getHostName();
+		        client_addr.port = 4444; //??
+		        client_addr.name = name;
+
+		        packetToServer.setmsgType(MazePacket.CONNECTION_REQUEST);
+		        packetToServer.setclientInfo(client_addr);
+		        
+		        out.writeObject(packetToServer);
+
+                } catch (UnknownHostException e) {
+                        System.err.println("ERROR: Don't know where to connect!!");
+                        System.exit(1);
+                } catch (IOException e) {
+                        System.err.println("ERROR: Couldn't get I/O for the connection.");
+                        System.exit(1);
+                }
+
+
+
+                /* print server reply */
+                MazePacket packetFromServer = new MazePacket();
+                try{
+                	do {
+		        	packetFromServer = (MazePacket) in.readObject();
+		        	if (packetFromServer.getmsgType() == MazePacket.CONNECTION_REPLY)
+				{
+					System.out.println("Connection Made");
+					//RECEIVE NUMBER AND LOCATION OF REMOTE CLIENTS, ADD THEM INTO GAME
+				}
+			} while(packetFromServer.getmsgType() != MazePacket.CONNECTION_REPLY);
+			
+		        out.close();
+		        in.close();
+		        MazeSocket.close();     
+			
+                } catch (EOFException eof)
+                {
+                        System.err.println("No reply received EOF");
+                } catch (IOException e) {
+                        System.err.println("ERROR: Couldn't get I/O for the connection.");
+                        System.exit(1);
+                } catch (ClassNotFoundException e) {
+
+                }
+                
                 // Create the GUIClient and connect it to the KeyListener queue
                 guiClient = new GUIClient(name);
                 maze.addClient(guiClient);
@@ -222,8 +287,10 @@ public class Mazewar extends JFrame {
          * @param args Command-line arguments.
          */
         public static void main(String args[]) {
-
+                
                 /* Create the GUI */
                 new Mazewar();
+                
         }
+        
 }
