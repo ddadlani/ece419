@@ -44,6 +44,18 @@ public class MazePacket {
 		this.remotes = null;
 	}
 	
+/*	public MazePacket(MazePacket toCopy) {
+		this.clientInfo = new Address(toCopy.clientInfo);
+		this.event = toCopy.event;
+		this.seqNum = toCopy.seqNum;
+		this.msgType = toCopy.msgType;
+		this.errorCode = toCopy.errorCode;
+		
+		for(int i = 0; i < toCopy.remotes.size(); i++) {
+			
+		}
+	} */
+	
 	/**
 	 * Getter functions
 	 * Used to get various parts of the MazePacket.
@@ -70,6 +82,10 @@ public class MazePacket {
 		return this.errorCode;
 	}
 	
+	public Integer getclientID() {
+		return this.clientInfo.id;
+	}
+	
 	
 	/**
 	 * Setter functions
@@ -94,6 +110,10 @@ public class MazePacket {
 	
 	public void seterrorCode(Integer error_) {
 		this.errorCode = error_;
+	}
+	
+	public void setclientID(Integer cid_) {
+		this.clientInfo.id = cid_;
 	}
 	
 }

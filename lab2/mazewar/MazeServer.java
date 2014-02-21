@@ -1,6 +1,5 @@
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -8,13 +7,13 @@ import java.util.Queue;
 public class MazeServer {
 	public Integer clientID;
 	public Integer sequenceNum;
-    public Queue<MazePacket> queue;
+    public Queue<MazePacket> requestQueue;
     public ArrayList<Address> addressBook;
     
     public MazeServer() {
     	this.clientID = 0;
     	this.sequenceNum = 0;
-    	this.queue = new LinkedList<MazePacket>();
+    	this.requestQueue = new LinkedList<MazePacket>();
     	this.addressBook = new ArrayList<Address>();
     }
     
@@ -35,7 +34,7 @@ public class MazeServer {
         }
 
         while (listening) {
-            new MazeServerListenerThread(serverSocket.accept(), maze.clientID, maze.queue).start();
+            new MazeServerHandlerThread(serverSocket.accept(), maze).start();
             synchronized(maze)	{
     			maze.clientID++;
     			maze.sequenceNum++;
