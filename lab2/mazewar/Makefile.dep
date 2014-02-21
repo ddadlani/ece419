@@ -17,6 +17,9 @@ Client.class : Point.class
 Client.class : Direction.java
 Client.class : Direction.class
 ClientEvent.class : ClientEvent.java
+ClientExecutionThread.class : ClientExecutionThread.java
+ClientExecutionThread.class : MazePacket.java
+ClientExecutionThread.class : MazePacket.class
 ClientListener.class : ClientListener.java
 ClientListener.class : MazeListener.java
 ClientListener.class : MazeListener.class
@@ -166,6 +169,8 @@ MazeServer.class : MazeServerHandlerThread.class
 MazeServer.class : MazePacket.java
 MazeServer.class : MazePacket.class
 Mazewar.class : Mazewar.java
+Mazewar.class : Address.java
+Mazewar.class : Address.class
 Mazewar.class : RobotClient.java
 Mazewar.class : RobotClient.class
 Mazewar.class : ScoreTableModel.java
