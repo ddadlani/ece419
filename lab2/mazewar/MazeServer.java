@@ -34,11 +34,7 @@ public class MazeServer {
         }
 
         while (listening) {
-            new MazeServerHandlerThread(serverSocket.accept(), maze).start();
-            synchronized(maze)	{
-    			maze.clientID++;
-    			maze.sequenceNum++;
-    		}    
+            new MazeServerHandlerThread(serverSocket.accept(), maze).start();  
         }
 
         serverSocket.close();

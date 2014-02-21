@@ -9,18 +9,11 @@ public class MazeServerHandlerThread extends Thread {
 	
 	private Socket socket = null;
 	private MazeServer mazeData;
-	//private int clientID;
-	//private Queue<MazePacket> requestQueue;
-	//private Integer sequenceNum;
 
 	public MazeServerHandlerThread(Socket socket, MazeServer maze) {
-		//	Integer clientID, Queue<MazePacket> q) {
 		super("MazeServerHandlerThread");
 		this.socket = socket;
 		this.mazeData = maze;
-		//this.clientID = clientID;
-		//this.requestQueue = q;
-		// System.out.println("Created new Thread to handle client");
 	}
 
 	public void run() {
@@ -121,8 +114,15 @@ public class MazeServerHandlerThread extends Thread {
 					}
 				
 					case MazePacket.MAZE_DISCONNECT: {
-						// Broadcast to all players to remove this remoteclient
-						// Delete client's data from addressbook (synchronized)
+						synchronized (mazeData.addressBook) {
+							packetToClient = nextInLine;
+							// Broadcast to all players to remove this remoteclient
+							broadcastPacket(packetToClient, mazeData.addressBook);
+							// Delete client's data from addressbook (synchronized)
+							Integer index = MazeServer.searchInAddressBook(nextInLine.getclientID(), mazeData.addressBook);
+							mazeData.addressBook.remove(index);
+						}	// addressBook released here
+						
 						break;
 					}
 					default: {
@@ -153,7 +153,23 @@ public class MazeServerHandlerThread extends Thread {
 	}
 	
 	private void broadcastPacket(MazePacket outPacket, ArrayList<Address> addressBook) {
-		
+		Socket clientsocket = null;
+			ObjectOutputStream out = null;
+			try {
+				for (int i = 0; i < addressBook.size(); i++) {
+				clientsocket = new Socket(addressBook.get(i).hostname, addressBook.get(i).port);
+				out = new ObjectOutputStream(clientsocket.getOutputStream());
+				out.writeObject(outPacket);
+				out.close();
+				clientsocket.close();
+			}
+		} catch (IOException e) {
+			System.err.println("Error: IOException thrown in broadcastPacket.");
+			e.printStackTrace();
+		} catch (NullPointerException npe) {
+			System.err.println("Error: A null pointer was accessed in broadcastPacket.");
+			npe.printStackTrace();
+		}
 	}
 
 }
