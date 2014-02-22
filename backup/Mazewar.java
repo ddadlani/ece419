@@ -40,9 +40,6 @@ import java.io.Serializable;
 
 public class Mazewar extends JFrame {
 
-	//LAB2
-	public Queue<MazePacket> receive_queue = null;
-	
         /**
          * The default width of the {@link Maze}.
          */
@@ -129,9 +126,6 @@ public class Mazewar extends JFrame {
                 super("ECE419 Mazewar");
                 consolePrintLn("ECE419 Mazewar started!");
                 
-                //Lab2
-                this.receive_queue = new LinkedList<MazePacket>();
-                
                 // Create the maze
                 maze = new MazeImpl(new Point(mazeWidth, mazeHeight), mazeSeed);
                 assert(maze != null);
@@ -187,7 +181,7 @@ public class Mazewar extends JFrame {
 
 
 
-                /* process server reply */
+                /* print server reply */
                 MazePacket packetFromServer = new MazePacket();
                 try{
                 	do {
@@ -196,11 +190,6 @@ public class Mazewar extends JFrame {
 				{
 					System.out.println("Connection Made");
 					//RECEIVE NUMBER AND LOCATION OF REMOTE CLIENTS, ADD THEM INTO GAME
-				}
-				if (packetFromServer.getmsgType() == MazePacket.ERROR_INVALID_TYPE)
-				{
-					System.err.println("SENT INVALID TYPE");
-					System.exit(-1);
 				}
 			} while(packetFromServer.getmsgType() != MazePacket.CONNECTION_REPLY);
 			
@@ -300,22 +289,7 @@ public class Mazewar extends JFrame {
         public static void main(String args[]) {
                 
                 /* Create the GUI */
-                Mazewar mazewar = new Mazewar();
-                Maze maze = null;
-                mazewar.maze = maze;
-                ServerSocket ReceiverSocket = null;
-               	try {
-               	new ClientListenerThread(ReceiverSocket.accept(), mazewar).start();  
-               	} catch(IOException e)
-               	{
-               		System.exit(-1);
-               	}
-        	ClientExecutionThread Et = new ClientExecutionThread (mazewar, maze);
-        	new Thread(Et).start();
-     		
-     		//ClientListenerThread Lt = new ClientListenerThread (ReceiverSocket.accept(), mazewar);
-        	//new Thread(Lt).start();
-		//new ClientExecutionThread(mazewar, maze).start();  	
+                new Mazewar();
                 
         }
         

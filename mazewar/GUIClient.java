@@ -34,8 +34,8 @@ import java.awt.event.KeyEvent;
 public class GUIClient extends LocalClient implements KeyListener {
 
 	
-	//public Queue<MazePacket> receive_queue;
-	//public ServerSocket ReceiverSocket;
+	public Queue<MazePacket> receive_queue;  
+	public ServerSocket ReceiverSocket;
 	
         /**
          * Create a GUI controlled {@link LocalClient}.  
@@ -53,9 +53,10 @@ public class GUIClient extends LocalClient implements KeyListener {
         
         	
                 try {
-                	
-		        //new ClientListenerThread(ReceiverSocket.accept(), receive_queue).start();  
-		        //new ClientExecutionThread(receive_queue).start();  	
+                
+                	ReceiverSocket = null;
+		        new ClientListenerThread(ReceiverSocket.accept(), receive_queue).start();  
+		        new ClientExecutionThread(receive_queue).start();  	
 			
 			/* make a new request packet */
 			

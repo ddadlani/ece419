@@ -8,10 +8,10 @@ public class ClientListenerThread extends Thread {
 	private Queue<MazePacket> queue;
 	private Integer seqnumCounter;
 	
-	public ClientListenerThread(Socket socket, Mazewar mazewar) {
+	public ClientListenerThread(Socket socket, Queue<MazePacket> queue) {
                 super("ClientListenerThread");
                 this.socket = socket;
-                this.queue = mazewar.receive_queue;
+                this.queue = queue;
                 seqnumCounter = 0;
         }
 
@@ -30,18 +30,15 @@ public class ClientListenerThread extends Thread {
                         	
                         	//NOT SORTING QUEUE(using priority queue) YET
                         	//just adding to queue if in sequence, otherwise dropping packet 
-                        	if (packetFromServer != null)
+                		if (packetFromServer.getseqNum() == seqnumCounter)
                 		{
-		        		if (packetFromServer.getseqNum() == seqnumCounter)
-		        		{
-		        			queue.add(packetFromServer);
-		        			seqnumCounter ++;
-		        		}
-		        		else
-		        		{
-		        		//HANDLE OUT OF ORDER PACKET
-		        			System.out.println("Out of order packet received");
-		        		}
+                			queue.add(packetFromServer);
+                			seqnumCounter ++;
+                		}
+                		else
+                		{
+                		//HANDLE OUT OF ORDER PACKET
+                			System.out.println("Out of order packet received");
                 		}
                         	
                         }

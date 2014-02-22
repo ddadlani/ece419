@@ -3,45 +3,95 @@ import java.io.*;
 import java.util.*;
 
 
-public class ClientExecutionThread extends Thread {
+public class ClientExecutionThread extends Client implements Runnable {
 	private Queue<MazePacket> queue;
-	
-	public ClientExecutionThread(Queue<MazePacket> queue) {
+	private Maze maze;
+	public ClientExecutionThread(Mazewar mazewar, Maze maze) {
                 super("ClientExecutionThread");
-                this.queue = queue;
+                this.queue = mazewar.receive_queue;
+                this.maze = maze;
         }
 
         public void run() {
 
         	MazePacket move = new MazePacket();
+		boolean local = false;
+		GUIClient localClient = null;
+		RemoteClient remoteClient = null;
         	while(true)
         	{
-			move = queue.remove();
-			if (move.getmsgType() == MazePacket.MAZE_REPLY)
+			move = queue.poll();
+			if (move != null)
 			{
-				if (move.getevent() == ClientEvent.moveForward)
-					forward();
-				else if (move.getevent() == ClientEvent.moveBackward)
-					backup();
-				else if (move.getevent() == ClientEvent.turnLeft)
-					turnLeft();
-				else if (move.getevent() == ClientEvent.turnRight)
-					turnRight();
-				else if (move.getevent() == ClientEvent.fire)
-					fire();
-			}
+				//Check if local
+				if (move.getclientInfo().hostname == InetAddress.getLocalHost().getHostName())
+				{
+					local = true;
+					localClient = new GUIClient(move.getclientInfo().name); //WEIRD MAYBE!
+				}
+				else
+				{
+					remoteClient = new RemoteClient(move.getclientInfo().name);
+				}
+
+				if (move.getmsgType() == MazePacket.MAZE_REPLY)
+				{
+					if(local)
+					{
+						if (move.getevent() == ClientEvent.moveForward)
+							maze.moveClientForward(localClient);
+						else if (move.getevent() == ClientEvent.moveBackward)
+							maze.moveClientBackward(localClient);
+						else if (move.getevent() == ClientEvent.turnLeft)
+						{
+							ClientEvent ce = ClientEvent.turnLeft;
+							maze.clientUpdate(localClient, ce);
+						}
+						else if (move.getevent() == ClientEvent.turnRight)
+						{
+							ClientEvent ce = ClientEvent.turnRight;
+							maze.clientUpdate(localClient, ce);
+						}
+						else if (move.getevent() == ClientEvent.fire)
+							maze.clientFire(localClient);
+					}
+					else
+					{
+						if (move.getevent() == ClientEvent.moveForward)
+							maze.moveClientForward(remoteClient);
+						else if (move.getevent() == ClientEvent.moveBackward)
+							maze.moveClientBackward(remoteClient);
+						else if (move.getevent() == ClientEvent.turnLeft)
+						{
+							ClientEvent ce = ClientEvent.turnLeft;
+							maze.clientUpdate(remoteClient, ce);
+						}
+						else if (move.getevent() == ClientEvent.turnRight)
+						{
+							ClientEvent ce = ClientEvent.turnRight;
+							maze.clientUpdate(remoteClient, ce);
+						}
+						else if (move.getevent() == ClientEvent.fire)
+							maze.clientFire(remoteClient);
+					}
+				}
 				
-			else if (packetFromServer.getmsgType() == MazePacket.MAZE_DISCONNECT)
-			{
-				//CHECK IF LOCAL
-				if (packetFromServer.getclientInfo().hostname == InetAddress.getLocalHost().getHostName())
-					Mazewar.quit();
-				//REMOVE REMOTE CLIENT
-				else {}
-			}
-			else if (packetFromServer.getmsgType() == MazePacket.NEW_REMOTE_CONNECTION)
-			{
-				//ADD REMOTE CLIENT
+				
+			
+				else if (move.getmsgType() == MazePacket.MAZE_DISCONNECT)
+				{
+					//CHECK IF LOCAL
+					if (local)
+						Mazewar.quit();
+					//REMOVE REMOTE CLIENT
+					else 
+						maze.removeClient(remotClient);
+				}
+				else if (move.getmsgType() == MazePacket.NEW_REMOTE_CONNECTION)
+				{
+					//ADD REMOTE CLIENT
+					maze.addClient(remoteClient);
+				}
 			}
         	}
         }

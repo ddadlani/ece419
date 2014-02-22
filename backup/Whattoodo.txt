@@ -1,0 +1,16 @@
+Overall setup of the system:
+
+LocalClient sends move to server
+Server queues request, and dequeues head request (atomically)
+Sends reply to all clients (maybe assign a localclient or remote client recipient field?)
+Client receives request and parses it
+If client ID not its own, send to particular remote client
+Else do the particular thing
+(under this setup server may need to send an ack or nack for the local client's request. 
+Else the client may hang waiting for a reply??)
+
+Basically, server message parsing and handling takes place in localclient.Therefore localclient
+is the one connected to a port
+
+Server somehow needs to store all the addresses and ports of all the localclients
+(let's use a data structure like an arraylist this time?)

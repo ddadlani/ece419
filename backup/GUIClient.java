@@ -34,8 +34,8 @@ import java.awt.event.KeyEvent;
 public class GUIClient extends LocalClient implements KeyListener {
 
 	
-	//public Queue<MazePacket> receive_queue;
-	//public ServerSocket ReceiverSocket;
+	public Queue<MazePacket> receive_queue;  
+	public ServerSocket ReceiverSocket;
 	
         /**
          * Create a GUI controlled {@link LocalClient}.  
@@ -53,9 +53,10 @@ public class GUIClient extends LocalClient implements KeyListener {
         
         	
                 try {
-                	
-		        //new ClientListenerThread(ReceiverSocket.accept(), receive_queue).start();  
-		        //new ClientExecutionThread(receive_queue).start();  	
+                
+                	ReceiverSocket = null;
+		        new ClientListenerThread(ReceiverSocket.accept(), receive_queue).start();  
+		        new ClientExecutionThread(receive_queue).start();  	
 			
 			/* make a new request packet */
 			
@@ -78,6 +79,10 @@ public class GUIClient extends LocalClient implements KeyListener {
 		        	packetToServer.setmsgType(MazePacket.MAZE_DISCONNECT);
 		        	//SEND DATA NEEDED TO DISCONNECT: Address, location? 
 		        	out.writeObject(packetToServer);
+<<<<<<< HEAD
+
+=======
+>>>>>>> b5872b37edc03194aa3b878d69837068a1f04dc5
 		                
 		        // Up-arrow moves forward.
 		        } else if(e.getKeyCode() == KeyEvent.VK_UP) {
