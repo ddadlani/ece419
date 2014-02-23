@@ -38,7 +38,7 @@ import java.io.Serializable;
  * @version $Id: Mazewar.java 371 2004-02-10 21:55:32Z geoffw $
  */
 
-public class Mazewar extends JFrame {
+public class Mazewar extends JFrame{
 
 	//LAB2
 	public Queue<MazePacket> receive_queue = null;
@@ -157,8 +157,8 @@ public class Mazewar extends JFrame {
 
                 try {
                         /* variables for hostname/port */
-                        String hostname = "ug160.eecg.utoronto.ca";
-                        int port = 4444;
+                        String hostname = InetAddress.getLocalHost().getHostName();
+                        int port = 3434;
                         
                         MazeSocket = new Socket(hostname, port);
 
@@ -169,7 +169,8 @@ public class Mazewar extends JFrame {
 		        MazePacket packetToServer = new MazePacket();
 		        Address client_addr = new Address();
 		        client_addr.hostname = InetAddress.getLocalHost().getHostName();
-		        client_addr.port = 4444; //??
+		        System.out.println("" + client_addr.hostname);
+		        client_addr.port = 3333; //??
 		        client_addr.name = name;
 
 		        packetToServer.setmsgType(MazePacket.CONNECTION_REQUEST);
@@ -192,6 +193,7 @@ public class Mazewar extends JFrame {
                 try{
                 	do {
 		        	packetFromServer = (MazePacket) in.readObject();
+		        	System.out.println("Received Packet from Server: msgType: " + packetFromServer.getmsgType());
 		        	if (packetFromServer.getmsgType() == MazePacket.CONNECTION_REPLY)
 				{
 					System.out.println("Connection Made");

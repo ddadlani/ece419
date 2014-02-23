@@ -1,5 +1,8 @@
+import java.net.*;
+import java.io.*;
+import java.util.*;
 
-public class Address {
+public class Address implements Serializable {
 	/* Identification parameters */
 	public String name;
 	public Integer id;

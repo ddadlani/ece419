@@ -4,7 +4,12 @@
  * @author dadlanid
  *
  */
-public class MazePacket {
+ 
+import java.net.*;
+import java.io.*;
+import java.util.*;
+
+public class MazePacket implements Serializable{
 	
 	/**
 	 *  Message type constants 

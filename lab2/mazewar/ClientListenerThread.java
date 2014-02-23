@@ -19,8 +19,8 @@ public class ClientListenerThread extends Thread {
         	ObjectInputStream in = null;
         	try {
                         /* variables for hostname/port */
-                        String hostname = "ug160.eecg.utoronto.ca";
-                        int port = 4444;
+                        String hostname = InetAddress.getLocalHost().getHostName();
+                        int port = 3434;
                         
                         socket = new Socket(hostname, port);
                         in = new ObjectInputStream(socket.getInputStream());

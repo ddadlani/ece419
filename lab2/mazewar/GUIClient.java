@@ -62,8 +62,8 @@ public class GUIClient extends LocalClient implements KeyListener {
 			Socket SenderSocket = null;
 		        ObjectOutputStream out = null;
                         /* variables for hostname/port */
-                        String hostname = "ug160.eecg.utoronto.ca";
-                        int port = 4444;
+                        String hostname = InetAddress.getLocalHost().getHostName();
+                        int port = 3434;
                         
                         SenderSocket = new Socket(hostname, port);
 

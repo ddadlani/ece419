@@ -24,16 +24,20 @@ public class ClientExecutionThread extends Client implements Runnable {
 			if (move != null)
 			{
 				//Check if local
-				if (move.getclientInfo().hostname == InetAddress.getLocalHost().getHostName())
+				try {
+					if (move.getclientInfo().hostname == InetAddress.getLocalHost().getHostName())
+					{
+						local = true;
+						localClient = new GUIClient(move.getclientInfo().name); //WEIRD MAYBE!
+					}
+				
+					else
+					{
+						remoteClient = new RemoteClient(move.getclientInfo().name);
+					}
+				}catch(UnknownHostException e)
 				{
-					local = true;
-					localClient = new GUIClient(move.getclientInfo().name); //WEIRD MAYBE!
 				}
-				else
-				{
-					remoteClient = new RemoteClient(move.getclientInfo().name);
-				}
-
 				if (move.getmsgType() == MazePacket.MAZE_REPLY)
 				{
 					if(local)
@@ -42,7 +46,7 @@ public class ClientExecutionThread extends Client implements Runnable {
 							maze.moveClientForward(localClient);
 						else if (move.getevent() == ClientEvent.moveBackward)
 							maze.moveClientBackward(localClient);
-						else if (move.getevent() == ClientEvent.turnLeft)
+						/*else if (move.getevent() == ClientEvent.turnLeft)
 						{
 							ClientEvent ce = ClientEvent.turnLeft;
 							maze.clientUpdate(localClient, ce);
@@ -51,7 +55,7 @@ public class ClientExecutionThread extends Client implements Runnable {
 						{
 							ClientEvent ce = ClientEvent.turnRight;
 							maze.clientUpdate(localClient, ce);
-						}
+						} */
 						else if (move.getevent() == ClientEvent.fire)
 							maze.clientFire(localClient);
 					}
@@ -61,16 +65,16 @@ public class ClientExecutionThread extends Client implements Runnable {
 							maze.moveClientForward(remoteClient);
 						else if (move.getevent() == ClientEvent.moveBackward)
 							maze.moveClientBackward(remoteClient);
-						else if (move.getevent() == ClientEvent.turnLeft)
+						/*else if (move.getevent() == ClientEvent.turnLeft)
 						{
 							ClientEvent ce = ClientEvent.turnLeft;
-							maze.clientUpdate(remoteClient, ce);
+							maze.clientUpdate(remoteClient, ce);           
 						}
 						else if (move.getevent() == ClientEvent.turnRight)
 						{
 							ClientEvent ce = ClientEvent.turnRight;
 							maze.clientUpdate(remoteClient, ce);
-						}
+						} */
 						else if (move.getevent() == ClientEvent.fire)
 							maze.clientFire(remoteClient);
 					}
@@ -85,7 +89,7 @@ public class ClientExecutionThread extends Client implements Runnable {
 						Mazewar.quit();
 					//REMOVE REMOTE CLIENT
 					else 
-						maze.removeClient(remotClient);
+						maze.removeClient(remoteClient);
 				}
 				else if (move.getmsgType() == MazePacket.NEW_REMOTE_CONNECTION)
 				{

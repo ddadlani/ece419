@@ -4,8 +4,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.net.*;
+import java.io.*;
+import java.util.*;
 
-public class MazeServerHandlerThread extends Thread {
+public class MazeServerHandlerThread extends Thread{
 	
 	private Socket socket = null;
 	private MazeServer mazeData;
@@ -17,7 +20,7 @@ public class MazeServerHandlerThread extends Thread {
 	}
 
 	public void run() {
-
+		System.out.println("Entered MazeServerHandlerThread");
 		boolean gotByePacket = false;
 
 		try {
@@ -52,12 +55,17 @@ public class MazeServerHandlerThread extends Thread {
 				else {
 					synchronized (mazeData.sequenceNum) {
 						synchronized(mazeData.requestQueue) {
+							System.out.println("Entered Queuing server code (synchronized) seqnum: " + mazeData.sequenceNum);
 							// Update sequence number
 							packetToClient.setseqNum(mazeData.sequenceNum);
+							System.out.println("Entered Queuing server code (synchronized)");
 							mazeData.sequenceNum++;
+							System.out.println("Entered Queuing server code (synchronized)");
 							// Update request queue
 							queued = mazeData.requestQueue.add(packetToClient);
+							System.out.println("Added packet to queue (synchronized)");
 							nextInLine = mazeData.requestQueue.poll(); // remove() doesn't tell you if the requestQueue is empty. poll does. 
+							System.out.println("Dequeued packet hostname: " + nextInLine.getclientInfo().hostname);
 						}
 					}
 					if (queued != true) {
@@ -72,7 +80,7 @@ public class MazeServerHandlerThread extends Thread {
 				switch (nextInLine.getmsgType()) {
 					case MazePacket.CONNECTION_REQUEST: {
 						Integer numRemotes;
-					
+						System.out.println("Entered CONNECTION REQUEST processing");
 						// Assign client ID
 						synchronized (mazeData.clientID) {
 							nextInLine.setclientID(mazeData.clientID);
