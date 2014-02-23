@@ -23,14 +23,11 @@ import java.util.*;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
-import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JOptionPane;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.BorderFactory;
-import java.io.Serializable;
-
 /**
  * The entry point and glue code for the game.  It also contains some helpful
  * global utility methods.
@@ -38,6 +35,7 @@ import java.io.Serializable;
  * @version $Id: Mazewar.java 371 2004-02-10 21:55:32Z geoffw $
  */
 
+@SuppressWarnings("serial")
 public class Mazewar extends JFrame{
 
 	//LAB2
@@ -125,7 +123,7 @@ public class Mazewar extends JFrame{
         /** 
          * The place where all the pieces are put together. 
          */
-        public Mazewar() {
+        public Mazewar(int port_) {
                 super("ECE419 Mazewar");
                 consolePrintLn("ECE419 Mazewar started!");
                 
@@ -158,9 +156,9 @@ public class Mazewar extends JFrame{
                 try {
                         /* variables for hostname/port */
                         String hostname = InetAddress.getLocalHost().getHostName();
-                        int port = 3434;
+                        int serverPort = 3434;
                         
-                        MazeSocket = new Socket(hostname, port);
+                        MazeSocket = new Socket(hostname, serverPort);
 
                         out = new ObjectOutputStream(MazeSocket.getOutputStream());
                         in = new ObjectInputStream(MazeSocket.getInputStream());
@@ -170,7 +168,7 @@ public class Mazewar extends JFrame{
 		        Address client_addr = new Address();
 		        client_addr.hostname = InetAddress.getLocalHost().getHostName();
 		        System.out.println("" + client_addr.hostname);
-		        client_addr.port = 3333; //??
+		        client_addr.port = port_; //??
 		        client_addr.name = name;
 
 		        packetToServer.setmsgType(MazePacket.CONNECTION_REQUEST);
@@ -182,6 +180,7 @@ public class Mazewar extends JFrame{
                         System.err.println("ERROR: Don't know where to connect!!");
                         System.exit(1);
                 } catch (IOException e) {
+                		e.printStackTrace();
                         System.err.println("ERROR: Couldn't get I/O for the connection.");
                         System.exit(1);
                 }
@@ -227,12 +226,13 @@ public class Mazewar extends JFrame{
                 
                 // Use braces to force constructors not to be called at the beginning of the
                 // constructor.
-                {
+                // Uncomment below code to create remote clients
+              /*  {
                         maze.addClient(new RobotClient("Norby"));
                         maze.addClient(new RobotClient("Robbie"));
                         maze.addClient(new RobotClient("Clango"));
                         maze.addClient(new RobotClient("Marvin"));
-                }
+                }*/
 
                 
                 // Create the panel that will display the maze.
@@ -300,25 +300,35 @@ public class Mazewar extends JFrame{
          * @param args Command-line arguments.
          */
         public static void main(String args[]) {
-                
-                /* Create the GUI */
-                Mazewar mazewar = new Mazewar();
-                Maze maze = null;
-                mazewar.maze = maze;
-                ServerSocket ReceiverSocket = null;
-               	try {
-               	new ClientListenerThread(ReceiverSocket.accept(), mazewar).start();  
-               	} catch(IOException e)
-               	{
+           try { 
+        	   // Binding the ReceiverSocket to any random available port, then
+        	   // sending the port into the Mazewar constructor to add to the 
+        	   // client info object
+        	   ServerSocket ReceiverSocket = new ServerSocket(0);  
+        	   int port = ReceiverSocket.getLocalPort();
+        	   
+        	   /* Create the GUI */
+        	   Mazewar mazewar = new Mazewar(port);
+        	   
+        	   //Maze maze = null;
+        	   //mazewar.maze = maze;
+        	   
+        	   try {
+        		   new ClientListenerThread(ReceiverSocket.accept(), mazewar).start();  
+               	} catch(IOException e){
+               		e.printStackTrace();
                		System.exit(-1);
                	}
-        	ClientExecutionThread Et = new ClientExecutionThread (mazewar, maze);
-        	new Thread(Et).start();
+        	   ClientExecutionThread Et = new ClientExecutionThread (mazewar, mazewar.maze);
+        	   new Thread(Et).start();
      		
-     		//ClientListenerThread Lt = new ClientListenerThread (ReceiverSocket.accept(), mazewar);
-        	//new Thread(Lt).start();
-		//new ClientExecutionThread(mazewar, maze).start();  	
-                
+        	   //ClientListenerThread Lt = new ClientListenerThread (ReceiverSocket.accept(), mazewar);
+        	   //new Thread(Lt).start();
+        	   //new ClientExecutionThread(mazewar, maze).start();  	
+        	   ReceiverSocket.close();
+           } catch (IOException ioe) {
+        	   System.err.println("Error: ReceiverSocket error.");
+           }
         }
         
 }

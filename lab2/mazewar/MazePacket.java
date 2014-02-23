@@ -5,12 +5,15 @@
  *
  */
  
-import java.net.*;
 import java.io.*;
-import java.util.*;
+
 
 public class MazePacket implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/**
 	 *  Message type constants 
 	 */

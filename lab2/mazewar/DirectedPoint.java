@@ -17,7 +17,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
    
-import java.io.Serializable;
  
 /**
  * An integral representation of a point in two dimensional space,
@@ -26,6 +25,7 @@ import java.io.Serializable;
  * @version $Id: DirectedPoint.java 339 2004-01-23 20:06:22Z geoffw $
  */
 
+@SuppressWarnings("serial")
 public class DirectedPoint extends Point {
 
         /**

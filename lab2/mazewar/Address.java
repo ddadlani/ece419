@@ -1,8 +1,11 @@
-import java.net.*;
 import java.io.*;
-import java.util.*;
 
 public class Address implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	/* Identification parameters */
 	public String name;
 	public Integer id;

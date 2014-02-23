@@ -1,5 +1,4 @@
 import java.net.*;
-import java.io.*;
 import java.util.*;
 
 
@@ -14,7 +13,7 @@ public class ClientExecutionThread extends Client implements Runnable {
 
         public void run() {
 
-        	MazePacket move = new MazePacket();
+        MazePacket move = new MazePacket();
 		boolean local = false;
 		GUIClient localClient = null;
 		RemoteClient remoteClient = null;

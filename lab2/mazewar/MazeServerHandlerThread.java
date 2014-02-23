@@ -4,9 +4,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.net.*;
-import java.io.*;
-import java.util.*;
 
 public class MazeServerHandlerThread extends Thread{
 	
@@ -32,7 +29,7 @@ public class MazeServerHandlerThread extends Thread{
 			/* stream to write back to client */
 			ObjectOutputStream toClient = new ObjectOutputStream(
 					socket.getOutputStream());
-			MazePacket packetToClient = null;
+			MazePacket packetToClient;	// Remember to initialize this before using it!
 
 			/* Next packet in queue */
 			MazePacket nextInLine = null;
@@ -57,12 +54,12 @@ public class MazeServerHandlerThread extends Thread{
 						synchronized(mazeData.requestQueue) {
 							System.out.println("Entered Queuing server code (synchronized) seqnum: " + mazeData.sequenceNum);
 							// Update sequence number
-							packetToClient.setseqNum(mazeData.sequenceNum);
+							packetFromClient.setseqNum(mazeData.sequenceNum);
 							System.out.println("Entered Queuing server code (synchronized)");
 							mazeData.sequenceNum++;
 							System.out.println("Entered Queuing server code (synchronized)");
 							// Update request queue
-							queued = mazeData.requestQueue.add(packetToClient);
+							queued = mazeData.requestQueue.add(packetFromClient);
 							System.out.println("Added packet to queue (synchronized)");
 							nextInLine = mazeData.requestQueue.poll(); // remove() doesn't tell you if the requestQueue is empty. poll does. 
 							System.out.println("Dequeued packet hostname: " + nextInLine.getclientInfo().hostname);
@@ -73,8 +70,8 @@ public class MazeServerHandlerThread extends Thread{
 						System.exit(-1);
 					}
 					
-					if (nextInLine == null)
-						throw new NullPointerException();
+					/* if (nextInLine == null)
+						throw new NullPointerException(); */
 				}
 
 				switch (nextInLine.getmsgType()) {
@@ -148,9 +145,9 @@ public class MazeServerHandlerThread extends Thread{
 			socket.close();
 
 		} catch (NullPointerException n) {
-
+			n.printStackTrace();
 		} catch (EOFException e) {
-
+			e.printStackTrace();
 		} catch (IOException e) {
 			if (!gotByePacket)
 				e.printStackTrace();
@@ -163,6 +160,11 @@ public class MazeServerHandlerThread extends Thread{
 	private void broadcastPacket(MazePacket outPacket, ArrayList<Address> addressBook) {
 		Socket clientsocket = null;
 			ObjectOutputStream out = null;
+			
+			// If nothing has been added to the address book yet, nothing to do
+			if ((addressBook != null) && (addressBook.isEmpty())) {
+				return;
+			}
 			try {
 				for (int i = 0; i < addressBook.size(); i++) {
 				clientsocket = new Socket(addressBook.get(i).hostname, addressBook.get(i).port);
@@ -171,13 +173,13 @@ public class MazeServerHandlerThread extends Thread{
 				out.close();
 				clientsocket.close();
 			}
-		} catch (IOException e) {
-			System.err.println("Error: IOException thrown in broadcastPacket.");
-			e.printStackTrace();
 		} catch (NullPointerException npe) {
 			System.err.println("Error: A null pointer was accessed in broadcastPacket.");
 			npe.printStackTrace();
-		}
+		} catch (IOException e) {
+			System.err.println("Error: IOException thrown in broadcastPacket.");
+			e.printStackTrace();
+		} 
 	}
 
 }
