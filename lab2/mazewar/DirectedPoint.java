@@ -25,7 +25,6 @@ USA.
  * @version $Id: DirectedPoint.java 339 2004-01-23 20:06:22Z geoffw $
  */
 
-@SuppressWarnings("serial")
 public class DirectedPoint extends Point {
 
         /**

@@ -1,3 +1,5 @@
+import java.io.Serializable;
+
 /*
 Copyright (C) 2004 Geoffrey Alan Washburn
     
@@ -23,7 +25,7 @@ USA.
  * @version $Id: ClientEvent.java 359 2004-01-31 20:14:31Z geoffw $
  */
 
-public class ClientEvent {
+public class ClientEvent implements Serializable{
         /* Internals ******************************************************/
         
         /**

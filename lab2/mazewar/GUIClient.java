@@ -132,6 +132,7 @@ public class GUIClient extends LocalClient implements KeyListener {
                         System.err.println("ERROR: Don't know where to connect!!");
                         System.exit(1);
                 } catch (IOException err) {
+                	err.printStackTrace();
                         System.err.println("ERROR: Couldn't get I/O for the connection.");
                         System.exit(1);
                 }

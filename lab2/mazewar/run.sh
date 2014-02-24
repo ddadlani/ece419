@@ -1,4 +1,4 @@
 #!/bin/bash
-JAVA_HOME=/cygdrive/c/PROGRA~1/Java/jdk1.7.0_21
+JAVA_HOME=/cad2/ece419s/java/jdk1.6.0/
 
 ${JAVA_HOME}/bin/java Mazewar 

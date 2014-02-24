@@ -62,7 +62,7 @@ public class MazeServerHandlerThread extends Thread{
 							queued = mazeData.requestQueue.add(packetFromClient);
 							System.out.println("Added packet to queue (synchronized)");
 							nextInLine = mazeData.requestQueue.poll(); // remove() doesn't tell you if the requestQueue is empty. poll does. 
-							System.out.println("Dequeued packet hostname: " + nextInLine.getclientInfo().hostname);
+							System.out.println("Dequeued packet.");
 						}
 					}
 					if (queued != true) {
