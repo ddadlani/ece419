@@ -52,10 +52,10 @@ public class MazeServer {
 
         serverSocket.close();
     }
-	
+
 	public static Integer searchInAddressBook(final Integer clientID, final ArrayList<Address> addressBook) {
 		for(Integer i = 0; i < addressBook.size(); i++) {
-			if (addressBook.get(i).id == clientID)
+			if (addressBook.get(i).id.equals(clientID))
 				return i;
 			else;
 		}	

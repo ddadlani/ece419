@@ -35,12 +35,11 @@ import javax.swing.BorderFactory;
  * @version $Id: Mazewar.java 371 2004-02-10 21:55:32Z geoffw $
  */
 
-@SuppressWarnings("serial")
 public class Mazewar extends JFrame{
 
 	//LAB2
 	public Queue<MazePacket> receive_queue = null;
-	
+
         /**
          * The default width of the {@link Maze}.
          */
@@ -173,7 +172,7 @@ public class Mazewar extends JFrame{
 
 		        packetToServer.setmsgType(MazePacket.CONNECTION_REQUEST);
 		        packetToServer.setclientInfo(client_addr);
-		        
+
 		        out.writeObject(packetToServer);
 
                 } catch (UnknownHostException e) {
@@ -204,23 +203,24 @@ public class Mazewar extends JFrame{
 					System.exit(-1);
 				}
 			} while(packetFromServer.getmsgType() != MazePacket.CONNECTION_REPLY);
-			
-		        out.close();
-		        in.close();
-		        MazeSocket.close();     
-			
+
+		        //out.close();
+		        //in.close();
+		        //MazeSocket.close();     
+
                 } catch (EOFException eof)
                 {
                         System.err.println("No reply received EOF");
                 } catch (IOException e) {
-                        System.err.println("ERROR: Couldn't get I/O for the connection.");
-                        System.exit(1);
+                	System.err.println("ERROR: Couldn't get I/O for the connection.");
+                	e.printStackTrace();
+                	System.exit(1);
                 } catch (ClassNotFoundException e) {
 
                 }
                 
                 // Create the GUIClient and connect it to the KeyListener queue
-                guiClient = new GUIClient(name);
+                guiClient = new GUIClient(name, MazeSocket, out);
                 maze.addClient(guiClient);
                 this.addKeyListener(guiClient);
                 
@@ -325,7 +325,7 @@ public class Mazewar extends JFrame{
         	   //ClientListenerThread Lt = new ClientListenerThread (ReceiverSocket.accept(), mazewar);
         	   //new Thread(Lt).start();
         	   //new ClientExecutionThread(mazewar, maze).start();  	
-        	   ReceiverSocket.close();
+        	   //ReceiverSocket.close();
            } catch (IOException ioe) {
         	   System.err.println("Error: ReceiverSocket error.");
            }

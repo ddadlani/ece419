@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class MazeServerHandlerThread extends Thread{
-	
+
 	private Socket socket = null;
 	private MazeServer mazeData;
 
@@ -35,7 +35,7 @@ public class MazeServerHandlerThread extends Thread{
 			MazePacket nextInLine = null;
 			Boolean queued = true;
 
-			while ((packetFromClient = (MazePacket) fromClient.readObject()) != null) {
+			if ((packetFromClient = (MazePacket) fromClient.readObject()) != null) {
 
 				/* process symbol */
 				Integer type = packetFromClient.getmsgType();
@@ -62,14 +62,14 @@ public class MazeServerHandlerThread extends Thread{
 							queued = mazeData.requestQueue.add(packetFromClient);
 							System.out.println("Added packet to queue (synchronized)");
 							nextInLine = mazeData.requestQueue.poll(); // remove() doesn't tell you if the requestQueue is empty. poll does. 
-							System.out.println("Dequeued packet.");
+							//System.out.println("Dequeued packet hostname: " + nextInLine.getclientInfo().hostname);
 						}
 					}
 					if (queued != true) {
 						System.err.println("Request could not be queued. Aborting.");
 						System.exit(-1);
 					}
-					
+
 					/* if (nextInLine == null)
 						throw new NullPointerException(); */
 				}
@@ -83,12 +83,12 @@ public class MazeServerHandlerThread extends Thread{
 							nextInLine.setclientID(mazeData.clientID);
 							// Update global client ID
 							mazeData.clientID++;
-					
+
 							synchronized(mazeData.addressBook) {
 								// Ask all clients to create a new remote client
 								nextInLine.setmsgType(MazePacket.NEW_REMOTE_CONNECTION);
 								broadcastPacket(nextInLine, mazeData.addressBook);
-						
+
 								// Gather remote client data for the new connection
 								numRemotes = mazeData.addressBook.size();
 								nextInLine.remotes = new Address[numRemotes];						
@@ -99,14 +99,14 @@ public class MazeServerHandlerThread extends Thread{
 								mazeData.addressBook.add(nextInLine.getclientInfo());	
 							}			// addressBook released here
 						}			// client ID released here
-					
+
 						packetToClient = nextInLine;
 						packetToClient.setmsgType(MazePacket.CONNECTION_REPLY);
 						toClient.writeObject(packetToClient);
 						packetToClient = null;
 						break;
 					}
-				
+
 					case MazePacket.MAZE_REQUEST: {
 						packetToClient = nextInLine;
 						// Set message type
@@ -117,7 +117,7 @@ public class MazeServerHandlerThread extends Thread{
 						}
 						break;
 					}
-				
+
 					case MazePacket.MAZE_DISCONNECT: {
 						synchronized (mazeData.addressBook) {
 							packetToClient = nextInLine;
@@ -127,7 +127,7 @@ public class MazeServerHandlerThread extends Thread{
 							Integer index = MazeServer.searchInAddressBook(nextInLine.getclientID(), mazeData.addressBook);
 							mazeData.addressBook.remove(index);
 						}	// addressBook released here
-						
+
 						break;
 					}
 					default: {
@@ -156,11 +156,11 @@ public class MazeServerHandlerThread extends Thread{
 				e.printStackTrace();
 		}
 	}
-	
+
 	private void broadcastPacket(MazePacket outPacket, ArrayList<Address> addressBook) {
 		Socket clientsocket = null;
 			ObjectOutputStream out = null;
-			
+
 			// If nothing has been added to the address book yet, nothing to do
 			if ((addressBook != null) && (addressBook.isEmpty())) {
 				return;
@@ -170,8 +170,8 @@ public class MazeServerHandlerThread extends Thread{
 				clientsocket = new Socket(addressBook.get(i).hostname, addressBook.get(i).port);
 				out = new ObjectOutputStream(clientsocket.getOutputStream());
 				out.writeObject(outPacket);
-				out.close();
-				clientsocket.close();
+				//out.close();
+				//clientsocket.close();
 			}
 		} catch (NullPointerException npe) {
 			System.err.println("Error: A null pointer was accessed in broadcastPacket.");

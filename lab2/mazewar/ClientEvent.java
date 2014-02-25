@@ -25,7 +25,7 @@ USA.
  * @version $Id: ClientEvent.java 359 2004-01-31 20:14:31Z geoffw $
  */
 
-public class ClientEvent implements Serializable{
+public class ClientEvent implements Serializable {
         /* Internals ******************************************************/
         
         /**
