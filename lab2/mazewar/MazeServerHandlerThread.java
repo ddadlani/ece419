@@ -47,6 +47,9 @@ public class MazeServerHandlerThread extends Thread{
 				}
 				// type must be valid here
 				else {
+					// Inform the client that you got the packet
+					MazePacket ack = new MazePacket();
+					toClient.writeObject(ack);
 					synchronized (mazeData.sequenceNum) {
 						synchronized(mazeData.requestQueue) {
 							System.out.println("Entered Queuing server code (synchronized) seqnum: " + mazeData.sequenceNum);

@@ -19,6 +19,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 	public int serverPort = 0;
 	public Socket SenderSocket = null;
 	public ObjectOutputStream out = null;
+	public ObjectInputStream in = null;
 
 	/**
 	 * Create a GUI controlled {@link LocalClient}.
@@ -101,6 +102,13 @@ public class GUIClient extends LocalClient implements KeyListener {
 				out.writeObject(packetToServer);
 
 			}
+			in = new ObjectInputStream(SenderSocket.getInputStream());
+			MazePacket ack = (MazePacket) in.readObject();
+			
+			if (ack.geterrorCode() != 0) {
+				System.err.println("ERROR: Invalid packet sent");
+			}
+			else ;
 
 			out.close();
 			SenderSocket.close();
@@ -110,6 +118,10 @@ public class GUIClient extends LocalClient implements KeyListener {
 			System.exit(1);
 		} catch (UnknownHostException err) {
 			System.err.println("ERROR: Don't know where to connect!!");
+			System.exit(1);
+		} catch (ClassNotFoundException cnf) {
+			System.err.println("ERROR: GUIClient class not found");
+			cnf.printStackTrace();
 			System.exit(1);
 		} catch (IOException err) {
 			System.err.println("ERROR: Couldn't get I/O for the connection.");
