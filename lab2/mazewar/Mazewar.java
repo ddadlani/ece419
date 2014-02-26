@@ -43,6 +43,7 @@ public class Mazewar extends JFrame {
 	// LAB2
 	public Queue<MazePacket> receive_queue = null;
 	public Integer seqnumCounter;
+	
 
 	/**
 	 * The default width of the {@link Maze}.
@@ -127,8 +128,9 @@ public class Mazewar extends JFrame {
 
 	/**
 	 * The place where all the pieces are put together.
+	 *  First two local, second two for server
 	 */
-	public Mazewar(int port_) {
+	public Mazewar(ServerSocket ReceiverSocket, int listenPort, String serverHost, Integer serverPort) {
 		super("ECE419 Mazewar");
 		consolePrintLn("ECE419 Mazewar started!");
 
@@ -147,9 +149,12 @@ public class Mazewar extends JFrame {
 
 		// Throw up a dialog to get the GUIClient name.
 		String name = JOptionPane.showInputDialog("Enter your name");
-		if ((name == null) || (name.length() == 0)) {
+		String no_players = JOptionPane.showInputDialog("Enter the number of players:");
+		if((name == null) || (name.length() == 0) || (no_players == null)) {
+			System.err.println("ERROR: Need a name and the number of players to start. Shutting down Mazewar.");
 			Mazewar.quit();
 		}
+		int num_players = Integer.parseInt(no_players);
 
 		// You may want to put your network initialization code somewhere in
 		// here.
@@ -157,15 +162,15 @@ public class Mazewar extends JFrame {
 		Socket MazeSocket = null;
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
-		String hostname = null;
-		int serverPort = 0;
+
 
 		try {
 			/* variables for hostname/port */
-			hostname = InetAddress.getLocalHost().getHostName();
-			serverPort = 3344;
-
-			MazeSocket = new Socket(hostname, serverPort);
+		
+			/**
+			 * MazeSocket = socket used only for connection information 
+			 */
+			MazeSocket = new Socket(serverHost, serverPort);
 
 			out = new ObjectOutputStream(MazeSocket.getOutputStream());
 			in = new ObjectInputStream(MazeSocket.getInputStream());
@@ -175,7 +180,7 @@ public class Mazewar extends JFrame {
 			Address client_addr = new Address();
 			client_addr.hostname = InetAddress.getLocalHost().getHostName();
 			System.out.println("" + client_addr.hostname);
-			client_addr.port = port_; // ??
+			client_addr.port = listenPort; // ??
 			client_addr.name = name;
 
 			packetToServer.setmsgType(MazePacket.CONNECTION_REQUEST);
@@ -208,7 +213,7 @@ public class Mazewar extends JFrame {
 						maze.addClient(new RemoteClient(packetFromServer.remotes[i].name));
 					}
 				}
-				if (packetFromServer.getmsgType() == MazePacket.ERROR_INVALID_TYPE) {
+				if (packetFromServer.geterrorCode() == MazePacket.ERROR_INVALID_TYPE) {
 					System.err.println("SENT INVALID TYPE");
 					System.exit(-1);
 				}
@@ -227,10 +232,73 @@ public class Mazewar extends JFrame {
 		} catch (ClassNotFoundException e) {
 
 		}
-
+		MazePacket remoteRequestPacket = null;
+		//Case where all players haven't yet connected
+		if (packetFromServer.remotes.length != (num_players - 1))
+		{
+			//wait for others to connect
+			
+			try {
+				assert(ReceiverSocket != null);
+				Socket socket = null; 
+				ObjectInputStream input = null;
+				
+				while(true) {
+					socket = ReceiverSocket.accept();
+					input = new ObjectInputStream(socket.getInputStream());
+					remoteRequestPacket = (MazePacket) input.readObject();
+					
+					if (remoteRequestPacket != null) {
+						if (remoteRequestPacket.getmsgType().equals(MazePacket.NEW_REMOTE_CONNECTION) && (remoteRequestPacket.remotes.length == (num_players - 1)))
+							break;
+					}
+					input.close();
+					socket.close();
+				} 
+			
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		else
+		{
+			remoteRequestPacket = packetFromServer;
+		}
+		//int[] client_ids = new int[num_players];
+		//client_ids[0] = packetFromServer.getclientID();
+		//HashMap<Integer, Integer> client_ids = new HashMap<Integer, Integer>();
+	    Map<Integer,String> clientIDs_sorted = new TreeMap<Integer,String>();
+	    // Put some values in it
+	    int i;
+	    clientIDs_sorted.put(packetFromServer.getclientID(),packetFromServer.getclientInfo().name);
+		for (i = 0; i < (num_players-1); i++)
+		{
+			clientIDs_sorted.put(remoteRequestPacket.remotes[i].id, remoteRequestPacket.remotes[i].name );
+		}
+	    // Iterate through it and it'll be in order!
+	    for(Map.Entry<Integer,String> entry : clientIDs_sorted.entrySet()) {
+	    	
+	    	String name_of_player = entry.getValue();
+	    	if (name_of_player.equals(packetFromServer.getclientInfo().name))
+	    	{
+	    		guiClient = new GUIClient(name_of_player, serverHost, serverPort);
+	    		maze.addClient(guiClient);
+	    	}	
+	    	else
+	    	{
+	    		RemoteClient rc = new RemoteClient(name_of_player);
+	    		maze.addClient(rc);
+	    	}
+	    		
+	    } 
+			
+		
 		// Create the GUIClient and connect it to the KeyListener queue
 		// just removed MazeSocket from arguments
-		guiClient = new GUIClient(name, hostname, serverPort);
+		guiClient = new GUIClient(name, serverHost, serverPort);
 		maze.addClient(guiClient);
 		this.addKeyListener(guiClient);
 
@@ -312,15 +380,25 @@ public class Mazewar extends JFrame {
 	 *            Command-line arguments.
 	 */
 	public static void main(String args[]) {
+		String hostname = null;
+		Integer hostport = null;
 		try {
-			// Binding the ReceiverSocket to any random available port, then
-			// sending the port into the Mazewar constructor to add to the
+			
+			if(args.length == 2) {
+                hostname = args[0];
+                hostport = Integer.parseInt(args[1]);
+			} else {
+                System.err.println("ERROR: Invalid arguments! Usage: ./run.sh <server_host> <server_port>");
+                System.exit(-1);
+			}
+		
+			// sending the serversocket into the Mazewar constructor to add to the
 			// client info object
 			ServerSocket ReceiverSocket = new ServerSocket(0);
-			int port = ReceiverSocket.getLocalPort();
+			int listenPort = ReceiverSocket.getLocalPort();
 
 			/* Create the GUI */
-			Mazewar mazewar = new Mazewar(port);
+			Mazewar mazewar = new Mazewar(ReceiverSocket, listenPort, hostname, hostport);
 
 			// Maze maze = null;
 			// mazewar.maze = maze;

@@ -29,17 +29,12 @@ public class MazeServer {
                 if(args.length == 1) {
                         serverSocket = new ServerSocket(Integer.parseInt(args[0]));
                 } else {
-                        System.err.println("ERROR: Invalid arguments! Usage: ./server.sh <portnumber>");
+                        System.err.println("ERROR: Invalid arguments! Usage: ./mazeserver.sh <portnumber>");
                         System.exit(-1);
                 }
         } catch (EOFException eofe) {
-        	//try to handle both of these the same way?
-        	//remove their entry from the addressbook if this happens
-        	System.out.println("Player closed connection. Terminating the handler thread");
         	System.out.println("Connection error");
-        }
-          catch (SocketException se ) {
-        	  System.out.println("Player closed connection. Terminating the handler thread");
+        } catch (SocketException se ) {
         	  System.out.println("Connection error");
         } catch (IOException e) {
             System.err.println("ERROR: Could not listen on port!");

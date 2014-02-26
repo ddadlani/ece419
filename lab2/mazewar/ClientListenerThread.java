@@ -166,12 +166,12 @@ public class ClientListenerThread extends Thread {
         						else 
         							maze.removeClient(remoteClient);
         					}
-        					else if (move.getmsgType() == MazePacket.NEW_REMOTE_CONNECTION)
+        					/*else if (move.getmsgType() == MazePacket.NEW_REMOTE_CONNECTION)
         					{
         						//ADD REMOTE CLIENT
         						remoteClient = new RemoteClient(move.getclientInfo().name);
         						maze.addClient(remoteClient);
-        					}
+        					}*/
         				}
                     	
         				in.close();
