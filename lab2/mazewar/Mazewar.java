@@ -203,6 +203,10 @@ public class Mazewar extends JFrame {
 					System.out.println("Connection Made");
 					// RECEIVE NUMBER AND LOCATION OF REMOTE CLIENTS, ADD THEM
 					// INTO GAME
+					int numRemotes = packetFromServer.remotes.length;
+					for (int i = 0; i < numRemotes; i++) {
+						maze.addClient(new RemoteClient(packetFromServer.remotes[i].name));
+					}
 				}
 				if (packetFromServer.getmsgType() == MazePacket.ERROR_INVALID_TYPE) {
 					System.err.println("SENT INVALID TYPE");

@@ -52,8 +52,9 @@ public class GUIClient extends LocalClient implements KeyListener {
 			Address client_addr = new Address();
 			client_addr.name = this.getName();
 			client_addr.hostname = InetAddress.getLocalHost().getHostName();
+			client_addr.position = this.getPoint();
+			client_addr.orientation = this.getOrientation();
 			packetToServer.setclientInfo(client_addr);
-
 			// If the user pressed Q, invoke the cleanup code and quit.
 			if ((e.getKeyChar() == 'q') || (e.getKeyChar() == 'Q')) {
 

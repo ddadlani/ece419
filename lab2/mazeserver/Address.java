@@ -14,10 +14,6 @@ public class Address implements Serializable {
 	public String hostname;
 	public Integer port;
 	
-	/* Position parameters */
-	public Point position;
-	public Direction orientation;
-	
 	
 	/* Constructor */
 	public Address() {
