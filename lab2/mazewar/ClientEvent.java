@@ -25,7 +25,7 @@ USA.
  * @version $Id: ClientEvent.java 359 2004-01-31 20:14:31Z geoffw $
  */
 
-public class ClientEvent implements Serializable {
+public class ClientEvent extends Object implements Serializable  {
         /* Internals ******************************************************/
         
         /**
@@ -77,5 +77,15 @@ public class ClientEvent implements Serializable {
          */
         public static final ClientEvent fire = new ClientEvent(FIRE);
         
+        public int getEvent() {
+        	return this.event;
+        }
         
+      /*  @Override
+        public boolean equals(ClientEvent ce) {
+        	if (this.event == ce.getEvent()) {
+        		return true;
+        	}
+        	return false;
+        }*/
 }

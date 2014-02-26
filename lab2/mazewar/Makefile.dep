@@ -17,9 +17,6 @@ Client.class : Point.class
 Client.class : Direction.java
 Client.class : Direction.class
 ClientEvent.class : ClientEvent.java
-ClientExecutionThread.class : ClientExecutionThread.java
-ClientExecutionThread.class : MazePacket.java
-ClientExecutionThread.class : MazePacket.class
 ClientListener.class : ClientListener.java
 ClientListener.class : MazeListener.java
 ClientListener.class : MazeListener.class

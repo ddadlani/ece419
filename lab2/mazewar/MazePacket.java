@@ -26,6 +26,14 @@ public class MazePacket implements Serializable{
 	public static final int MAZE_DISCONNECT = 105;
 	
 	/**
+	 * Event constants
+	 */
+	 public static final int MOVE_FORWARD = 0;
+     public static final int MOVE_BACKWARD = 1;
+     public static final int TURN_LEFT = 2;
+     public static final int TURN_RIGHT = 3;
+     public static final int FIRE = 4;
+	/**
 	 * Message error constants 
 	 */
 	public static final int ERROR_INVALID_TYPE = 201;
@@ -34,7 +42,7 @@ public class MazePacket implements Serializable{
 	 * Fields in the packet 
 	 */
 	private Address clientInfo;
-	private ClientEvent event;
+	private Integer event;
 	private Integer seqNum;
 	private Integer msgType;
 	private Integer errorCode;
@@ -45,24 +53,12 @@ public class MazePacket implements Serializable{
 	 */
 	public MazePacket() {
 		this.clientInfo = null;
-		this.event = null;
+		this.event = MAZE_NULL;
 		this.seqNum = MAZE_NULL;
 		this.msgType = MAZE_NULL;
 		this.errorCode = MAZE_NULL;
 		this.remotes = null;
 	}
-	
-/*	public MazePacket(MazePacket toCopy) {
-		this.clientInfo = new Address(toCopy.clientInfo);
-		this.event = toCopy.event;
-		this.seqNum = toCopy.seqNum;
-		this.msgType = toCopy.msgType;
-		this.errorCode = toCopy.errorCode;
-		
-		for(int i = 0; i < toCopy.remotes.size(); i++) {
-			
-		}
-	} */
 	
 	/**
 	 * Getter functions
@@ -74,7 +70,7 @@ public class MazePacket implements Serializable{
 		return this.clientInfo;
 	}
 	
-	public ClientEvent getevent() {
+	public Integer getevent() {
 		return this.event;
 	}
 	
@@ -104,7 +100,7 @@ public class MazePacket implements Serializable{
 		this.clientInfo = info;
 	}
 	
-	public void setevent(ClientEvent event_) {
+	public void setevent(Integer event_) {
 		this.event = event_;
 	}
 	

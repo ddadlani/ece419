@@ -46,8 +46,12 @@ public class MazeServer {
             System.exit(-1);
         }
 
+       //Socket acceptSocket = null;
+       
         while (listening) {
+        	//acceptSocket = serverSocket.accept();
             new MazeServerHandlerThread(serverSocket.accept(), maze).start();  
+            
         }
 
         serverSocket.close();

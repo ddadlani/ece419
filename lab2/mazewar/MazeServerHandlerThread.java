@@ -18,17 +18,14 @@ public class MazeServerHandlerThread extends Thread{
 
 	public void run() {
 		System.out.println("Entered MazeServerHandlerThread");
-		boolean gotByePacket = false;
-
+		
 		try {
 			/* stream to read from client */
-			ObjectInputStream fromClient = new ObjectInputStream(
-					socket.getInputStream());
+			ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
 			MazePacket packetFromClient;
 
 			/* stream to write back to client */
-			ObjectOutputStream toClient = new ObjectOutputStream(
-					socket.getOutputStream());
+			ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
 			MazePacket packetToClient;	// Remember to initialize this before using it!
 
 			/* Next packet in queue */
@@ -140,20 +137,21 @@ public class MazeServerHandlerThread extends Thread{
 			}		// end of while loop
 
 			/* cleanup when client exits */
+			// Closing the streams closes the socket as well. 
+			// We only want to close the inputstream and outputstream
 			fromClient.close();
 			toClient.close();
-			socket.close();
+			fromClient = null;
+			toClient = null;
 
 		} catch (NullPointerException n) {
 			n.printStackTrace();
 		} catch (EOFException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			if (!gotByePacket)
-				e.printStackTrace();
+			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			if (!gotByePacket)
-				e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 
@@ -170,9 +168,9 @@ public class MazeServerHandlerThread extends Thread{
 				clientsocket = new Socket(addressBook.get(i).hostname, addressBook.get(i).port);
 				out = new ObjectOutputStream(clientsocket.getOutputStream());
 				out.writeObject(outPacket);
-				//out.close();
-				//clientsocket.close();
-			}
+				out.close();
+				clientsocket.close();
+				}
 		} catch (NullPointerException npe) {
 			System.err.println("Error: A null pointer was accessed in broadcastPacket.");
 			npe.printStackTrace();
