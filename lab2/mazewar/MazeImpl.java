@@ -424,9 +424,16 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 assert(client != null);
                 assert(checkBounds(point));
                 CellImpl cell = getCellImpl(point);
-                Direction d = Direction.random();
+                Direction d = Direction.East;//Direction.random();
+                int count = 0;
                 while(cell.isWall(d)) {
-                  d = Direction.random();
+                	if (count == 0)
+                		d = Direction.North;
+                	if (count == 1)
+                		d = Direction.West;
+                	if (count == 2)
+                		d = Direction.South;
+                  count ++;
                 }
                 cell.setContents(client);
                 clientMap.put(client, new DirectedPoint(point, d));
