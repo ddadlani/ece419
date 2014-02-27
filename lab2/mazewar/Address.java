@@ -33,5 +33,7 @@ public class Address implements Serializable {
 		this.id = toCopy.id;
 		this.hostname = toCopy.hostname;
 		this.port = toCopy.port;
+		this.position = toCopy.position;
+		this.orientation = toCopy.orientation;
 	}
 }

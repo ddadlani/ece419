@@ -27,7 +27,7 @@ public class ClientListenerThread extends Thread {
 			MazePacket packetFromServer = new MazePacket();
 
 			packetFromServer = (MazePacket) in.readObject();
-			System.out.println("IM LISTENING!");
+			//System.out.println("IM LISTENING!");
 			// NOT SORTING QUEUE(using priority queue) YET
 			// just adding to queue if in sequence, otherwise dropping packet
 			if (packetFromServer != null) {
@@ -48,7 +48,7 @@ public class ClientListenerThread extends Thread {
 			}
 			if (move != null) {
 				// Check if local
-				System.out.println("IM EXECUTING!");
+				//System.out.println("IM EXECUTING!");
 				try {
 					if (move.getclientInfo().hostname.equals(InetAddress
 							.getLocalHost().getHostName())) {

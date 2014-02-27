@@ -179,7 +179,7 @@ public class Mazewar extends JFrame {
 			MazePacket packetToServer = new MazePacket();
 			Address client_addr = new Address();
 			client_addr.hostname = InetAddress.getLocalHost().getHostName();
-			System.out.println("" + client_addr.hostname);
+			//System.out.println("" + client_addr.hostname);
 			client_addr.port = listenPort; // ??
 			client_addr.name = name;
 
@@ -204,8 +204,8 @@ public class Mazewar extends JFrame {
 		try {
 			do {
 				packetFromServer = (MazePacket) in.readObject();
-				System.out.println("Received Packet from Server: msgType: "
-						+ packetFromServer.getmsgType());
+				//System.out.println("Received Packet from Server: msgType: "
+						//+ packetFromServer.getmsgType());
 				// Error packet
 				if (packetFromServer.geterrorCode() == MazePacket.ERROR_INVALID_TYPE) {
 					System.err.println("SENT INVALID TYPE");
@@ -213,7 +213,7 @@ public class Mazewar extends JFrame {
 				}
 				
 				if (packetFromServer.getmsgType() == MazePacket.CONNECTION_REPLY) {
-					System.out.println("Connection Made");
+				//	System.out.println("Connection Made");
 					// RECEIVE NUMBER AND LOCATION OF REMOTE CLIENTS, ADD THEM
 					// INTO GAME
 					numRemotes = packetFromServer.remotes.length;
@@ -283,7 +283,7 @@ public class Mazewar extends JFrame {
 	    for(Map.Entry<Integer,String> entry : clientIDs_sorted.entrySet()) {
 	    	
 	    	String name_of_player = entry.getValue();
-	    	System.out.println("Creating " + name_of_player + " with id " + entry.getKey());
+	    //	System.out.println("Creating " + name_of_player + " with id " + entry.getKey());
 	    	if (name_of_player.equals(packetFromServer.getclientInfo().name))
 	    	{
 	    		guiClient = new GUIClient(name_of_player, serverHost, serverPort);

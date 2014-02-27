@@ -33,9 +33,9 @@ public class MazeServer {
                         System.exit(-1);
                 }
         } catch (EOFException eofe) {
-        	System.out.println("Connection error");
+        	System.err.println("Connection error");
         } catch (SocketException se ) {
-        	  System.out.println("Connection error");
+        	 System.err.println("Connection error");
         } catch (IOException e) {
             System.err.println("ERROR: Could not listen on port!");
             System.exit(-1);
