@@ -7,6 +7,7 @@ public class ClientListenerThread extends Thread {
 	private Queue<MazePacket> queue;
 	private Integer seqnumCounter;
 	private Maze maze;
+	private Map<Integer, String> map = null;
 
 	public ClientListenerThread(Socket socket, Mazewar mazewar, Maze maze,
 			Integer seqnumCounter) {
@@ -15,6 +16,7 @@ public class ClientListenerThread extends Thread {
 		this.queue = mazewar.receive_queue;
 		this.maze = maze;
 		this.seqnumCounter = seqnumCounter;
+		this.map = mazewar.clientIDs_sorted;
 	}
 
 	public void run() {
@@ -29,7 +31,7 @@ public class ClientListenerThread extends Thread {
 			// NOT SORTING QUEUE(using priority queue) YET
 			// just adding to queue if in sequence, otherwise dropping packet
 			if (packetFromServer != null) {
-		
+
 				synchronized (this.queue) {
 					queue.add(packetFromServer);
 				}
@@ -77,9 +79,8 @@ public class ClientListenerThread extends Thread {
 							if (o instanceof RemoteClient) {
 								remoteClient = (RemoteClient) o;
 								Integer count;
-								for (count = 0; count < move.remotes.length; count++)
-									if (remoteClient.getName().equals(
-											move.remotes[count].name)) {
+								for (count = 0; count < map.size(); count++)
+									if (remoteClient.getName().equals(map.get(count))) {
 										found = true;
 										break;
 									}

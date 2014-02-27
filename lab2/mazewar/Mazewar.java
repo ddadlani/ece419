@@ -43,7 +43,7 @@ public class Mazewar extends JFrame {
 	// LAB2
 	public Queue<MazePacket> receive_queue = null;
 	public Integer seqnumCounter;
-	
+	public Map<Integer,String> clientIDs_sorted = null;
 
 	/**
 	 * The default width of the {@link Maze}.
@@ -197,7 +197,7 @@ public class Mazewar extends JFrame {
 			System.exit(1);
 		}
 
-		 Map<Integer,String> clientIDs_sorted = new TreeMap<Integer,String>();
+		clientIDs_sorted = new TreeMap<Integer,String>();
 		/* process server reply */
 		MazePacket packetFromServer = new MazePacket();
 		int numRemotes = 0;
