@@ -31,6 +31,7 @@ public class RemoteClient extends Client {
          */
         public RemoteClient(String name) {
                 super(name);
+                Mazewar.consolePrintLn("Remote client \"" + name + "\" activated.");
         }
 
         /**

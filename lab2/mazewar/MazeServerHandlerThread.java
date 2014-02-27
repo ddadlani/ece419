@@ -87,13 +87,16 @@ public class MazeServerHandlerThread extends Thread{
 							synchronized(mazeData.addressBook) {
 								// Ask all clients to create a new remote client
 								nextInLine.setmsgType(MazePacket.NEW_REMOTE_CONNECTION);
+								// add remotes
+								numRemotes = mazeData.addressBook.size();
+								nextInLine.remotes = new Address[numRemotes+1];
+								nextInLine.remotes[0] = new Address(nextInLine.getclientInfo());
+								
 								broadcastPacket(nextInLine, mazeData.addressBook);
 
-								// Gather remote client data for the new connection
-								numRemotes = mazeData.addressBook.size();
-								nextInLine.remotes = new Address[numRemotes];						
+								// Gather remote client data for the new connection						
 								for (int i = 0; i < numRemotes; i++) {
-									nextInLine.remotes[i] = new Address(mazeData.addressBook.get(i));
+									nextInLine.remotes[i+1] = new Address(mazeData.addressBook.get(i));
 								}
 								// Add new connection data to the addressBook
 								mazeData.addressBook.add(nextInLine.getclientInfo());	

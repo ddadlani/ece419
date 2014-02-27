@@ -197,31 +197,39 @@ public class Mazewar extends JFrame {
 			System.exit(1);
 		}
 
+		 Map<Integer,String> clientIDs_sorted = new TreeMap<Integer,String>();
 		/* process server reply */
 		MazePacket packetFromServer = new MazePacket();
+		int numRemotes = 0;
 		try {
 			do {
 				packetFromServer = (MazePacket) in.readObject();
 				System.out.println("Received Packet from Server: msgType: "
 						+ packetFromServer.getmsgType());
-				if (packetFromServer.getmsgType() == MazePacket.CONNECTION_REPLY) {
-					System.out.println("Connection Made");
-					// RECEIVE NUMBER AND LOCATION OF REMOTE CLIENTS, ADD THEM
-					// INTO GAME
-					int numRemotes = packetFromServer.remotes.length;
-					for (int i = 0; i < numRemotes; i++) {
-						maze.addClient(new RemoteClient(packetFromServer.remotes[i].name));
-					}
-				}
+				// Error packet
 				if (packetFromServer.geterrorCode() == MazePacket.ERROR_INVALID_TYPE) {
 					System.err.println("SENT INVALID TYPE");
 					System.exit(-1);
 				}
+				
+				if (packetFromServer.getmsgType() == MazePacket.CONNECTION_REPLY) {
+					System.out.println("Connection Made");
+					// RECEIVE NUMBER AND LOCATION OF REMOTE CLIENTS, ADD THEM
+					// INTO GAME
+					numRemotes = packetFromServer.remotes.length;
+					// add everyone who is connected, including yourself
+						for (int i = 0; i < numRemotes; i++)	{
+							clientIDs_sorted.put(packetFromServer.remotes[i].id, packetFromServer.remotes[i].name);
+						}
+				} else if (packetFromServer.getmsgType() == MazePacket.MAZE_NULL) {
+					// Just an ack
+				}
+				
 			} while (packetFromServer.getmsgType() != MazePacket.CONNECTION_REPLY);
 
 			out.close();
 			in.close();
-			// MazeSocket.close();
+			MazeSocket.close();
 
 		} catch (EOFException eof) {
 			System.err.println("No reply received EOF");
@@ -231,61 +239,56 @@ public class Mazewar extends JFrame {
 			System.exit(1);
 		} catch (ClassNotFoundException e) {
 
+		} catch (NullPointerException np) {
+			System.err.println("ERROR: Null pointer accessed.");
+			np.printStackTrace();
 		}
 		MazePacket remoteRequestPacket = null;
 		//Case where all players haven't yet connected
-		if (packetFromServer.remotes.length != (num_players - 1))
-		{
-			//wait for others to connect
+		//if (numRemotes != num_players)
+		//wait for others to connect
 			
 			try {
 				assert(ReceiverSocket != null);
 				Socket socket = null; 
 				ObjectInputStream input = null;
 				
-				while(true) {
+				while(numRemotes < num_players) {
 					socket = ReceiverSocket.accept();
 					input = new ObjectInputStream(socket.getInputStream());
 					remoteRequestPacket = (MazePacket) input.readObject();
 					
-					if (remoteRequestPacket != null) {
-						if (remoteRequestPacket.getmsgType().equals(MazePacket.NEW_REMOTE_CONNECTION) && (remoteRequestPacket.remotes.length == (num_players - 1)))
-							break;
+					if ((remoteRequestPacket != null) && (remoteRequestPacket.remotes != null)) {
+						if (remoteRequestPacket.getmsgType().equals(MazePacket.NEW_REMOTE_CONNECTION) && (remoteRequestPacket.remotes.length >= 1)) {
+							clientIDs_sorted.put(remoteRequestPacket.remotes[0].id, remoteRequestPacket.remotes[0].name);
+							numRemotes++;
+						}
+						else {
+							System.err.println("Not a new remote connection?");
+						}
 					}
 					input.close();
 					socket.close();
-				} 
+				}
 			
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-		}
-		
-		else
-		{
-			remoteRequestPacket = packetFromServer;
-		}
-		//int[] client_ids = new int[num_players];
-		//client_ids[0] = packetFromServer.getclientID();
-		//HashMap<Integer, Integer> client_ids = new HashMap<Integer, Integer>();
-	    Map<Integer,String> clientIDs_sorted = new TreeMap<Integer,String>();
+	   
 	    // Put some values in it
-	    int i;
-	    clientIDs_sorted.put(packetFromServer.getclientID(),packetFromServer.getclientInfo().name);
-		for (i = 0; i < (num_players-1); i++)
-		{
-			clientIDs_sorted.put(remoteRequestPacket.remotes[i].id, remoteRequestPacket.remotes[i].name );
-		}
+	    
 	    // Iterate through it and it'll be in order!
 	    for(Map.Entry<Integer,String> entry : clientIDs_sorted.entrySet()) {
 	    	
 	    	String name_of_player = entry.getValue();
+	    	System.out.println("Creating " + name_of_player + " with id " + entry.getKey());
 	    	if (name_of_player.equals(packetFromServer.getclientInfo().name))
 	    	{
 	    		guiClient = new GUIClient(name_of_player, serverHost, serverPort);
 	    		maze.addClient(guiClient);
+	    		this.addKeyListener(guiClient);
 	    	}	
 	    	else
 	    	{
@@ -294,14 +297,6 @@ public class Mazewar extends JFrame {
 	    	}
 	    		
 	    } 
-			
-		
-		// Create the GUIClient and connect it to the KeyListener queue
-		// just removed MazeSocket from arguments
-		guiClient = new GUIClient(name, serverHost, serverPort);
-		maze.addClient(guiClient);
-		this.addKeyListener(guiClient);
-
 		// Use braces to force constructors not to be called at the beginning of
 		// the constructor.
 		// Uncomment below code to create remote clients
