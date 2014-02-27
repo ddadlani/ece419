@@ -139,7 +139,10 @@ public class ClientListenerThread extends Thread {
 				else if (move.getmsgType() == MazePacket.MAZE_DISCONNECT) {
 					// CHECK IF LOCAL
 					if (local)
+					{
+						in.close();
 						Mazewar.quit();
+					}
 					// NEED TO ADD SOCKET CLOSING STUFF!
 					// REMOVE REMOTE CLIENT
 					else
