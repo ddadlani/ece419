@@ -79,11 +79,13 @@ public class ClientListenerThread extends Thread {
 							if (o instanceof RemoteClient) {
 								remoteClient = (RemoteClient) o;
 								Integer count;
+								synchronized (map) {
 								for (count = 0; count < map.size(); count++)
 									if (remoteClient.getName().equals(map.get(count))) {
 										found = true;
 										break;
 									}
+								}
 								if (found)
 									break;
 								else
