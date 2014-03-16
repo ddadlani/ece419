@@ -1,4 +1,5 @@
 import java.net.*;
+import java.util.ArrayList;
 import java.io.*;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
@@ -50,7 +51,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 			/* make a new request packet */
 			MazePacket packetToServer = new MazePacket();
 			Address client_addr = new Address();
-			client_addr.name = this.getName();
+			//client_addr.name = this.getName();
 			client_addr.hostname = InetAddress.getLocalHost().getHostName();
 			client_addr.position = this.getPoint();
 			client_addr.orientation = this.getOrientation();
@@ -58,7 +59,8 @@ public class GUIClient extends LocalClient implements KeyListener {
 			// If the user pressed Q, invoke the cleanup code and quit.
 			if ((e.getKeyChar() == 'q') || (e.getKeyChar() == 'Q')) {
 
-				packetToServer.setmsgType(MazePacket.MAZE_DISCONNECT);
+				packetToServer.setmsgType(MazePacket.DISCONNECT_REQUEST);
+				// DISCONNECT FROM NAMING SERVER
 				// SEND DATA NEEDED TO DISCONNECT: Address, location?
 				out.writeObject(packetToServer);
 
@@ -148,6 +150,31 @@ public class GUIClient extends LocalClient implements KeyListener {
 	 *            The {@link KeyEvent} that occurred.
 	 */
 	public void keyTyped(KeyEvent e) {
+	}
+
+	public void broadcastPacket(MazePacket outPacket, ArrayList<Address> addressBook) {
+			Socket clientsocket = null;
+			ObjectOutputStream out = null;
+
+			// If nothing has been added to the address book yet, nothing to do
+			if ((addressBook != null) && (addressBook.isEmpty())) {
+				return;
+			}
+			try {
+				for (int i = 0; i < addressBook.size(); i++) {
+				clientsocket = new Socket(addressBook.get(i).hostname, addressBook.get(i).port);
+				out = new ObjectOutputStream(clientsocket.getOutputStream());
+				out.writeObject(outPacket);
+				out.close();
+				clientsocket.close();
+				}
+		} catch (NullPointerException npe) {
+			System.err.println("Error: A null pointer was accessed in broadcastPacket.");
+			npe.printStackTrace();
+		} catch (IOException e) {
+			System.err.println("Error: IOException thrown in broadcastPacket.");
+			e.printStackTrace();
+		} 
 	}
 
 }

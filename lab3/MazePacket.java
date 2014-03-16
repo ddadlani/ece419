@@ -6,7 +6,6 @@
  */
  
 import java.io.*;
-import java.util.Collection;
 
 
 public class MazePacket implements Serializable{
@@ -21,21 +20,22 @@ public class MazePacket implements Serializable{
 	public static final int MAZE_NULL = 0;
 	public static final int ACK = 100;
 	public static final int CONNECTION_REQUEST = 101;
-	public static final int CONNECTION_REPLY = 102;
+	public static final int LOOKUP_REQUEST = 102;
 	public static final int MAZE_REQUEST = 103;
-	public static final int MAZE_REPLY = 104;
-	public static final int NEW_PLAYER = 105;
-	public static final int REMOVE_PLAYER = 106;
-	public static final int DISCONNECT_REQUEST = 107;
+	public static final int DISCONNECT_REQUEST = 104;
+	public static final int HEARTBEAT = 105;
 	
 	/**
 	 * Event constants
 	 */
-	 public static final int MOVE_FORWARD = 0;
-     public static final int MOVE_BACKWARD = 1;
-     public static final int TURN_LEFT = 2;
-     public static final int TURN_RIGHT = 3;
-     public static final int FIRE = 4;
+	public static final int CONNECT = 0;
+	public static final int MOVE_FORWARD = 1;
+	public static final int MOVE_BACKWARD = 2;
+	public static final int TURN_LEFT = 3;
+	public static final int TURN_RIGHT = 4;
+	public static final int FIRE = 5;
+	public static final int DISCONNECT = 6;
+	
 	/**
 	 * Message error constants 
 	 */
@@ -50,23 +50,29 @@ public class MazePacket implements Serializable{
 	 * Fields in the packet 
 	 */
 	private Address clientInfo;
-	private String name;
+	//private String name;
+	private Integer clientID;
 	private Integer event;
-	private Integer seqNum;
+	private Double lClock;
 	private Integer msgType;
 	private Integer errorCode;
-	public Collection<Address> remotes;
+	public Address[] remotes;
+	private Integer numAcks;
+	//public Collection<Address> addresses;
 	
 	/**
 	 * Default constructor
 	 */
 	public MazePacket() {
+	//	this.name = null;
+		this.clientID = MAZE_NULL;
 		this.clientInfo = null;
 		this.event = MAZE_NULL;
-		this.seqNum = MAZE_NULL;
+		this.lClock = 0.0;
 		this.msgType = MAZE_NULL;
 		this.errorCode = MAZE_NULL;
 		this.remotes = null;
+		this.numAcks = MAZE_NULL;
 	}
 	
 	/**
@@ -83,8 +89,8 @@ public class MazePacket implements Serializable{
 		return this.event;
 	}
 	
-	public Integer getseqNum() {
-		return this.seqNum;
+	public Double getlamportClock() {
+		return this.lClock;
 	}
 	
 	public Integer getmsgType() {
@@ -96,13 +102,16 @@ public class MazePacket implements Serializable{
 	}
 	
 	public Integer getclientID() {
-		return this.clientInfo.id;
+		return this.clientID;
 	}
 	
 	public String getName() {
 		return this.name;
 	}
 	
+	public Integer getnumAcks() {
+		return this.numAcks;
+	}
 	
 	/**
 	 * Setter functions
@@ -117,8 +126,8 @@ public class MazePacket implements Serializable{
 		this.event = event_;
 	}
 	
-	public void setseqNum(Integer seq_) {
-		this.seqNum = seq_;
+	public void setlamportClock(Double clock_) {
+		this.lClock = clock_;
 	}
 	
 	public void setmsgType(Integer msgType) {
@@ -130,11 +139,15 @@ public class MazePacket implements Serializable{
 	}
 	
 	public void setclientID(Integer cid_) {
-		this.clientInfo.id = cid_;
+		this.clientID = cid_;
 	}
 	
 	public void setName(String name_) {
 		this.name = name_;
+	}
+	
+	public void getnumAcks(Integer numAcks_) {
+		this.numAcks = numAcks_;
 	}
 	
 }

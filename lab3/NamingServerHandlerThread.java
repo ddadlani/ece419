@@ -3,8 +3,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.ArrayList;
+
 
 /**
  * Provides a naming server to store the locations of all connected Mazewar
@@ -12,13 +12,17 @@ import java.util.HashMap;
  */
 public class NamingServerHandlerThread {
 
-	private Socket socket = null;
-	private HashMap<String, Address> players;
+	private Socket socket;
+	private Integer clientID;
+	private ArrayList<Address> playerList;
+	private Address[] remotes;
 
 	public NamingServerHandlerThread(Socket socket,
-			HashMap<String, Address> players) {
+			ArrayList<Address> playerList) {
 		this.socket = socket;
-		this.players = players;
+		this.playerList = playerList;
+		this.clientID = 0;
+		this.remotes = null;
 	}
 
 	public void run() {
@@ -32,18 +36,44 @@ public class NamingServerHandlerThread {
 			MazePacket packetToClient;
 
 			int error = 0;
-
+			packetToClient = new MazePacket();
+			
 			if ((packetFromClient = (MazePacket) fromClient.readObject()) != null) {
-				switch (packetFromClient.getmsgType()) {
-				case (MazePacket.NEW_PLAYER): {
-					error = addPlayer(packetFromClient.getName(), packetFromClient.getclientInfo());
+				// If it's not a request for the naming server, why are we getting this?
+				if(packetFromClient.getmsgType() != MazePacket.LOOKUP_REQUEST)
+					error = MazePacket.ERROR_INVALID_TYPE;
+				
+				
+				switch (packetFromClient.getevent()) {
+				case (MazePacket.CONNECT): {
+					// Convert current ArrayList to an array of addresses
+					remotes = new Address[playerList.size()];
+					Object[] remoteInfo = getAllPlayers();
+					// While loop converts type Object to type Address
+					for (int i = 0; i < playerList.size(); i++) {
+						remotes[i] = (Address) remoteInfo[i];
+					}
+					
+					// Add player to playerList
+					error = addPlayer(packetFromClient.getclientInfo());
 					if (error != 0) {
 						System.err.println("New player could not be added to database.");
 					}
+					if (error == 0) {
+						// Set remotes and assign client ID
+						packetToClient.remotes = this.remotes;
+						packetToClient.setevent(MazePacket.CONNECT);
+						packetToClient.setclientID(clientID);
+						clientID++;
+					} else {
+						packetToClient.seterrorCode(error);
+						error = 0;
+					}
 					break;
 				}
-				case MazePacket.REMOVE_PLAYER: {
-					error = removePlayer(packetFromClient.getName());
+				case MazePacket.DISCONNECT: {
+					// Remove player from playerList
+					error = removePlayer(packetFromClient.getclientInfo());
 					if (error != 0) {
 						System.err.println("ERROR: Player could not be removed.");
 					}
@@ -62,14 +92,12 @@ public class NamingServerHandlerThread {
 				error = MazePacket.ERROR_NULL_POINTER_SENT;
 			}
 
-			packetToClient = new MazePacket();
-			packetToClient.setmsgType(MazePacket.NEW_PLAYER);
-			if (error == 0) {
-				packetToClient.remotes = getAllPlayers();
-			} else {
+			if (error != 0) {
 				packetToClient.seterrorCode(error);
 				error = 0;
 			}
+			packetToClient.setmsgType(MazePacket.ACK);
+			
 			
 			toClient.writeObject(packetToClient);
 			
@@ -110,17 +138,16 @@ public class NamingServerHandlerThread {
 	 * @return Returns false if the given name already exists or an error
 	 *         occurred while adding player info
 	 */
-	public int addPlayer(String name, Address address) {
+	public int addPlayer(Address address) {
 		if (address == null)
 			return MazePacket.ERROR_NULL_POINTER_SENT;
-
-		synchronized(players) {
-			if ((players.containsKey(name) == true))
+		
+		synchronized(playerList) {
+			if (playerList.contains(address))
 				return MazePacket.ERROR_PLAYER_EXISTS;
-
-			if (players.put(name, address) != null) {
+		
+			if (playerList.add(address) == false)
 				return MazePacket.ERROR_COULD_NOT_ADD;
-			}
 		}
 		return 0;
 	}
@@ -132,12 +159,12 @@ public class NamingServerHandlerThread {
 	 *            The name of the player to remove
 	 * @return Returns false if player <name> is not found in the database
 	 */
-	public int removePlayer(String name) {
-		if (name == null)
+	public int removePlayer(Address address) {
+		if (address == null) 
 			return MazePacket.ERROR_NULL_POINTER_SENT;
-		
-		synchronized (players) {
-			if (players.remove(name) == null) {
+
+		synchronized (playerList) {
+			if (playerList.remove(address) == false) {
 				return MazePacket.ERROR_PLAYER_DOES_NOT_EXIST;
 			}
 		}
@@ -149,12 +176,12 @@ public class NamingServerHandlerThread {
 	 * 
 	 * @return Returns all the connected players' info in a Collection<Address>
 	 */
-	public Collection<Address> getAllPlayers() {
-		synchronized (players) {
-			if (players == null)
+	public Object[] getAllPlayers() {
+		synchronized (playerList) {
+			if (playerList == null)
 				return null;
 			else
-				return players.values();
+				return playerList.toArray();
 		}
 	}
 

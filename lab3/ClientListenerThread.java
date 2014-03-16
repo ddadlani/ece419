@@ -98,7 +98,7 @@ public class ClientListenerThread extends Thread {
 				} catch (UnknownHostException e) {
 				}
 
-				if (move.getmsgType() == MazePacket.MAZE_REPLY) {
+				if (move.getmsgType() == MazePacket.ACK) {
 					if (local) {
 						if (move.getevent() == MazePacket.MOVE_FORWARD)
 							localClient.forward();
@@ -124,7 +124,7 @@ public class ClientListenerThread extends Thread {
 					}
 				}
 
-				else if (move.getmsgType() == MazePacket.MAZE_DISCONNECT) {
+				else if (move.getmsgType() == MazePacket.DISCONNECT_REQUEST) {
 					if (local)
 					{
 						in.close();
