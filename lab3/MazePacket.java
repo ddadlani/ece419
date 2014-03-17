@@ -21,7 +21,7 @@ public class MazePacket implements Serializable{
 	public static final int ACK = 100;
 	public static final int CONNECTION_REQUEST = 101;
 	public static final int LOOKUP_REQUEST = 102;
-	public static final int MAZE_REQUEST = 103;
+	public static final int MOVE_REQUEST = 103;
 	public static final int DISCONNECT_REQUEST = 104;
 	public static final int HEARTBEAT = 105;
 	
@@ -50,7 +50,7 @@ public class MazePacket implements Serializable{
 	 * Fields in the packet 
 	 */
 	private Address clientInfo;
-	//private String name;
+	private String name;
 	private Integer clientID;
 	private Integer event;
 	private Double lClock;
@@ -64,7 +64,7 @@ public class MazePacket implements Serializable{
 	 * Default constructor
 	 */
 	public MazePacket() {
-	//	this.name = null;
+		this.name = null;
 		this.clientID = MAZE_NULL;
 		this.clientInfo = null;
 		this.event = MAZE_NULL;
@@ -146,8 +146,12 @@ public class MazePacket implements Serializable{
 		this.name = name_;
 	}
 	
-	public void getnumAcks(Integer numAcks_) {
+	public void setnumAcks(Integer numAcks_) {
 		this.numAcks = numAcks_;
+	}
+	
+	public void incrementAcks() {
+		this.numAcks++;
 	}
 	
 }

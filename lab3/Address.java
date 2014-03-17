@@ -42,7 +42,8 @@ public class Address implements Serializable {
 		if ((other == null)||(this == null))
 			return false;
 		
-		//else if((this.name == other.name) &&
+		else if((this.name == other.name)) 
+			return true;
 		//   (this.id == other.id) &&
 		else if((this.hostname == other.hostname) &&
 		   (this.port == other.port)) {

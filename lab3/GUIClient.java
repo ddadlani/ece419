@@ -67,7 +67,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 				// Up-arrow moves forward.
 			} else if (e.getKeyCode() == KeyEvent.VK_UP) {
 
-				packetToServer.setmsgType(MazePacket.MAZE_REQUEST);
+				packetToServer.setmsgType(MazePacket.MOVE_REQUEST);
 				//ClientEvent c = ClientEvent.moveForward;
 				packetToServer.setevent(MazePacket.MOVE_FORWARD);
 				out.writeObject(packetToServer);
@@ -75,7 +75,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 				// Down-arrow moves backward.
 			} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 
-				packetToServer.setmsgType(MazePacket.MAZE_REQUEST);
+				packetToServer.setmsgType(MazePacket.MOVE_REQUEST);
 				//ClientEvent c = ClientEvent.moveBackward;
 				packetToServer.setevent(MazePacket.MOVE_BACKWARD);
 				out.writeObject(packetToServer);
@@ -83,7 +83,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 				// Left-arrow turns left.
 			} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 
-				packetToServer.setmsgType(MazePacket.MAZE_REQUEST);
+				packetToServer.setmsgType(MazePacket.MOVE_REQUEST);
 				//ClientEvent c = ClientEvent.turnLeft;
 				packetToServer.setevent(MazePacket.TURN_LEFT);
 				out.writeObject(packetToServer);
@@ -91,7 +91,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 				// Right-arrow turns right.
 			} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 
-				packetToServer.setmsgType(MazePacket.MAZE_REQUEST);
+				packetToServer.setmsgType(MazePacket.MOVE_REQUEST);
 				//ClientEvent c = ClientEvent.turnRight;
 				packetToServer.setevent(MazePacket.TURN_RIGHT);
 				out.writeObject(packetToServer);
@@ -99,7 +99,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 				// Spacebar fires.
 			} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 
-				packetToServer.setmsgType(MazePacket.MAZE_REQUEST);
+				packetToServer.setmsgType(MazePacket.MOVE_REQUEST);
 				//ClientEvent c = ClientEvent.fire;
 				packetToServer.setevent(MazePacket.FIRE);
 				out.writeObject(packetToServer);

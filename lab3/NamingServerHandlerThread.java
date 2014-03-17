@@ -18,10 +18,10 @@ public class NamingServerHandlerThread {
 	private Address[] remotes;
 
 	public NamingServerHandlerThread(Socket socket,
-			ArrayList<Address> playerList) {
+			ArrayList<Address> playerList, Integer clientID) {
 		this.socket = socket;
 		this.playerList = playerList;
-		this.clientID = 0;
+		this.clientID = clientID;
 		this.remotes = null;
 	}
 
@@ -101,12 +101,12 @@ public class NamingServerHandlerThread {
 			
 			toClient.writeObject(packetToClient);
 			
-			if ((packetFromClient = (MazePacket) fromClient.readObject()) != null) {
+			/*if ((packetFromClient = (MazePacket) fromClient.readObject()) != null) {
 				if (packetFromClient.getmsgType() != MazePacket.ACK) 
 					System.err.println ("ERROR: Expecting ACK. Wrong message type received.");
 			} else {
 				System.err.println("ERROR: Expecting ACK. Null packet received.");
-			}
+			}*/
 			
 			
 			/*

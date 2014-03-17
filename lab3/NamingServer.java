@@ -14,16 +14,22 @@ public class NamingServer {
 	 * associated with one name.
 	 */
 	private static ArrayList<Address> playerList;
-	private static int serverPort = 6000;
-	
+	private static int serverPort;
+	private static int clientID;
 	public NamingServer() {
-		playerList = new ArrayList<Address>();
+		//playerList = new ArrayList<Address>();
+		//serverPort = 6000;
+		//clientID = 0;
 	}
     
 	public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = null;
         boolean listening = true;
-
+        //NamingServer nServer = new NamingServer();
+        playerList = new ArrayList<Address>();
+        serverPort = 6000;
+        clientID = 0;
+        
         try {
         	serverSocket = new ServerSocket(serverPort);	
 
@@ -37,9 +43,10 @@ public class NamingServer {
         	serverPort = Integer.valueOf(in.readLine());
     		serverSocket = new ServerSocket(serverPort);	
         }
+        
 
         while (listening) {
-        	new NamingServerHandlerThread(serverSocket.accept(), playerList).run();  
+        	new NamingServerHandlerThread(serverSocket.accept(), NamingServer.playerList, NamingServer.clientID).run();  
         }
 
         serverSocket.close();

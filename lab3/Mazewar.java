@@ -42,18 +42,18 @@ import javax.swing.BorderFactory;
 public class Mazewar extends JFrame {
 
 	// LAB2
-	public Queue<MazePacket> receive_queue = null;
-	public Integer seqnumCounter;
-	public Map<Integer,String> clientIDs_sorted = null;
+	// public Queue<MazePacket> receive_queue = null;
+	// public Integer seqnumCounter;
+	// public Map<Integer,String> clientIDs_sorted = null;
 
-
-	// LAB3 
+	// LAB3
 	public Address[] remotes_addrbook;
 	public Integer pid;
 	public Double lClock;
 	public Integer numRemotes;
 	public SortedMap<Double, MazePacket> moveQueue;
 	public Address clientAddr;
+	public Integer listenPort;
 	/**
 	 * The default width of the {@link Maze}.
 	 */
@@ -136,16 +136,12 @@ public class Mazewar extends JFrame {
 	}
 
 	/**
-	 * The place where all the pieces are put together.
-	 *  First two local, second two for server
+	 * The place where all the pieces are put together. 
 	 */
-	public Mazewar(ServerSocket ReceiverSocket, int listenPort, String serverHost, Integer serverPort) {
+	public Mazewar(int listenPort, String serverHost, Integer serverPort) {
 		super("ECE419 Mazewar");
 		consolePrintLn("ECE419 Mazewar started!");
 
-		// Lab2
-		this.receive_queue = new LinkedList<MazePacket>();
-		this.seqnumCounter = 1;
 		// Create the maze
 		maze = new MazeImpl(new Point(mazeWidth, mazeHeight), mazeSeed);
 		assert (maze != null);
@@ -158,12 +154,14 @@ public class Mazewar extends JFrame {
 
 		// Throw up a dialog to get the GUIClient name.
 		String name = JOptionPane.showInputDialog("Enter your name");
-		//String no_players = JOptionPane.showInputDialog("Enter the number of players:");
-		if((name == null) || (name.length() == 0)) {
-			System.err.println("ERROR: Need a name and the number of players to start. Shutting down Mazewar.");
+		// String no_players =
+		// JOptionPane.showInputDialog("Enter the number of players:");
+		if ((name == null) || (name.length() == 0)) {
+			System.err
+					.println("ERROR: Need a name and the number of players to start. Shutting down Mazewar.");
 			Mazewar.quit();
 		}
-		//int num_players = Integer.parseInt(no_players);
+		// int num_players = Integer.parseInt(no_players);
 
 		// You may want to put your network initialization code somewhere in
 		// here.
@@ -174,26 +172,21 @@ public class Mazewar extends JFrame {
 		clientAddr = new Address();
 
 		try {
-			/* variables for hostname/port */
-		
-			/**
-			 * MazeSocket = socket used only for connection information 
-			 */
+			//MazeSocket = socket used only for connection information (naming server)
 			MazeSocket = new Socket(serverHost, serverPort);
 
 			out = new ObjectOutputStream(MazeSocket.getOutputStream());
 			in = new ObjectInputStream(MazeSocket.getInputStream());
 
-			/* make a new request packet */
+			// make a new request packet 
 			MazePacket packetToServer = new MazePacket();
 			clientAddr.name = name;
 			clientAddr.hostname = InetAddress.getLocalHost().getHostName();
-			//System.out.println("" + clientAddr.hostname);
-			clientAddr.port = listenPort; 
-			
+			clientAddr.port = listenPort;
 
 			packetToServer.setmsgType(MazePacket.LOOKUP_REQUEST);
 			packetToServer.setclientInfo(clientAddr);
+			packetToServer.setevent(MazePacket.CONNECT);
 
 			out.writeObject(packetToServer);
 
@@ -206,42 +199,36 @@ public class Mazewar extends JFrame {
 			System.exit(1);
 		}
 
-		//clientIDs_sorted = new TreeMap<Integer,String>();
-		/* process server reply */
-		MazePacket packetFromServer = new MazePacket();
 		
+		// process server reply 
+		MazePacket packetFromServer = new MazePacket();
+
 		try {
 			do {
 				packetFromServer = (MazePacket) in.readObject();
-				//System.out.println("Received Packet from Server: msgType: "
-						//+ packetFromServer.getmsgType());
+
 				// Error packet
 				if (packetFromServer.geterrorCode() == MazePacket.ERROR_INVALID_TYPE) {
 					System.err.println("SENT INVALID TYPE");
 					System.exit(-1);
 				}
-				if (packetFromServer.getmsgType() == MazePacket.ERROR_PLAYER_EXISTS)
-				{
+				if (packetFromServer.getmsgType() == MazePacket.ERROR_PLAYER_EXISTS) {
 					System.err.println("SENT CONNECTION REQUEST PACKET TWICE");
 					System.exit(-1);
 				}
-				if ((packetFromServer.getmsgType() == MazePacket.ACK) && (packetFromServer.getevent() == MazePacket.CONNECT)) {
-				//	System.out.println("Connection Made");
+				if ((packetFromServer.getmsgType() == MazePacket.ACK)
+						&& (packetFromServer.getevent() == MazePacket.CONNECT)) {
+
 					// RECEIVE NUMBER AND LOCATION OF REMOTE CLIENTS, ADD THEM
 					// INTO GAME
 					numRemotes = packetFromServer.remotes.length;
 					remotes_addrbook = packetFromServer.remotes;
 					pid = packetFromServer.getclientID();
-					lClock = (double)pid/10.0; //Initialize lClock
-					// add everyone who is connected, including yourself
-					//for (int i = 0; i < numRemotes; i++)	{
-					//clientIDs_sorted.put(packetFromServer.getclientID(), packetFromServer.getName());
-					//}
-				} //else if (packetFromServer.getmsgType() == MazePacket.MAZE_NULL) {
-					// Just an ack
-				//}
-				
-			} while (packetFromServer.getmsgType() != MazePacket.ACK);
+					lClock = (double) pid / 10.0; // Initialize lClock
+					// WHY DIVIDE BY 10??
+				}
+
+			} while (packetFromServer.getmsgType() != MazePacket.ACK); // Do we need the do while loop?
 
 			out.close();
 			in.close();
@@ -259,73 +246,6 @@ public class Mazewar extends JFrame {
 			System.err.println("ERROR: Null pointer accessed.");
 			np.printStackTrace();
 		}
-		
-
-		
-		
-		//MazePacket remoteRequestPacket = null;
-		//Case where all players haven't yet connected
-		//if (numRemotes != num_players)
-		//wait for others to connect
-		/*	
-			try {
-				assert(ReceiverSocket != null);
-				Socket socket = null; 
-				ObjectInputStream input = null;
-				
-				while(numRemotes < num_players) {
-					socket = ReceiverSocket.accept();
-					input = new ObjectInputStream(socket.getInputStream());
-					remoteRequestPacket = (MazePacket) input.readObject();
-					
-					if ((remoteRequestPacket != null) && (remoteRequestPacket.remotes != null)) {
-						if (remoteRequestPacket.getmsgType().equals(MazePacket.CONNECTION_REQUEST) && (remoteRequestPacket.remotes.length >= 1)) {
-							clientIDs_sorted.put(remoteRequestPacket.getclientID(), remoteRequestPacket.getName());
-							numRemotes++;
-						}
-						else {
-							System.err.println("Not a new remote connection?");
-						}
-					}
-					input.close();
-					socket.close();
-				}
-			
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-	    
-	    // Put some values in it
-	    
-	    // Iterate through it and it'll be in order!
-	    for(Map.Entry<Integer,String> entry : clientIDs_sorted.entrySet()) {
-	    	
-	    	String name_of_player = entry.getValue();
-	    	//System.out.println("Creating " + name_of_player + " with id " + entry.getKey());
-	    	if (name_of_player.equals(packetFromServer.getName()))
-	    	{
-	    		guiClient = new GUIClient(name_of_player, serverHost, serverPort);
-	    		maze.addClient(guiClient);
-	    		this.addKeyListener(guiClient);
-	    	}	
-	    	else
-	    	{
-	    		RemoteClient rc = new RemoteClient(name_of_player);
-	    		maze.addClient(rc);
-	    	}
-	    		
-	    } 
-	    */
-		// Use braces to force constructors not to be called at the beginning of
-		// the constructor.
-		// Uncomment below code to create remote clients
-		/*
-		 * { maze.addClient(new RobotClient("Norby")); maze.addClient(new
-		 * RobotClient("Robbie")); maze.addClient(new RobotClient("Clango"));
-		 * maze.addClient(new RobotClient("Marvin")); }
-		 */
 
 		// Create the panel that will display the maze.
 		overheadPanel = new OverheadMazePanel(maze, guiClient);
@@ -398,59 +318,50 @@ public class Mazewar extends JFrame {
 	public static void main(String args[]) {
 		String hostname = null;
 		Integer hostport = null;
+
+		if (args.length == 2) {
+			hostname = args[0];
+			hostport = Integer.parseInt(args[1]);
+		} else {
+			System.err
+					.println("ERROR: Invalid arguments! Usage: ./run.sh <server_host> <server_port>");
+			System.exit(-1);
+		}
+
+		// Start the listener socket. This will be passed into the listener
+		// thread
 		try {
-			
-			if(args.length == 2) {
-                hostname = args[0];
-                hostport = Integer.parseInt(args[1]);
-			} else {
-                System.err.println("ERROR: Invalid arguments! Usage: ./run.sh <server_host> <server_port>");
-                System.exit(-1);
-			}
-		
-			//Sending address to Naming Server and retrieving already connected client info
-			ServerSocket ReceiverSocket = new ServerSocket(0);
-			int listenPort = ReceiverSocket.getLocalPort();
-			
-			/* Create the GUI */
-			Mazewar mazewar = new Mazewar(ReceiverSocket, listenPort, hostname, hostport);
-			
-			//(new Thread(new Mazewar(ReceiverSocket, listenPort, hostname, hostport))).start();
-			// Maze maze = null;
-			// mazewar.maze = maze;
-			new Thread(new ClientExecutionThread(mazewar.moveQueue, mazewar.numRemotes, mazewar, mazewar.maze, hostname, hostport)).start();
-			new Thread(new ClientListenerThread(ReceiverSocket.accept(), mazewar, mazewar.maze, mazewar.seqnumCounter)).start();
-			
-			//Send Connection requests to already connected clients
+			ServerSocket listenSocket = new ServerSocket(0);
+			int listenPort = listenSocket.getLocalPort();
+
+			Mazewar mazewar = new Mazewar(listenPort, hostname, hostport);
+			new Thread(new ClientListenerThread(mazewar, listenSocket)).start();
+			new Thread(new ClientExecutionThread(mazewar.moveQueue,	mazewar.numRemotes, mazewar, mazewar.maze, hostname, hostport)).start();
+
+			// Send Connection requests to already connected clients
 			ArrayList<Address> addrBook = new ArrayList<Address>(Arrays.asList(mazewar.remotes_addrbook));
 			MazePacket toPlayers = new MazePacket();
 			toPlayers.setclientInfo(mazewar.clientAddr);
 			toPlayers.setmsgType(MazePacket.CONNECTION_REQUEST);
-			mazewar.broadcastPacket(toPlayers,addrBook);
+			mazewar.broadcastPacket(toPlayers, addrBook);
 			
-			/*boolean listening = true;
-			try {
-				while(listening)
-					new ClientListenerThread(ReceiverSocket.accept(), mazewar, mazewar.maze, mazewar.seqnumCounter).start();
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(-1);
-			}*/
-			
-			//ReceiverSocket.close();
-			// ClientListenerThread Lt = new ClientListenerThread
-			// (ReceiverSocket.accept(), mazewar);
-			// new Thread(Lt).start();
-			// new ClientExecutionThread(mazewar, maze).start();
-			// ReceiverSocket.close();
-		} catch (IOException ioe) {
-			System.err.println("Error: ReceiverSocket error.");
+		} catch (EOFException eofe) {
+			System.err.println("Connection error");
+			eofe.printStackTrace();
+			System.exit(1);
+		} catch (SocketException se) {
+			System.err.println("Connection error");
+			se.printStackTrace();
+			System.exit(1);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
-	}
-	
 
-	
-	public void broadcastPacket(MazePacket outPacket, ArrayList<Address> addressBook) {
+	}
+
+	public void broadcastPacket(MazePacket outPacket,
+			ArrayList<Address> addressBook) {
 		Socket clientsocket = null;
 		ObjectOutputStream out = null;
 
@@ -460,19 +371,21 @@ public class Mazewar extends JFrame {
 		}
 		try {
 			for (int i = 0; i < addressBook.size(); i++) {
-			clientsocket = new Socket(addressBook.get(i).hostname, addressBook.get(i).port);
-			out = new ObjectOutputStream(clientsocket.getOutputStream());
-			out.writeObject(outPacket);
-			out.close();
-			clientsocket.close();
+				clientsocket = new Socket(addressBook.get(i).hostname,
+						addressBook.get(i).port);
+				out = new ObjectOutputStream(clientsocket.getOutputStream());
+				out.writeObject(outPacket);
+				out.close();
+				clientsocket.close();
 			}
 		} catch (NullPointerException npe) {
-			System.err.println("Error: A null pointer was accessed in broadcastPacket.");
+			System.err
+					.println("Error: A null pointer was accessed in broadcastPacket.");
 			npe.printStackTrace();
 		} catch (IOException e) {
 			System.err.println("Error: IOException thrown in broadcastPacket.");
 			e.printStackTrace();
-		} 
+		}
 	}
 
 }
