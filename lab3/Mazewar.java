@@ -57,24 +57,24 @@ public class Mazewar extends JFrame {
 	/**
 	 * The default width of the {@link Maze}.
 	 */
-	private final int mazeWidth = 20;
+	public final int mazeWidth = 20;
 
 	/**
 	 * The default height of the {@link Maze}.
 	 */
-	private final int mazeHeight = 10;
+	public final int mazeHeight = 10;
 
 	/**
 	 * The default random seed for the {@link Maze}. All implementations of the
 	 * same protocol must use the same seed value, or your mazes will be
 	 * different.
 	 */
-	private final int mazeSeed = 42;
+	public final int mazeSeed = 42;
 
 	/**
 	 * The {@link Maze} that the game uses.
 	 */
-	private Maze maze = null;
+	public Maze maze = null;
 
 	/**
 	 * The {@link GUIClient} for the game.
@@ -84,18 +84,18 @@ public class Mazewar extends JFrame {
 	/**
 	 * The panel that displays the {@link Maze}.
 	 */
-	private OverheadMazePanel overheadPanel = null;
+	public OverheadMazePanel overheadPanel = null;
 
 	/**
 	 * The table the displays the scores.
 	 */
-	private JTable scoreTable = null;
+	public JTable scoreTable = null;
 
 	/**
 	 * Create the textpane statically so that we can write to it globally using
 	 * the static consolePrint methods
 	 */
-	private static final JTextPane console = new JTextPane();
+	public static final JTextPane console = new JTextPane();
 
 	/**
 	 * Write a message to the console followed by a newline.
@@ -154,9 +154,9 @@ public class Mazewar extends JFrame {
 
 		// Have the ScoreTableModel listen to the maze to find
 		// out how to adjust scores.
-		ScoreTableModel scoreModel = new ScoreTableModel();
+/*		ScoreTableModel scoreModel = new ScoreTableModel();
 		assert (scoreModel != null);
-		maze.addMazeListener(scoreModel);
+		maze.addMazeListener(scoreModel);*/
 
 		// Throw up a dialog to get the GUIClient name.
 		String name = JOptionPane.showInputDialog("Enter your name");
@@ -175,6 +175,7 @@ public class Mazewar extends JFrame {
 		Socket MazeSocket = null;
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
+
 
 		try {
 			// MazeSocket = socket used only for connection information (naming
@@ -230,6 +231,7 @@ public class Mazewar extends JFrame {
 					remotes_addrbook = packetFromServer.remotes;
 					pid = packetFromServer.getclientID();
 					lClock = (double) pid / 10.0; // Initialize lClock
+					// WHY DIVIDE BY 10??
 				}
 
 			} while (packetFromServer.getmsgType() != MazePacket.ACK); // Do we
@@ -257,7 +259,7 @@ public class Mazewar extends JFrame {
 		}
 
 		// Create the panel that will display the maze.
-		overheadPanel = new OverheadMazePanel(maze, guiClient);
+		/*overheadPanel = new OverheadMazePanel(maze, guiClient);
 		assert (overheadPanel != null);
 		maze.addMazeListener(overheadPanel);
 
@@ -315,7 +317,7 @@ public class Mazewar extends JFrame {
 		// Let the magic begin.
 		setVisible(true);
 		overheadPanel.repaint();
-		this.requestFocusInWindow();
+		this.requestFocusInWindow();*/
 	}
 
 	/**

@@ -1,5 +1,11 @@
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.net.*;
 import java.util.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 
 class ClientExecutionThread extends Thread {
 	private SortedMap<Double, MazePacket> localQueue;
@@ -28,7 +34,7 @@ class ClientExecutionThread extends Thread {
 		RemoteClient remoteClient = null;
 
 		// Check if ACKs have been received for the move at the top
-		if (this.localQueue != null) {
+		if (this.localQueue != null && this.localQueue.size()>0) {
 			do {
 				synchronized (this.localQueue) {
 					Double lclock = localQueue.firstKey();
@@ -48,6 +54,7 @@ class ClientExecutionThread extends Thread {
 								move.getclientInfo().name, move.remotes,
 								move.getclientInfo(), this.lookupHostName,
 								this.lookupPort, this.mazewar.lClock);
+						
 						maze.addClient(mazewar.guiClient);
 						mazewar.addKeyListener(mazewar.guiClient);
 
@@ -185,5 +192,73 @@ class ClientExecutionThread extends Thread {
 				}
 			}
 		}
+	}
+	
+	public void Create_game()
+	{
+
+		ScoreTableModel scoreModel = new ScoreTableModel();
+		assert (scoreModel != null);
+		maze.addMazeListener(scoreModel);
+		// Create the panel that will display the maze.
+		mazewar.overheadPanel = new OverheadMazePanel(maze, mazewar.guiClient);
+		assert (mazewar.overheadPanel != null);
+		maze.addMazeListener(mazewar.overheadPanel);
+
+		// Don't allow editing the console from the GUI
+		mazewar.console.setEditable(false);
+		mazewar.console.setFocusable(false);
+		mazewar.console.setBorder(BorderFactory.createTitledBorder(BorderFactory
+				.createEtchedBorder()));
+
+		// Allow the console to scroll by putting it in a scrollpane
+		JScrollPane consoleScrollPane = new JScrollPane(mazewar.console);
+		assert (consoleScrollPane != null);
+		consoleScrollPane.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createEtchedBorder(), "Console"));
+
+		// Create the score table
+		mazewar.scoreTable = new JTable(scoreModel);
+		assert (mazewar.scoreTable != null);
+		mazewar.scoreTable.setFocusable(false);
+		mazewar.scoreTable.setRowSelectionAllowed(false);
+
+		// Allow the score table to scroll too.
+		JScrollPane scoreScrollPane = new JScrollPane(mazewar.scoreTable);
+		assert (scoreScrollPane != null);
+		scoreScrollPane.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createEtchedBorder(), "Scores"));
+
+		// Create the layout manager
+		GridBagLayout layout = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		mazewar.getContentPane().setLayout(layout);
+
+		// Define the constraints on the components.
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 1.0;
+		c.weighty = 3.0;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		layout.setConstraints(mazewar.overheadPanel, c);
+		c.gridwidth = GridBagConstraints.RELATIVE;
+		c.weightx = 2.0;
+		c.weighty = 1.0;
+		layout.setConstraints(consoleScrollPane, c);
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		c.weightx = 1.0;
+		layout.setConstraints(scoreScrollPane, c);
+
+		// Add the components
+		mazewar.getContentPane().add(mazewar.overheadPanel);
+		mazewar.getContentPane().add(consoleScrollPane);
+		mazewar.getContentPane().add(scoreScrollPane);
+
+		// Pack everything neatly.
+		mazewar.pack();
+
+		// Let the magic begin.
+		mazewar.setVisible(true);
+		mazewar.overheadPanel.repaint();
+		mazewar.requestFocusInWindow();
 	}
 }
