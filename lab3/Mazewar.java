@@ -139,9 +139,15 @@ public class Mazewar extends JFrame {
 	 * The place where all the pieces are put together.
 	 */
 	public Mazewar(int listenPort, String serverHost, Integer serverPort) {
+		
 		super("ECE419 Mazewar");
 		consolePrintLn("ECE419 Mazewar started!");
 
+		//Lab 3 Initializations 
+		remotes_addrbook = new ArrayList<Address> ();
+		moveQueue = new TreeMap<Double, MazePacket> ();
+		clientAddr = new Address();
+		
 		// Create the maze
 		maze = new MazeImpl(new Point(mazeWidth, mazeHeight), mazeSeed);
 		assert (maze != null);
@@ -169,7 +175,6 @@ public class Mazewar extends JFrame {
 		Socket MazeSocket = null;
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
-		clientAddr = new Address();
 
 		try {
 			// MazeSocket = socket used only for connection information (naming
@@ -225,7 +230,6 @@ public class Mazewar extends JFrame {
 					remotes_addrbook = packetFromServer.remotes;
 					pid = packetFromServer.getclientID();
 					lClock = (double) pid / 10.0; // Initialize lClock
-					// WHY DIVIDE BY 10??
 				}
 
 			} while (packetFromServer.getmsgType() != MazePacket.ACK); // Do we
