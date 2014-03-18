@@ -47,7 +47,7 @@ public class Mazewar extends JFrame {
 	// public Map<Integer,String> clientIDs_sorted = null;
 
 	// LAB3
-	public Address[] remotes_addrbook;
+	public ArrayList<Address> remotes_addrbook;
 	public Integer pid;
 	public Double lClock;
 	public Integer numRemotes;
@@ -136,7 +136,7 @@ public class Mazewar extends JFrame {
 	}
 
 	/**
-	 * The place where all the pieces are put together. 
+	 * The place where all the pieces are put together.
 	 */
 	public Mazewar(int listenPort, String serverHost, Integer serverPort) {
 		super("ECE419 Mazewar");
@@ -172,13 +172,14 @@ public class Mazewar extends JFrame {
 		clientAddr = new Address();
 
 		try {
-			//MazeSocket = socket used only for connection information (naming server)
+			// MazeSocket = socket used only for connection information (naming
+			// server)
 			MazeSocket = new Socket(serverHost, serverPort);
 
 			out = new ObjectOutputStream(MazeSocket.getOutputStream());
 			in = new ObjectInputStream(MazeSocket.getInputStream());
 
-			// make a new request packet 
+			// make a new request packet
 			MazePacket packetToServer = new MazePacket();
 			clientAddr.name = name;
 			clientAddr.hostname = InetAddress.getLocalHost().getHostName();
@@ -199,8 +200,7 @@ public class Mazewar extends JFrame {
 			System.exit(1);
 		}
 
-		
-		// process server reply 
+		// process server reply
 		MazePacket packetFromServer = new MazePacket();
 
 		try {
@@ -220,15 +220,20 @@ public class Mazewar extends JFrame {
 						&& (packetFromServer.getevent() == MazePacket.CONNECT)) {
 
 					// RECEIVE NUMBER AND LOCATION OF REMOTE CLIENTS, ADD THEM
-					// INTO GAME
-					numRemotes = packetFromServer.remotes.length;
+					// INTO REMOTES (includes yourself)
+					numRemotes = packetFromServer.remotes.size();
 					remotes_addrbook = packetFromServer.remotes;
 					pid = packetFromServer.getclientID();
 					lClock = (double) pid / 10.0; // Initialize lClock
 					// WHY DIVIDE BY 10??
 				}
 
-			} while (packetFromServer.getmsgType() != MazePacket.ACK); // Do we need the do while loop?
+			} while (packetFromServer.getmsgType() != MazePacket.ACK); // Do we
+																		// need
+																		// the
+																		// do
+																		// while
+																		// loop?
 
 			out.close();
 			in.close();
@@ -336,15 +341,27 @@ public class Mazewar extends JFrame {
 
 			Mazewar mazewar = new Mazewar(listenPort, hostname, hostport);
 			new Thread(new ClientListenerThread(mazewar, listenSocket)).start();
-			new Thread(new ClientExecutionThread(mazewar.moveQueue,	mazewar.numRemotes, mazewar, mazewar.maze, hostname, hostport)).start();
+			new Thread(new ClientExecutionThread(mazewar.moveQueue,
+					mazewar.numRemotes, mazewar, mazewar.maze, hostname,
+					hostport)).start();
 
 			// Send Connection requests to already connected clients
-			ArrayList<Address> addrBook = new ArrayList<Address>(Arrays.asList(mazewar.remotes_addrbook));
+
+			// increment clock before sending
+			synchronized (mazewar.lClock) {
+				mazewar.lClock++;
+			}
+			// converting array to arraylist
+			// ArrayList<Address> addrBook = mazewar.remotes_addrbook;
 			MazePacket toPlayers = new MazePacket();
 			toPlayers.setclientInfo(mazewar.clientAddr);
 			toPlayers.setmsgType(MazePacket.CONNECTION_REQUEST);
-			mazewar.broadcastPacket(toPlayers, addrBook);
-			
+			toPlayers.setevent(MazePacket.CONNECT);
+			toPlayers.remotes = mazewar.remotes_addrbook;
+			toPlayers.setlamportClock(mazewar.lClock);
+
+			mazewar.broadcastPacket(toPlayers, toPlayers.remotes);
+
 		} catch (EOFException eofe) {
 			System.err.println("Connection error");
 			eofe.printStackTrace();

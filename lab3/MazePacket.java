@@ -6,6 +6,7 @@
  */
  
 import java.io.*;
+import java.util.ArrayList;
 
 
 public class MazePacket implements Serializable{
@@ -56,7 +57,7 @@ public class MazePacket implements Serializable{
 	private Double lClock;
 	private Integer msgType;
 	private Integer errorCode;
-	public Address[] remotes;
+	public ArrayList<Address> remotes;
 	private Integer numAcks;
 	//public Collection<Address> addresses;
 	

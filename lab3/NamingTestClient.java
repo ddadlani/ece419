@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Iterator;
 
 public class NamingTestClient {
 	public static void main(String[] args){
@@ -39,9 +40,11 @@ public class NamingTestClient {
 					System.err.println("Remotes are null");
 				}
 				else {
-					for(int i = 0; i < recvtest.remotes.length; i++) {
-						System.out.println("Remote " + i + ": Name =  " + recvtest.remotes[i].name);
-						System.out.println("Hostname = " + recvtest.remotes[i].hostname + " Port = " + recvtest.remotes[i].port);
+					Iterator<Address> i = recvtest.remotes.iterator();
+					while (i.hasNext()) {
+						Address next = i.next();
+						System.out.println("Remote: Name =  " + next.name);
+						System.out.println("Hostname = " + next.hostname + " Port = " + next.port);
 					}
 				}
 			}

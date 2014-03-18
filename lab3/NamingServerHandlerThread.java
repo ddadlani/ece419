@@ -5,7 +5,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
-
 /**
  * Provides a naming server to store the locations of all connected Mazewar
  * clients
@@ -15,56 +14,56 @@ public class NamingServerHandlerThread {
 	private Socket socket;
 	private Integer clientID;
 	private ArrayList<Address> playerList;
-	private Address[] remotes;
+
+	// private Address[] remotes;
 
 	public NamingServerHandlerThread(Socket socket,
 			ArrayList<Address> playerList, Integer clientID) {
 		this.socket = socket;
 		this.playerList = playerList;
 		this.clientID = clientID;
-		this.remotes = null;
+		// this.remotes = null;
 	}
 
 	public void run() {
 		try {
 			/* stream to read from client */
-			ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
+			ObjectInputStream fromClient = new ObjectInputStream(
+					socket.getInputStream());
 			MazePacket packetFromClient;
 
 			/* stream to write back to client */
-			ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
+			ObjectOutputStream toClient = new ObjectOutputStream(
+					socket.getOutputStream());
 			MazePacket packetToClient;
 
 			int error = 0;
 			packetToClient = new MazePacket();
-			
+
 			if ((packetFromClient = (MazePacket) fromClient.readObject()) != null) {
-				// If it's not a request for the naming server, why are we getting this?
-				if(packetFromClient.getmsgType() != MazePacket.LOOKUP_REQUEST)
+				// If it's not a request for the naming server, why are we
+				// getting this?
+				if (packetFromClient.getmsgType() != MazePacket.LOOKUP_REQUEST)
 					error = MazePacket.ERROR_INVALID_TYPE;
-				
-				
+
 				switch (packetFromClient.getevent()) {
 				case (MazePacket.CONNECT): {
-					// Convert current ArrayList to an array of addresses
-					remotes = new Address[playerList.size()];
-					Object[] remoteInfo = getAllPlayers();
-					// While loop converts type Object to type Address
-					for (int i = 0; i < playerList.size(); i++) {
-						remotes[i] = (Address) remoteInfo[i];
-					}
-					
+
 					// Add player to playerList
 					error = addPlayer(packetFromClient.getclientInfo());
 					if (error != 0) {
-						System.err.println("New player could not be added to database.");
+						System.err
+								.println("New player could not be added to database.");
 					}
 					if (error == 0) {
+						// Convert current ArrayList to an array of addresses
 						// Set remotes and assign client ID
-						packetToClient.remotes = this.remotes;
+						packetToClient.remotes = this.playerList;
 						packetToClient.setevent(MazePacket.CONNECT);
 						packetToClient.setclientID(clientID);
-						clientID++;
+						synchronized (clientID) {
+							clientID++;
+						}
 					} else {
 						packetToClient.seterrorCode(error);
 						error = 0;
@@ -75,7 +74,8 @@ public class NamingServerHandlerThread {
 					// Remove player from playerList
 					error = removePlayer(packetFromClient.getclientInfo());
 					if (error != 0) {
-						System.err.println("ERROR: Player could not be removed.");
+						System.err
+								.println("ERROR: Player could not be removed.");
 					}
 					break;
 				}
@@ -85,8 +85,8 @@ public class NamingServerHandlerThread {
 			}
 
 			/*
-			 * Send a packet back to client with error details
-			 * or connected players' information
+			 * Send a packet back to client with error details or connected
+			 * players' information
 			 */
 			if (packetFromClient == null) {
 				error = MazePacket.ERROR_NULL_POINTER_SENT;
@@ -97,25 +97,24 @@ public class NamingServerHandlerThread {
 				error = 0;
 			}
 			packetToClient.setmsgType(MazePacket.ACK);
-			
-			
+
 			toClient.writeObject(packetToClient);
-			
-			/*if ((packetFromClient = (MazePacket) fromClient.readObject()) != null) {
-				if (packetFromClient.getmsgType() != MazePacket.ACK) 
-					System.err.println ("ERROR: Expecting ACK. Wrong message type received.");
-			} else {
-				System.err.println("ERROR: Expecting ACK. Null packet received.");
-			}*/
-			
-			
+
+			/*
+			 * if ((packetFromClient = (MazePacket) fromClient.readObject()) !=
+			 * null) { if (packetFromClient.getmsgType() != MazePacket.ACK)
+			 * System.err.println
+			 * ("ERROR: Expecting ACK. Wrong message type received."); } else {
+			 * System
+			 * .err.println("ERROR: Expecting ACK. Null packet received."); }
+			 */
+
 			/*
 			 * Close everything and clean up
 			 */
 			fromClient.close();
 			toClient.close();
 			socket.close();
-			
 
 		} catch (NullPointerException n) {
 			n.printStackTrace();
@@ -127,7 +126,7 @@ public class NamingServerHandlerThread {
 			e.printStackTrace();
 		}
 	}
-	
+
 	// DOES THIS USAGE OF SYNCHRONIZED CAUSE DEADLOCKS??
 
 	/**
@@ -141,11 +140,11 @@ public class NamingServerHandlerThread {
 	public int addPlayer(Address address) {
 		if (address == null)
 			return MazePacket.ERROR_NULL_POINTER_SENT;
-		
-		synchronized(playerList) {
+
+		synchronized (playerList) {
 			if (playerList.contains(address))
 				return MazePacket.ERROR_PLAYER_EXISTS;
-		
+
 			if (playerList.add(address) == false)
 				return MazePacket.ERROR_COULD_NOT_ADD;
 		}
@@ -160,7 +159,7 @@ public class NamingServerHandlerThread {
 	 * @return Returns false if player <name> is not found in the database
 	 */
 	public int removePlayer(Address address) {
-		if (address == null) 
+		if (address == null)
 			return MazePacket.ERROR_NULL_POINTER_SENT;
 
 		synchronized (playerList) {
