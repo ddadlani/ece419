@@ -23,7 +23,7 @@ public class ClientListenHandlerThread {
 			// May be needed for heart beats? Not sure
 			this.numRemotes = mazewar_.numRemotes;
 			this.pid = mazewar_.pid;
-			this.name = mazewar_.getName();
+			this.name = mazewar_.clientAddr.name;
 			this.address = mazewar_.clientAddr;
 		}
 	}
@@ -100,6 +100,7 @@ public class ClientListenHandlerThread {
 				case (MazePacket.MOVE_REQUEST):
 				case (MazePacket.DISCONNECT_REQUEST): {
 					MazePacket Ack = new MazePacket();
+					Ack.setName(this.name);
 					Ack.setmsgType(MazePacket.ACK);
 					Ack.setevent(packetFromClient.getevent());
 					Ack.setlamportClock(packetFromClient.getlamportClock());
