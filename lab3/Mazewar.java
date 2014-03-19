@@ -351,20 +351,20 @@ public class Mazewar extends JFrame {
 					mazewar.numRemotes, mazewar, mazewar.maze, hostname,
 					hostport)).start();
 
-			// Send Connection requests to already connected clients
+			// Send Connection requests to all clients including itself
 
 			// increment clock before sending
 			synchronized (mazewar.lClock) {
 				mazewar.lClock++;
 			}
-			// converting array to arraylist
-			// ArrayList<Address> addrBook = mazewar.remotes_addrbook;
+			
 			MazePacket toPlayers = new MazePacket();
 			toPlayers.setclientInfo(mazewar.clientAddr);
 			toPlayers.setmsgType(MazePacket.CONNECTION_REQUEST);
 			toPlayers.setevent(MazePacket.CONNECT);
 			toPlayers.remotes = mazewar.remotes_addrbook;
 			toPlayers.setlamportClock(mazewar.lClock);
+			toPlayers.setName(mazewar.clientAddr.name);
 
 			mazewar.broadcastPacket(toPlayers, toPlayers.remotes);
 

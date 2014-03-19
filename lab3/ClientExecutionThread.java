@@ -35,17 +35,13 @@ class ClientExecutionThread extends Thread {
 		Integer numAcks = 0;
 		Integer ctr = 0;
 		// Check if ACKs have been received for the move at the top
-		if (this.localQueue != null && this.localQueue.size()>0) {
+		if (this.localQueue != null && this.localQueue.size() > 0) {
 			System.out.println(numAcks);
 			do {
-				System.out.println(ctr);
 				synchronized (this.localQueue) {
-					numAcks = move.getnumAcks();
-					System.out.println(" " + numAcks);
 					Double lclock = localQueue.firstKey();
 					move = localQueue.get(lclock);
 				}
-				ctr++;
 			} while (!(move.getnumAcks()).equals(numRemotes));
 
 			// Move at head of queue is valid
@@ -60,9 +56,10 @@ class ClientExecutionThread extends Thread {
 								move.getclientInfo().name, move.remotes,
 								move.getclientInfo(), this.lookupHostName,
 								this.lookupPort, this.mazewar.lClock);
-						
+
 						maze.addClient(mazewar.guiClient);
 						mazewar.addKeyListener(mazewar.guiClient);
+						Create_game();
 
 						// add everyone else already playing to game(since
 						// dynamic
@@ -199,9 +196,8 @@ class ClientExecutionThread extends Thread {
 			}
 		}
 	}
-	
-	public void Create_game()
-	{
+
+	public void Create_game() {
 
 		ScoreTableModel scoreModel = new ScoreTableModel();
 		assert (scoreModel != null);
@@ -214,8 +210,8 @@ class ClientExecutionThread extends Thread {
 		// Don't allow editing the console from the GUI
 		mazewar.console.setEditable(false);
 		mazewar.console.setFocusable(false);
-		mazewar.console.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createEtchedBorder()));
+		mazewar.console.setBorder(BorderFactory
+				.createTitledBorder(BorderFactory.createEtchedBorder()));
 
 		// Allow the console to scroll by putting it in a scrollpane
 		JScrollPane consoleScrollPane = new JScrollPane(mazewar.console);
