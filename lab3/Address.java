@@ -42,7 +42,7 @@ public class Address implements Serializable {
 		if ((other == null)||(this == null))
 			return false;
 		
-		else if((this.hostname == other.hostname) &&
+		else if((this.hostname .equals(other.hostname)) &&
 				   (this.port == other.port)) {
 					return true;
 				}

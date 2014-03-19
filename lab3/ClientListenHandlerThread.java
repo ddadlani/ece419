@@ -67,7 +67,7 @@ public class ClientListenHandlerThread {
 							// connecting, then add player name in ack to
 							// remotes so that can add GUI Client later
 							if (packetFromClient.getevent() == MazePacket.CONNECT) {
-								// ADD
+								// ADD name of clients in remote
 								Iterator<Address> itr = gotNewAck.remotes
 										.iterator();
 								while (itr.hasNext()) {
@@ -81,7 +81,7 @@ public class ClientListenHandlerThread {
 									}
 								}
 							}
-							gotNewAck = null;
+							//gotNewAck = null;
 						}
 					} else {
 						// Move queue is null or empty

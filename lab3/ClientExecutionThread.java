@@ -28,18 +28,24 @@ class ClientExecutionThread extends Thread {
 
 	public void run() {
 
-		MazePacket move;
+		MazePacket move = new MazePacket();
 		boolean local = false;
 		LocalClient localClient = null;
 		RemoteClient remoteClient = null;
-
+		Integer numAcks = 0;
+		Integer ctr = 0;
 		// Check if ACKs have been received for the move at the top
 		if (this.localQueue != null && this.localQueue.size()>0) {
+			System.out.println(numAcks);
 			do {
+				System.out.println(ctr);
 				synchronized (this.localQueue) {
+					numAcks = move.getnumAcks();
+					System.out.println(" " + numAcks);
 					Double lclock = localQueue.firstKey();
 					move = localQueue.get(lclock);
 				}
+				ctr++;
 			} while (!(move.getnumAcks()).equals(numRemotes));
 
 			// Move at head of queue is valid
