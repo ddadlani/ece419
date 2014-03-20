@@ -58,35 +58,23 @@ class ClientExecutionThread extends Thread {
 						mazewar.addKeyListener(mazewar.guiClient);
 						Create_game();
 
-						// add everyone else already playing to game(since
-						// dynamic
-						// joining)
+						// add everyone else already playing to game(since dynamic joining)
 
 						Iterator<Address> itr = move.remotes.iterator();
 						while (itr.hasNext()) {
 							Address addr = itr.next();
-							if (!(addr.name.equals(move.getclientInfo().name))) // don't
-																				// add
-																				// yourself
-																				// as
-																				// remote
-							{
-								RemoteClient remclient = new RemoteClient(
-										addr.name);
+							if (!(addr.name.equals(move.getclientInfo().name))) {// don't add yourself as remote
+								RemoteClient remclient = new RemoteClient(addr.name);
 								maze.addClient(remclient);
 								// ADD POSITION AND ORIENTATION
 							}
 						}
 
 					} else {
-
 						// Another player is joining the game
-						remoteClient = new RemoteClient(
-								move.getclientInfo().name);
+						remoteClient = new RemoteClient(move.getclientInfo().name);
 						maze.addClient(remoteClient);
-						// ADD POSITION AND ORIENTATION ? maybe not needed due
-						// to
-						// sync
+						// ADD POSITION AND ORIENTATION ? maybe not needed due to sync
 					}
 				}
 
@@ -108,8 +96,7 @@ class ClientExecutionThread extends Thread {
 						}
 
 						if (localClient == null) {
-							System.out
-									.println("Can't find the local client in listener queue!");
+							System.out.println("Can't find the local client in listener queue!");
 						}
 
 					} else {
@@ -124,8 +111,7 @@ class ClientExecutionThread extends Thread {
 							if (o instanceof RemoteClient) {
 
 								remoteClient = (RemoteClient) o;
-								if (move.getName().equals(
-										remoteClient.getName()))
+								if (move.getName().equals(remoteClient.getName()))
 									found = true;
 								// Integer count;
 								// synchronized (map) {

@@ -8,7 +8,7 @@ public class Address implements Serializable {
 
 	/* Identification parameters */
 	public String name;
-	//public Integer id;
+	public Integer id;
 	
 	/* Connection parameters */
 	public String hostname;
@@ -30,7 +30,7 @@ public class Address implements Serializable {
 	/* Copy constructor */
 	public Address(Address toCopy) {
 		this.name = toCopy.name;
-	//	this.id = toCopy.id;
+		this.id = toCopy.id;
 		this.hostname = toCopy.hostname;
 		this.port = toCopy.port;
 		this.position = toCopy.position;
@@ -55,7 +55,7 @@ public class Address implements Serializable {
 		
 		else if((this.name == other.name)) 
 			return true;
-		//   (this.id == other.id) &&
+		//   (this.id == other.id) && // do we really need to check if id is same?
 		else if((this.hostname == other.hostname) &&
 		   (this.port == other.port)) {
 			return true;

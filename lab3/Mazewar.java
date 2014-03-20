@@ -167,10 +167,6 @@ public class Mazewar extends JFrame {
 					.println("ERROR: Need a name and the number of players to start. Shutting down Mazewar.");
 			Mazewar.quit();
 		}
-		// int num_players = Integer.parseInt(no_players);
-
-		// You may want to put your network initialization code somewhere in
-		// here.
 
 		Socket MazeSocket = null;
 		ObjectOutputStream out = null;
@@ -231,15 +227,9 @@ public class Mazewar extends JFrame {
 					remotes_addrbook = packetFromServer.remotes;
 					pid = packetFromServer.getclientID();
 					lClock = (double) pid / 10.0; // Initialize lClock
-					// WHY DIVIDE BY 10??
 				}
 
-			} while (packetFromServer.getmsgType() != MazePacket.ACK); // Do we
-																		// need
-																		// the
-																		// do
-																		// while
-																		// loop?
+			} while (packetFromServer.getmsgType() != MazePacket.ACK); // Do we need the do-while loop?
 
 			out.close();
 			in.close();
@@ -383,8 +373,7 @@ public class Mazewar extends JFrame {
 
 	}
 
-	public void broadcastPacket(MazePacket outPacket,
-			ArrayList<Address> addressBook) {
+	public void broadcastPacket(MazePacket outPacket, ArrayList<Address> addressBook) {
 		Socket clientsocket = null;
 		ObjectOutputStream out = null;
 

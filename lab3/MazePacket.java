@@ -76,6 +76,21 @@ public class MazePacket implements Serializable{
 		this.numAcks = MAZE_NULL;
 	}
 	
+	public MazePacket(MazePacket toCopy) {
+		this.name = toCopy.name;
+		this.clientID = toCopy.clientID;
+		this.clientInfo = new Address(toCopy.clientInfo);
+		this.event = toCopy.event;
+		this.lClock = toCopy.lClock;
+		this.msgType = toCopy.msgType;
+		this.errorCode = toCopy.errorCode;
+		this.numAcks = toCopy.numAcks;
+		
+		// Deep copy of remotes;
+		for(int i = 0; i < toCopy.remotes.size(); i++) {
+			this.remotes.add(toCopy.remotes.get(i));
+		}
+	}
 	/**
 	 * Getter functions
 	 * Used to get various parts of the MazePacket.
@@ -120,7 +135,7 @@ public class MazePacket implements Serializable{
 	 * @param Takes in the value of the required field
 	 */
 	public void setclientInfo(Address info) {
-		this.clientInfo = info;
+		this.clientInfo = new Address(info);
 	}
 	
 	public void setevent(Integer event_) {

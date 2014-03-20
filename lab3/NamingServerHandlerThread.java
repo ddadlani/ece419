@@ -17,8 +17,7 @@ public class NamingServerHandlerThread {
 
 	// private Address[] remotes;
 
-	public NamingServerHandlerThread(Socket socket,
-			ArrayList<Address> playerList, Integer clientID) {
+	public NamingServerHandlerThread(Socket socket, ArrayList<Address> playerList, Integer clientID) {
 		this.socket = socket;
 		this.playerList = playerList;
 		this.clientID = clientID;
@@ -28,13 +27,11 @@ public class NamingServerHandlerThread {
 	public void run() {
 		try {
 			/* stream to read from client */
-			ObjectInputStream fromClient = new ObjectInputStream(
-					socket.getInputStream());
+			ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
 			MazePacket packetFromClient;
 
 			/* stream to write back to client */
-			ObjectOutputStream toClient = new ObjectOutputStream(
-					socket.getOutputStream());
+			ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
 			MazePacket packetToClient;
 
 			int error = 0;
@@ -52,16 +49,15 @@ public class NamingServerHandlerThread {
 					// Add player to playerList
 					error = addPlayer(packetFromClient.getclientInfo());
 					if (error != 0) {
-						System.err
-								.println("New player could not be added to database.");
+						System.err.println("New player could not be added to database.");
 					}
 					if (error == 0) {
-						// Convert current ArrayList to an array of addresses
 						// Set remotes and assign client ID
+						// playerList contains the new connection's info as well
 						packetToClient.remotes = this.playerList;
 						packetToClient.setevent(MazePacket.CONNECT);
-						packetToClient.setclientID(clientID);
 						synchronized (clientID) {
+							packetToClient.setclientID(clientID);
 							clientID++;
 						}
 					} else {
@@ -74,8 +70,7 @@ public class NamingServerHandlerThread {
 					// Remove player from playerList
 					error = removePlayer(packetFromClient.getclientInfo());
 					if (error != 0) {
-						System.err
-								.println("ERROR: Player could not be removed.");
+						System.err.println("ERROR: Player could not be removed.");
 					}
 					break;
 				}
