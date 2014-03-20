@@ -1,6 +1,5 @@
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.net.*;
 import java.util.*;
 
 import javax.swing.BorderFactory;
@@ -51,7 +50,7 @@ class ClientExecutionThread extends Thread {
 					// Connection Request packet
 					if (move.getmsgType() == MazePacket.CONNECTION_REQUEST) {
 
-						if (move.getclientInfo().address_equals(
+						if (move.getclientInfo().equals(
 								mazewar.clientAddr)) {
 							// Your own connection has been approved
 							// add yourself
@@ -95,7 +94,7 @@ class ClientExecutionThread extends Thread {
 
 					// Other than connection request packet
 					else {
-						if (move.getclientInfo().address_equals(
+						if (move.getclientInfo().equals(
 								mazewar.clientAddr)) {
 							local = true;
 							Iterator i = maze.getClients();

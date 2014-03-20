@@ -37,27 +37,12 @@ public class Address implements Serializable {
 		this.orientation = toCopy.orientation;
 	}
 
-	//does not check name equality
-	public boolean address_equals(Address other) {
-		if ((other == null)||(this == null))
-			return false;
-		
-		else if(((this.hostname).equals(other.hostname)) &&
-				   (this.port.equals(other.port))) {
-					return true;
-				}
-		return false;	
-		
-	}
 	public boolean equals(Address other) {
 		if ((other == null)||(this == null))
 			return false;
 		
-		else if((this.name == other.name)) 
-			return true;
-		//   (this.id == other.id) && // do we really need to check if id is same?
-		else if((this.hostname == other.hostname) &&
-		   (this.port == other.port)) {
+		else if((this.hostname.equals(other.hostname)) &&
+		   (this.port.equals(other.port))) {
 			return true;
 		}
 		return false;	

@@ -145,7 +145,7 @@ public class Mazewar extends JFrame {
 
 		//Lab 3 Initializations 
 		remotes_addrbook = new ArrayList<Address> ();
-		moveQueue = new TreeMap<Double, MazePacket> ();
+		moveQueue = new TreeMap<Double, MazePacket>();
 		clientAddr = new Address();
 		
 		// Create the maze
@@ -226,6 +226,7 @@ public class Mazewar extends JFrame {
 					numRemotes = packetFromServer.remotes.size();
 					remotes_addrbook = packetFromServer.remotes;
 					pid = packetFromServer.getclientID();
+					clientAddr.id = pid;
 					lClock = (double) pid / 10.0; // Initialize lClock
 				}
 
@@ -337,8 +338,7 @@ public class Mazewar extends JFrame {
 
 			Mazewar mazewar = new Mazewar(listenPort, hostname, hostport);
 			new Thread(new ClientListenerThread(mazewar, listenSocket)).start();
-			new Thread(new ClientExecutionThread(mazewar.moveQueue,
-					mazewar.numRemotes, mazewar, mazewar.maze, hostname,
+			new Thread(new ClientExecutionThread(mazewar.moveQueue,	mazewar.numRemotes, mazewar, mazewar.maze, hostname,
 					hostport)).start();
 
 			// Send Connection requests to all clients including itself

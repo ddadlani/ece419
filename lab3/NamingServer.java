@@ -46,7 +46,7 @@ public class NamingServer {
         
 
         while (listening) {
-        	new NamingServerHandlerThread(serverSocket.accept(), NamingServer.playerList, NamingServer.clientID).run();  
+        	new NamingServerHandlerThread(serverSocket.accept(), NamingServer.playerList, NamingServer.clientID).start();  
         }
 
         serverSocket.close();

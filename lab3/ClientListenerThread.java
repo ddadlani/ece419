@@ -20,7 +20,7 @@ public class ClientListenerThread extends Thread {
 		 while (listening) {
 				try {
 					// create new thread to handle each incoming request
-					new ClientListenHandlerThread(listenSocket.accept(), mazewar).run();
+					new Thread(new ClientListenHandlerThread(listenSocket.accept(), mazewar)).start();
 				} catch (IOException e) {
 					System.err.println("ERROR: Could not accept incoming connection on listenSocket.");
 					e.printStackTrace();

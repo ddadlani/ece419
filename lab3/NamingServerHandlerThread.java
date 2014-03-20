@@ -24,7 +24,7 @@ public class NamingServerHandlerThread {
 		// this.remotes = null;
 	}
 
-	public void run() {
+	public void start() {
 		try {
 			/* stream to read from client */
 			ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
