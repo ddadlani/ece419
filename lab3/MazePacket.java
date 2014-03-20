@@ -72,7 +72,7 @@ public class MazePacket implements Serializable{
 		this.lClock = 0.0;
 		this.msgType = MAZE_NULL;
 		this.errorCode = MAZE_NULL;
-		this.remotes = null;
+		this.remotes = new ArrayList<Address> ();
 		this.numAcks = MAZE_NULL;
 	}
 	
@@ -85,7 +85,7 @@ public class MazePacket implements Serializable{
 		this.msgType = toCopy.msgType;
 		this.errorCode = toCopy.errorCode;
 		this.numAcks = toCopy.numAcks;
-		
+		this.remotes = new ArrayList<Address> (); 
 		// Deep copy of remotes;
 		for(int i = 0; i < toCopy.remotes.size(); i++) {
 			this.remotes.add(toCopy.remotes.get(i));

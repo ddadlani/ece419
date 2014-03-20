@@ -61,15 +61,17 @@ public class ClientListenHandlerThread {
 							// name in ACK to remotes so that can add GUI Client later
 							if (packetFromClient.getevent() == MazePacket.CONNECT) {
 								// ADD name of clients in remote
-								Iterator<Address> itr = remote_addresses.iterator();
-								while (itr.hasNext()) {
-									Address addr = itr.next();
-									if (addr.address_equals(packetFromClient.getclientInfo())) {
-										addr.name = packetFromClient.getName();
-										addr.id = packetFromClient.getclientID();
-										// TODO: Set position and orientation
-										// Remove own entry from remote_addresses?
-										break;
+								synchronized(remote_addresses) {
+									Iterator<Address> itr = remote_addresses.iterator();
+									while (itr.hasNext()) {
+										Address addr = itr.next();
+										if (addr.address_equals(packetFromClient.getclientInfo())) {
+											addr.name = packetFromClient.getName();
+											addr.id = packetFromClient.getclientID();
+											// TODO: Set position and orientation
+											// Remove own entry from remote_addresses?
+											break;
+										}
 									}
 								}
 							}
@@ -83,7 +85,7 @@ public class ClientListenHandlerThread {
 				}
 
 				// In either of these cases, all we do is broadcast the ACK and queue the move
-				// for connect ACK, send back position, orientation and name of player
+				// for connect ACK, send back position, orientation and name of player sending the ack
 				case (MazePacket.CONNECTION_REQUEST): {
 					MazePacket Ack = new MazePacket(packetFromClient);
 					Ack.setmsgType(MazePacket.ACK);
@@ -91,14 +93,23 @@ public class ClientListenHandlerThread {
 					Ack.setclientID(address.id);
 					Ack.setName(address.name);
 					// Handle Position and orientation
+					broadcastPacket(Ack, remote_addresses);
+					synchronized(localQueue) {
+						localQueue.put(packetFromClient.getlamportClock(), packetFromClient);
+					}
+					break;
+					
 				}
 				case (MazePacket.MOVE_REQUEST):
 				case (MazePacket.DISCONNECT_REQUEST): {
+					//won't this ACK override the Connection Request Ack?
 					MazePacket Ack = new MazePacket(packetFromClient);
 					Ack.setmsgType(MazePacket.ACK);
 
 					broadcastPacket(Ack, remote_addresses); // REMOTE_ADDRESSES CURRENTLY CONTAINS OURSELVES TOO, YES?
+					synchronized(localQueue) {
 					localQueue.put(packetFromClient.getlamportClock(), packetFromClient);
+					}
 					break;
 				}
 
