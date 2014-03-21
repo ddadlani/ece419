@@ -37,12 +37,13 @@ public class Address implements Serializable {
 		this.orientation = toCopy.orientation;
 	}
 
-	public boolean equals(Address other) {
+	@Override
+	public boolean equals(Object other) {
 		if ((other == null)||(this == null))
 			return false;
-		
-		else if((this.hostname.equals(other.hostname)) &&
-		   (this.port.equals(other.port))) {
+		Address addrOther = (Address) other;
+		if((this.hostname.equals(addrOther.hostname)) &&
+		   (this.port.equals(addrOther.port))) {
 			return true;
 		}
 		return false;	

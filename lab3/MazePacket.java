@@ -91,6 +91,23 @@ public class MazePacket implements Serializable{
 			this.remotes.add(toCopy.remotes.get(i));
 		}
 	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if ((other == null)||(this == null)) {
+			return false;
+		}
+		
+		MazePacket otherPacket = (MazePacket) other;
+		// If the Lamport clock is the same but the name is not, 
+		// we have a problem with Lamport clocks
+		if ((otherPacket.getlamportClock() == this.getlamportClock()) &&
+				(otherPacket.getName().equals(this.getName()))){
+			return true;
+		}
+		return false;
+		
+	}
 	/**
 	 * Getter functions
 	 * Used to get various parts of the MazePacket.

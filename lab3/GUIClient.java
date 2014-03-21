@@ -83,6 +83,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 				MazePacket packetToServer = new MazePacket();
 
 				packetToServer.setmsgType(MazePacket.DISCONNECT_REQUEST);
+				packetToServer.setlamportClock(lClock);
 				packetToServer.setclientInfo(this.localAddr);
 				packetToServer.setevent(MazePacket.DISCONNECT);
 
@@ -144,40 +145,41 @@ public class GUIClient extends LocalClient implements KeyListener {
 				System.err.println("ERROR: Null pointer accessed.");
 				np.printStackTrace();
 			}
+			broadcastPacket(moveToBroadcast, this.broadcastAddr);
 
 			// Up-arrow moves forward.
 		} else if (e.getKeyCode() == KeyEvent.VK_UP) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.MOVE_FORWARD);
-
+			broadcastPacket(moveToBroadcast, this.broadcastAddr);
 			// Down-arrow moves backward.
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.MOVE_BACKWARD);
-
+			broadcastPacket(moveToBroadcast, this.broadcastAddr);
 			// Left-arrow turns left.
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.TURN_LEFT);
-
+			broadcastPacket(moveToBroadcast, this.broadcastAddr);
 			// Right-arrow turns right.
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.TURN_RIGHT);
-
+			broadcastPacket(moveToBroadcast, this.broadcastAddr);
 			// Spacebar fires.
 		} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.FIRE);
+			broadcastPacket(moveToBroadcast, this.broadcastAddr);
 
-		}
+		} 
 
-		broadcastPacket(moveToBroadcast, this.broadcastAddr);
 
 	}
 
