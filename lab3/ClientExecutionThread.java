@@ -52,6 +52,10 @@ class ClientExecutionThread extends Thread {
 
 						if (move.getclientInfo().equals(
 								mazewar.clientAddr)) {
+							
+							ScoreTableModel scoreModel = new ScoreTableModel();
+							assert (scoreModel != null);
+							maze.addMazeListener(scoreModel);
 							// Your own connection has been approved
 							// add yourself
 							mazewar.guiClient = new GUIClient(
@@ -61,7 +65,7 @@ class ClientExecutionThread extends Thread {
 
 							maze.addClient(mazewar.guiClient);
 							mazewar.addKeyListener(mazewar.guiClient);
-							Create_game();
+							Create_game(scoreModel);
 
 							// add everyone else already playing to game(since
 							// dynamic joining)
@@ -200,11 +204,8 @@ class ClientExecutionThread extends Thread {
 		}
 	}
 
-	public void Create_game() {
+	public void Create_game(ScoreTableModel scoreModel) {
 
-		ScoreTableModel scoreModel = new ScoreTableModel();
-		assert (scoreModel != null);
-		maze.addMazeListener(scoreModel);
 		// Create the panel that will display the maze.
 		mazewar.overheadPanel = new OverheadMazePanel(maze, mazewar.guiClient);
 		assert (mazewar.overheadPanel != null);

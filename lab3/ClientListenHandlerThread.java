@@ -108,6 +108,14 @@ public class ClientListenHandlerThread extends Thread{
 						Ack.setclientID(address.id);
 						Ack.setName(address.name);
 						// Handle Position and orientation
+						if (!(packetFromClient.getclientID().equals(address))) //then received connect_req from another person
+						{	
+							//add address of new member
+							synchronized(remote_addresses){
+								remote_addresses.clear();
+								remote_addresses.addAll(packetFromClient.remotes);
+							}
+						}
 						broadcastPacket(Ack, remote_addresses);
 						localQueue.put(packetFromClient.getlamportClock(), packetFromClient);
 						break;
