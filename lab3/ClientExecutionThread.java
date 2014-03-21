@@ -8,17 +8,16 @@ import javax.swing.JTable;
 
 class ClientExecutionThread extends Thread {
 	private SortedMap<Double, MazePacket> localQueue;
-	private Integer numRemotes;
+	private Integer numPlayers;
 	private Maze maze;
 	private Mazewar mazewar;
 	private String lookupHostName;
 	private Integer lookupPort;
 
-	public ClientExecutionThread(SortedMap<Double, MazePacket> localQueue,
-			Integer numRemotes, Mazewar mazewar, Maze maze, String hostname,
-			Integer port) {
+	public ClientExecutionThread(SortedMap<Double, MazePacket> localQueue, Integer numPlayers, Mazewar mazewar,
+			Maze maze, String hostname, Integer port) {
 		this.localQueue = localQueue;
-		this.numRemotes = numRemotes;
+		this.numPlayers = numPlayers;
 		this.maze = maze;
 		this.mazewar = mazewar;
 		this.lookupHostName = hostname;
@@ -39,10 +38,10 @@ class ClientExecutionThread extends Thread {
 						Double lclock = localQueue.firstKey();
 						move = localQueue.get(lclock);
 					}
-				} while (!(move.getnumAcks()).equals(numRemotes));
+				} while (!(move.getnumAcks()).equals(numPlayers));
 
-				synchronized(localQueue) {
-					//remove head of the queue
+				synchronized (localQueue) {
+					// remove head of the queue
 					localQueue.remove(localQueue.firstKey());
 				}
 				// Execute move that was at head of queue
@@ -50,18 +49,15 @@ class ClientExecutionThread extends Thread {
 					// Connection Request packet
 					if (move.getmsgType() == MazePacket.CONNECTION_REQUEST) {
 
-						if (move.getclientInfo().equals(
-								mazewar.clientAddr)) {
-							
+						if (move.getclientInfo().equals(mazewar.clientAddr)) {
+
 							ScoreTableModel scoreModel = new ScoreTableModel();
 							assert (scoreModel != null);
 							maze.addMazeListener(scoreModel);
 							// Your own connection has been approved
 							// add yourself
-							mazewar.guiClient = new GUIClient(
-									move.getclientInfo().name, move.remotes,
-									move.getclientInfo(), this.lookupHostName,
-									this.lookupPort, this.mazewar.lClock);
+							mazewar.guiClient = new GUIClient(move.getclientInfo().name, move.remotes,
+									move.getclientInfo(), this.lookupHostName, this.lookupPort, this.mazewar.lClock);
 
 							maze.addClient(mazewar.guiClient);
 							mazewar.addKeyListener(mazewar.guiClient);
@@ -73,14 +69,8 @@ class ClientExecutionThread extends Thread {
 							Iterator<Address> itr = move.remotes.iterator();
 							while (itr.hasNext()) {
 								Address addr = itr.next();
-								if (!(addr.name
-										.equals(move.getclientInfo().name))) {// don't
-																				// add
-																				// yourself
-																				// as
-																				// remote
-									RemoteClient remclient = new RemoteClient(
-											addr.name);
+								if (!(addr.name.equals(move.getclientInfo().name))) {// don't add yourself as remote
+									RemoteClient remclient = new RemoteClient(addr.name);
 									maze.addClient(remclient);
 									// ADD POSITION AND ORIENTATION
 								}
@@ -88,9 +78,11 @@ class ClientExecutionThread extends Thread {
 
 						} else {
 							// Another player is joining the game
-							remoteClient = new RemoteClient(
-									move.getclientInfo().name);
+							remoteClient = new RemoteClient(move.getclientInfo().name);
 							maze.addClient(remoteClient);
+							synchronized (numPlayers) {
+								numPlayers++;
+							}
 							// ADD POSITION AND ORIENTATION ? maybe not needed
 							// due to sync
 						}
@@ -98,8 +90,7 @@ class ClientExecutionThread extends Thread {
 
 					// Other than connection request packet
 					else {
-						if (move.getclientInfo().equals(
-								mazewar.clientAddr)) {
+						if (move.getclientInfo().equals(mazewar.clientAddr)) {
 							local = true;
 							Iterator i = maze.getClients();
 
@@ -115,8 +106,7 @@ class ClientExecutionThread extends Thread {
 							}
 
 							if (localClient == null) {
-								System.out
-										.println("Can't find the local client in listener queue!");
+								System.out.println("Can't find the local client in listener queue!");
 							}
 
 						} else {
@@ -132,8 +122,7 @@ class ClientExecutionThread extends Thread {
 								if (o instanceof RemoteClient) {
 
 									remoteClient = (RemoteClient) o;
-									if (move.getName().equals(
-											remoteClient.getName()))
+									if (move.getName().equals(remoteClient.getName()))
 										found = true;
 									// Integer count;
 									// synchronized (map) {
@@ -154,8 +143,7 @@ class ClientExecutionThread extends Thread {
 						}
 
 						if ((remoteClient == null) && (!local)) {
-							System.out
-									.println("Can't find the remote client in listener queue of local machine!");
+							System.out.println("Can't find the remote client in listener queue of local machine!");
 						}
 
 						if (move.getmsgType() == MazePacket.MOVE_REQUEST) {
@@ -191,9 +179,8 @@ class ClientExecutionThread extends Thread {
 								Mazewar.quit();
 							} else {
 								synchronized (mazewar) {
-									this.numRemotes--;
-									this.mazewar.remotes_addrbook.remove(move
-											.getclientInfo());
+									this.numPlayers--;
+									this.mazewar.remotes_addrbook.remove(move.getclientInfo());
 								}
 								maze.removeClient(remoteClient);
 							}
@@ -214,14 +201,12 @@ class ClientExecutionThread extends Thread {
 		// Don't allow editing the console from the GUI
 		mazewar.console.setEditable(false);
 		mazewar.console.setFocusable(false);
-		mazewar.console.setBorder(BorderFactory
-				.createTitledBorder(BorderFactory.createEtchedBorder()));
+		mazewar.console.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder()));
 
 		// Allow the console to scroll by putting it in a scrollpane
 		JScrollPane consoleScrollPane = new JScrollPane(mazewar.console);
 		assert (consoleScrollPane != null);
-		consoleScrollPane.setBorder(BorderFactory.createTitledBorder(
-				BorderFactory.createEtchedBorder(), "Console"));
+		consoleScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Console"));
 
 		// Create the score table
 		mazewar.scoreTable = new JTable(scoreModel);
@@ -232,8 +217,7 @@ class ClientExecutionThread extends Thread {
 		// Allow the score table to scroll too.
 		JScrollPane scoreScrollPane = new JScrollPane(mazewar.scoreTable);
 		assert (scoreScrollPane != null);
-		scoreScrollPane.setBorder(BorderFactory.createTitledBorder(
-				BorderFactory.createEtchedBorder(), "Scores"));
+		scoreScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Scores"));
 
 		// Create the layout manager
 		GridBagLayout layout = new GridBagLayout();

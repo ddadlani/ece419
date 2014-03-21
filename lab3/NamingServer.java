@@ -13,40 +13,40 @@ public class NamingServer {
 	 * not allow more than one address to be
 	 * associated with one name.
 	 */
-	private static ArrayList<Address> playerList;
-	private static int serverPort;
-	private static int clientID;
+	public ArrayList<Address> playerList;
+	private int serverPort;
+	public int clientID;
 	public NamingServer() {
-		//playerList = new ArrayList<Address>();
-		//serverPort = 6000;
-		//clientID = 0;
+		playerList = new ArrayList<Address>();
+		serverPort = 6000;
+		clientID = 0;
 	}
     
 	public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = null;
         boolean listening = true;
-        //NamingServer nServer = new NamingServer();
-        playerList = new ArrayList<Address>();
-        serverPort = 6000;
-        clientID = 0;
+        NamingServer nServer = new NamingServer();
+        //playerList = new ArrayList<Address>();
+        //serverPort = 6000;
+        //clientID = 0;
         
         try {
-        	serverSocket = new ServerSocket(serverPort);	
+        	serverSocket = new ServerSocket(nServer.serverPort);	
 
         } catch (EOFException eofe) {
         	System.err.println("Connection error");
         } catch (SocketException se ) {
         	 System.err.println("Connection error");
         } catch (IOException e) {
-        	System.err.println("Default port number " + serverPort + " unavailable. Please enter new port number: ");
+        	System.err.println("Default port number " + nServer.serverPort + " unavailable. Please enter new port number: ");
         	BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        	serverPort = Integer.valueOf(in.readLine());
-    		serverSocket = new ServerSocket(serverPort);	
+        	nServer.serverPort = Integer.valueOf(in.readLine());
+    		serverSocket = new ServerSocket(nServer.serverPort);	
         }
         
 
         while (listening) {
-        	new NamingServerHandlerThread(serverSocket.accept(), NamingServer.playerList, NamingServer.clientID).start();  
+        	new Thread(new NamingServerHandlerThread(serverSocket.accept(), nServer)).start();  
         }
 
         serverSocket.close();

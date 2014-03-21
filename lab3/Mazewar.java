@@ -50,7 +50,7 @@ public class Mazewar extends JFrame {
 	public ArrayList<Address> remotes_addrbook;
 	public Integer pid;
 	public Double lClock;
-	public Integer numRemotes;
+	public Integer numPlayers;
 	public SortedMap<Double, MazePacket> moveQueue;
 	public Address clientAddr;
 	public Integer listenPort;
@@ -223,7 +223,7 @@ public class Mazewar extends JFrame {
 
 					// RECEIVE NUMBER AND LOCATION OF REMOTE CLIENTS, ADD THEM
 					// INTO REMOTES (includes yourself)
-					numRemotes = packetFromServer.remotes.size();
+					numPlayers = packetFromServer.remotes.size();
 					remotes_addrbook = packetFromServer.remotes;
 					pid = packetFromServer.getclientID();
 					clientAddr.id = pid;
@@ -338,7 +338,7 @@ public class Mazewar extends JFrame {
 
 			Mazewar mazewar = new Mazewar(listenPort, hostname, hostport);
 			new Thread(new ClientListenerThread(mazewar, listenSocket)).start();
-			new Thread(new ClientExecutionThread(mazewar.moveQueue,	mazewar.numRemotes, mazewar, mazewar.maze, hostname,
+			new Thread(new ClientExecutionThread(mazewar.moveQueue,	mazewar.numPlayers, mazewar, mazewar.maze, hostname,
 					hostport)).start();
 
 			// Send Connection requests to all clients including itself

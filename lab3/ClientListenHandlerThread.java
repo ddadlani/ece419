@@ -11,7 +11,7 @@ public class ClientListenHandlerThread extends Thread{
 	Socket socket;
 	SortedMap<Double, MazePacket> localQueue;
 	ArrayList<Address> remote_addresses;
-	// Integer numRemotes;
+	// Integer numPlayers;
 	// Integer pid;
 	Double lamportClock;
 	// String name;
@@ -23,7 +23,7 @@ public class ClientListenHandlerThread extends Thread{
 			this.localQueue = mazewar_.moveQueue;
 			this.remote_addresses = mazewar_.remotes_addrbook;
 			// May be needed for heart beats? Not sure
-			// this.numRemotes = mazewar_.numRemotes;
+			// this.numPlayers = mazewar_.numPlayers;
 			// this.pid = mazewar_.pid;
 			this.lamportClock = mazewar_.lClock;
 			this.address = new Address(mazewar_.clientAddr);
@@ -108,7 +108,7 @@ public class ClientListenHandlerThread extends Thread{
 						Ack.setclientID(address.id);
 						Ack.setName(address.name);
 						// Handle Position and orientation
-						if (!(packetFromClient.getclientID().equals(address))) //then received connect_req from another person
+						if (!(packetFromClient.getclientInfo().equals(address))) //then received connect_req from another person
 						{	
 							//add address of new member
 							synchronized(remote_addresses){

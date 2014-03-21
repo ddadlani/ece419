@@ -9,22 +9,24 @@ import java.util.ArrayList;
  * Provides a naming server to store the locations of all connected Mazewar
  * clients
  */
-public class NamingServerHandlerThread {
+public class NamingServerHandlerThread extends Thread{
 
 	private Socket socket;
-	private Integer clientID;
-	private ArrayList<Address> playerList;
+	private int clientID;
+	//private ArrayList<Address> playerList;
+	private NamingServer nServer;
 
 	// private Address[] remotes;
 
-	public NamingServerHandlerThread(Socket socket, ArrayList<Address> playerList, Integer clientID) {
+	public NamingServerHandlerThread(Socket socket, NamingServer nServer_) {
 		this.socket = socket;
-		this.playerList = playerList;
-		this.clientID = clientID;
+		//this.playerList = nServer.playerList;
+		this.nServer = nServer_;
+		//this.clientID = clientID;
 		// this.remotes = null;
 	}
 
-	public void start() {
+	public void run() {
 		try {
 			/* stream to read from client */
 			ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
@@ -54,11 +56,11 @@ public class NamingServerHandlerThread {
 					if (error == 0) {
 						// Set remotes and assign client ID
 						// playerList contains the new connection's info as well
-						packetToClient.remotes = this.playerList;
+						packetToClient.remotes = nServer.playerList;
 						packetToClient.setevent(MazePacket.CONNECT);
-						synchronized (clientID) {
-							packetToClient.setclientID(clientID);
-							clientID++;
+						synchronized (nServer) {
+							packetToClient.setclientID(nServer.clientID);
+							nServer.clientID = nServer.clientID + 1;
 						}
 					} else {
 						packetToClient.seterrorCode(error);
@@ -136,11 +138,11 @@ public class NamingServerHandlerThread {
 		if (address == null)
 			return MazePacket.ERROR_NULL_POINTER_SENT;
 
-		synchronized (playerList) {
-			if (playerList.contains(address))
+		synchronized (nServer.playerList) {
+			if (nServer.playerList.contains(address))
 				return MazePacket.ERROR_PLAYER_EXISTS;
 
-			if (playerList.add(address) == false)
+			if (nServer.playerList.add(address) == false)
 				return MazePacket.ERROR_COULD_NOT_ADD;
 		}
 		return 0;
@@ -157,8 +159,8 @@ public class NamingServerHandlerThread {
 		if (address == null)
 			return MazePacket.ERROR_NULL_POINTER_SENT;
 
-		synchronized (playerList) {
-			if (playerList.remove(address) == false) {
+		synchronized (nServer.playerList) {
+			if (nServer.playerList.remove(address) == false) {
 				return MazePacket.ERROR_PLAYER_DOES_NOT_EXIST;
 			}
 		}
@@ -171,11 +173,11 @@ public class NamingServerHandlerThread {
 	 * @return Returns all the connected players' info in a Collection<Address>
 	 */
 	public Object[] getAllPlayers() {
-		synchronized (playerList) {
-			if (playerList == null)
+		synchronized (nServer.playerList) {
+			if (nServer.playerList == null)
 				return null;
 			else
-				return playerList.toArray();
+				return nServer.playerList.toArray();
 		}
 	}
 
