@@ -119,7 +119,6 @@ public class ClientListenHandlerThread extends Thread{
 						broadcastPacket(Ack, remote_addresses);
 						localQueue.put(packetFromClient.getlamportClock(), packetFromClient);
 						break;
-
 					}
 					case (MazePacket.MOVE_REQUEST):
 					case (MazePacket.DISCONNECT_REQUEST): {
