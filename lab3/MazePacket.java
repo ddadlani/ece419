@@ -29,13 +29,13 @@ public class MazePacket implements Serializable{
 	/**
 	 * Event constants
 	 */
-	public static final int CONNECT = 200;
-	public static final int MOVE_FORWARD = 201;
-	public static final int MOVE_BACKWARD = 202;
-	public static final int TURN_LEFT = 203;
-	public static final int TURN_RIGHT = 204;
-	public static final int FIRE = 205;
-	public static final int DISCONNECT = 206;
+	public static final int CONNECT = 201;
+	public static final int MOVE_FORWARD = 202;
+	public static final int MOVE_BACKWARD = 203;
+	public static final int TURN_LEFT = 204;
+	public static final int TURN_RIGHT = 205;
+	public static final int FIRE = 206;
+	public static final int DISCONNECT = 207;
 	
 	/**
 	 * Message error constants 
