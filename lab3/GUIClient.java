@@ -22,14 +22,14 @@ public class GUIClient extends LocalClient implements KeyListener {
 	public ObjectInputStream in = null;
 	public ArrayList<Address> broadcastAddr = null;
 	public Address localAddr = null;
-	public Double lClock = 0.0;
+	public double lClock = 0.0;
 
 	/**
 	 * Create a GUI controlled {@link LocalClient}.
 	 */
 	public GUIClient(String name, ArrayList<Address> remotes,
 			Address localAddr, String lookupHostName, Integer lookupPort,
-			Double lClock) {
+			double lClock) {
 
 		super(name);
 		/* variables for hostname/port */
