@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
 
 /**
  * Provides a naming server to store the locations of all connected Mazewar
@@ -12,18 +11,12 @@ import java.util.ArrayList;
 public class NamingServerHandlerThread extends Thread{
 
 	private Socket socket;
-	private int clientID;
-	//private ArrayList<Address> playerList;
 	private NamingServer nServer;
 
-	// private Address[] remotes;
 
 	public NamingServerHandlerThread(Socket socket, NamingServer nServer_) {
 		this.socket = socket;
-		//this.playerList = nServer.playerList;
 		this.nServer = nServer_;
-		//this.clientID = clientID;
-		// this.remotes = null;
 	}
 
 	public void run() {

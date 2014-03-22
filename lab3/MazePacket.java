@@ -29,23 +29,23 @@ public class MazePacket implements Serializable{
 	/**
 	 * Event constants
 	 */
-	public static final int CONNECT = 0;
-	public static final int MOVE_FORWARD = 1;
-	public static final int MOVE_BACKWARD = 2;
-	public static final int TURN_LEFT = 3;
-	public static final int TURN_RIGHT = 4;
-	public static final int FIRE = 5;
-	public static final int DISCONNECT = 6;
+	public static final int CONNECT = 200;
+	public static final int MOVE_FORWARD = 201;
+	public static final int MOVE_BACKWARD = 202;
+	public static final int TURN_LEFT = 203;
+	public static final int TURN_RIGHT = 204;
+	public static final int FIRE = 205;
+	public static final int DISCONNECT = 206;
 	
 	/**
 	 * Message error constants 
 	 */
-	public static final int ERROR_INVALID_TYPE = 201;
-	public static final int ERROR_PLAYER_EXISTS = 202;
-	public static final int ERROR_COULD_NOT_ADD = 203;
-	public static final int ERROR_PLAYER_DOES_NOT_EXIST = 204;
-	public static final int ERROR_COULD_NOT_REMOVE_PLAYER = 206;
-	public static final int ERROR_NULL_POINTER_SENT = 207;
+	public static final int ERROR_INVALID_TYPE = 301;
+	public static final int ERROR_PLAYER_EXISTS = 302;
+	public static final int ERROR_COULD_NOT_ADD = 303;
+	public static final int ERROR_PLAYER_DOES_NOT_EXIST = 304;
+	public static final int ERROR_COULD_NOT_REMOVE_PLAYER = 306;
+	public static final int ERROR_NULL_POINTER_SENT = 307;
 	
 	/**
 	 * Fields in the packet 

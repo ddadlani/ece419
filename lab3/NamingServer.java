@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -29,7 +30,8 @@ public class NamingServer {
         //playerList = new ArrayList<Address>();
         //serverPort = 6000;
         //clientID = 0;
-        
+        String hostname = InetAddress.getLocalHost().getHostAddress();
+        System.out.println("Naming service for Mazewar active on host " + hostname + " port 6000.");
         try {
         	serverSocket = new ServerSocket(nServer.serverPort);	
 
