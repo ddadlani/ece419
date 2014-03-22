@@ -7,15 +7,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 class ClientExecutionThread extends Thread {
-	private SortedMap<Double, MazePacket> localQueue;
+	//private SortedMap<Double, MazePacket> localQueue;
 	private Maze maze;
 	private Mazewar mazewar;
 	private String lookupHostName;
 	private Integer lookupPort;
 
-	public ClientExecutionThread(SortedMap<Double, MazePacket> localQueue, Mazewar mazewar,
+	public ClientExecutionThread(Mazewar mazewar,
 			Maze maze, String hostname, Integer port) {
-		this.localQueue = localQueue;
+		//this.localQueue = localQueue;
 		this.maze = maze;
 		this.mazewar = mazewar;
 		this.lookupHostName = hostname;
@@ -30,17 +30,20 @@ class ClientExecutionThread extends Thread {
 			LocalClient localClient = null;
 			RemoteClient remoteClient = null;
 			// Check if ACKs have been received for the move at the top
-			if (localQueue != null && localQueue.size() > 0) {
+			
+			if (mazewar.moveQueue != null && mazewar.moveQueue.size() > 0) {
+				System.out.println("In CEX, Local queue size  = " + mazewar.moveQueue.size());
 				do {
-					synchronized (localQueue) {
-						Double lclock = localQueue.firstKey();
-						move = localQueue.get(lclock);
+					synchronized (mazewar.moveQueue) {
+						Double lclock = mazewar.moveQueue.firstKey();
+						move = mazewar.moveQueue.get(lclock);
 					}
+					System.out.println("Move's numAcks = " + move.getnumAcks());
 				} while (move.getnumAcks() != mazewar.numPlayers);
 
-				synchronized (localQueue) {
+				synchronized (mazewar.moveQueue) {
 					// remove head of the queue
-					localQueue.remove(localQueue.firstKey());
+					mazewar.moveQueue.remove(mazewar.moveQueue.firstKey());
 				}
 				// Execute move that was at head of queue
 				if (move != null) {

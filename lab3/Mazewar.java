@@ -338,7 +338,7 @@ public class Mazewar extends JFrame {
 
 			Mazewar mazewar = new Mazewar(listenPort, hostname, hostport);
 			new Thread(new ClientListenerThread(mazewar, listenSocket)).start();
-			new Thread(new ClientExecutionThread(mazewar.moveQueue, mazewar, mazewar.maze, hostname,
+			new Thread(new ClientExecutionThread(mazewar, mazewar.maze, hostname,
 					hostport)).start();
 
 			// Send Connection requests to all clients including itself
@@ -355,6 +355,8 @@ public class Mazewar extends JFrame {
 			toPlayers.remotes = mazewar.remotes_addrbook;
 			toPlayers.setlamportClock(mazewar.lClock);
 			toPlayers.setName(mazewar.clientAddr.name);
+
+			System.out.println("Broadcasting connect req from " + toPlayers.getlamportClock());
 
 			mazewar.broadcastPacket(toPlayers, toPlayers.remotes);
 
