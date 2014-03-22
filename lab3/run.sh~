@@ -1,6 +1,6 @@
 #!/bin/bash
-#$1 = hostname of NamingServer
-#$2 = port of NamingServer
+#$1 = hostname of MazeServer
+#$2 = port of MazeServer
 
 JAVA_HOME=/cad2/ece419s/java/jdk1.6.0/
 

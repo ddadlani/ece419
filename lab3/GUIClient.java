@@ -211,6 +211,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 			return;
 		}
 		try {
+			System.out.println("Broadcasting packet " + outPacket.getlamportClock());
 			for (int i = 0; i < addressBook.size(); i++) {
 				clientsocket = new Socket(addressBook.get(i).hostname,
 						addressBook.get(i).port);

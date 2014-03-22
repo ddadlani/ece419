@@ -9,30 +9,24 @@ import java.util.SortedMap;
 
 public class ClientListenHandlerThread extends Thread {
 	Socket socket;
-	// SortedMap<Double, MazePacket> mazewar.moveQueue;
 	ArrayList<Address> remote_addresses;
-	// Integer numPlayers;
-	// Integer pid;
-	// double lamportClock;
-	// String name;
 	Address address;
 	Mazewar mazewar;
-	int numAcks_local;
+	SortedMap<Double, Integer> ackQueue;
 
-	public ClientListenHandlerThread(Socket socket_, Mazewar mazewar_) {
+	/**
+	 * Creates a new thread to handle the request from another client
+	 * @param socket_	The socket connecting to the other client
+	 * @param mazewar_	Mazewar game
+	 * @param ackQueue_ The queue of ACKs being collected to account for lack of FIFO order
+	 */
+	public ClientListenHandlerThread(Socket socket_, Mazewar mazewar_, SortedMap<Double, Integer> ackQueue_) {
 		synchronized (mazewar_) {
 			this.socket = socket_;
-			// this.localQueue = mazewar_.moveQueue;
 			this.remote_addresses = mazewar_.remotes_addrbook;
-			// May be needed for heart beats? Not sure
-			// this.numPlayers = mazewar_.numPlayers;
-			// this.pid = mazewar_.pid;
-			// this.lamportClock = mazewar_.lClock;
 			this.address = new Address(mazewar_.clientAddr);
 			this.mazewar = mazewar_;
-			// this.address.name = mazewar_.clientAddr.name;
-			// this.address.id = mazewar_.pid;
-			numAcks_local = 0;
+			this.ackQueue = ackQueue_;
 		}
 	}
 
@@ -44,44 +38,20 @@ public class ClientListenHandlerThread extends Thread {
 			if ((packetFromClient = (MazePacket) in.readObject()) != null) {
 
 				switch (packetFromClient.getmsgType()) {
-
 				// An ACK was received for some move
 				case (MazePacket.ACK): {
-
-					// Check that queue is properly initialized
 					// Look up relevant move in mazewar.moveQueue using
-					// Lamport
-					// clock value
+					// Lamport clock value
 					MazePacket gotNewAck = null;
 
-					if (mazewar.moveQueue.size() == 0) {
-						// Got ack from another person and queue is empty
-						numAcks_local = 1;
-					}
+					System.out.println("ACK from " + packetFromClient.getlamportClock() + " in " + address.name
+							+ " for " + packetFromClient.getevent());
+					gotNewAck = mazewar.moveQueue.get(packetFromClient.getlamportClock());
 
-					if (mazewar.moveQueue.size() > 0) {
-
-						System.out.println("ACK from " + packetFromClient.getlamportClock() + " in " + address.name + " for "
-								+ packetFromClient.getevent());
-						// synchronized (mazewar.moveQueue) {
-						do {
-							gotNewAck = mazewar.moveQueue.get(packetFromClient.getlamportClock());
-							// }
-						} while (gotNewAck == null);
-						// if (gotNewAck == null) {
-						// Packet with this Lamport clock not found
-						// System.err.println("ERROR: MazePacket with Lamport Clock "
-						// + packetFromClient.getlamportClock() +
-						// " was not found.");
-						// System.exit(1);
-						// }
+					if (gotNewAck != null) {
 						gotNewAck.incrementAcks();
-						if (numAcks_local == 1)
-							gotNewAck.incrementAcks();
-						// If received ACK for connect, and I am the one
-						// connecting, then add player name in ACK to remotes so
-						// that can add GUI
-						// Client later
+						// If received ACK for own connection, add player name in ACK to 
+						// remotes so that we can add GUIClient later
 						if (packetFromClient.getevent() == MazePacket.CONNECT) {
 							// ADD name of clients in remote
 							synchronized (remote_addresses) {
@@ -99,18 +69,44 @@ public class ClientListenHandlerThread extends Thread {
 							}
 						}
 
+					} else if (gotNewAck == null) {
+						// Packet with this Lamport clock not found. 
+						// Add to queue to wait for actual request
+						System.out.println("MazePacket with Lamport Clock " + packetFromClient.getlamportClock()
+								+ " was not found. Adding ACK to ackQueue.");
+						Integer currentAcks;
+						synchronized (ackQueue) {
+							currentAcks = ackQueue.get(packetFromClient.getlamportClock());
+						}
+						if (currentAcks == null) {
+							currentAcks = new Integer(1);
+
+						} else {
+							currentAcks++;
+
+						}
+						synchronized (ackQueue) {
+							// put will remove the previous value associated
+							// with this Lamport clock
+							ackQueue.put(packetFromClient.getlamportClock(), currentAcks);
+						}
 					}
 				}
 					break;
 
-				// In either of these cases, all we do is broadcast the
-				// ACK
-				// and queue the move
 				// for connect ACK, send back position, orientation and
-				// name
-				// of player sending the ack
+				// name of player sending the ack
 				case (MazePacket.CONNECTION_REQUEST): {
-					System.out.println("Connect request from " + packetFromClient.getlamportClock() + " in " + address.name);
+					System.out.println("Connect request from " + packetFromClient.getlamportClock() + " in "
+							+ address.name);
+					// Check if any ACKs have been received for this move
+					Double moveLClock = new Double(packetFromClient.getlamportClock());
+					Integer moveAcks = ackQueue.get(moveLClock);
+					if (moveAcks != null) {
+						// Add any received ACKs to the packet and remove from queue
+						packetFromClient.setnumAcks(moveAcks.intValue());
+						ackQueue.remove(moveLClock);
+					}
 					// Update Lamport clock
 					synchronized (mazewar) {
 						if (mazewar.lClock < packetFromClient.getlamportClock()) {
@@ -127,13 +123,8 @@ public class ClientListenHandlerThread extends Thread {
 					Ack.setclientID(address.id);
 					Ack.setName(address.name);
 					// Handle Position and orientation
-					if (!(packetFromClient.getclientInfo().equals(address))) // then
-																				// received
-																				// connect_req
-																				// from
-																				// another
-																				// person
-					{
+					if (!(packetFromClient.getclientInfo().equals(address))) {
+						// received connect_req from another person
 						// add address of new member
 						synchronized (remote_addresses) {
 							remote_addresses.clear();
@@ -154,9 +145,21 @@ public class ClientListenHandlerThread extends Thread {
 
 					break;
 				}
+				// In either of these cases, all we do is broadcast the
+				// ACK and queue the move
 				case (MazePacket.MOVE_REQUEST):
-					System.out.println("Move request from " + packetFromClient.getlamportClock() + " in " + address.name);
+					System.out.println("Move request from " + packetFromClient.getlamportClock() + " in "
+							+ address.name);
+				
 				case (MazePacket.DISCONNECT_REQUEST): {
+					// Check if any ACKs have been received for this move
+					Double moveLClock = new Double(packetFromClient.getlamportClock());
+					Integer moveAcks = ackQueue.get(moveLClock);
+					if (moveAcks != null) {
+						// Add any received ACKs to the packet and remove from queue
+						packetFromClient.setnumAcks(moveAcks.intValue());
+						ackQueue.remove(moveLClock);
+					}
 					// Update Lamport Clock
 					synchronized (mazewar) {
 						if (mazewar.lClock < packetFromClient.getlamportClock()) {

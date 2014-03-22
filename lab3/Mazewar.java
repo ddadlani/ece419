@@ -22,7 +22,6 @@ import java.io.*;
 import java.util.*;
 
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JTable;
 import javax.swing.JOptionPane;

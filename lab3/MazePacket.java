@@ -54,7 +54,7 @@ public class MazePacket implements Serializable{
 	private String name;
 	private int clientID;
 	private Integer event;
-	private double lClock;
+	private Double lClock;
 	private Integer msgType;
 	private Integer errorCode;
 	public ArrayList<Address> remotes;
@@ -122,7 +122,7 @@ public class MazePacket implements Serializable{
 		return this.event;
 	}
 	
-	public double getlamportClock() {
+	public Double getlamportClock() {
 		return this.lClock;
 	}
 	
@@ -159,7 +159,7 @@ public class MazePacket implements Serializable{
 		this.event = event_;
 	}
 	
-	public void setlamportClock(double clock_) {
+	public void setlamportClock(Double clock_) {
 		this.lClock = clock_;
 	}
 	

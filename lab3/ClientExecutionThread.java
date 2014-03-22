@@ -7,7 +7,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 class ClientExecutionThread extends Thread {
-	//private SortedMap<Double, MazePacket> localQueue;
 	private Maze maze;
 	private Mazewar mazewar;
 	private String lookupHostName;
@@ -15,7 +14,6 @@ class ClientExecutionThread extends Thread {
 
 	public ClientExecutionThread(Mazewar mazewar,
 			Maze maze, String hostname, Integer port) {
-		//this.localQueue = localQueue;
 		this.maze = maze;
 		this.mazewar = mazewar;
 		this.lookupHostName = hostname;
