@@ -35,10 +35,10 @@ class ClientExecutionThread extends Thread {
 				System.out.println("In CEX, Local queue size  = " + mazewar.moveQueue.size());
 				do {
 					synchronized (mazewar.moveQueue) {
-						Double lclock = mazewar.moveQueue.firstKey();
+						double lclock = mazewar.moveQueue.firstKey();
 						move = mazewar.moveQueue.get(lclock);
 					}
-					System.out.println("Move's numAcks = " + move.getnumAcks());
+					//System.out.println("Move's numAcks = " + move.getfnumAcks());
 				} while (move.getnumAcks() != mazewar.numPlayers);
 
 				synchronized (mazewar.moveQueue) {
