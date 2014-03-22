@@ -20,7 +20,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 	public Integer lookupPort = 0;
 	public ObjectOutputStream out = null;
 	public ObjectInputStream in = null;
-	public ArrayList<Address> broadcastAddr = null;
+	public ArrayList<Address> broadcastAddrBook = null;
 	public Address localAddr = null;
 	public double lClock = 0.0;
 
@@ -35,7 +35,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 		/* variables for hostname/port */
 		this.lookupHostName = lookupHostName;
 		this.lookupPort = lookupPort;
-		this.broadcastAddr = remotes;
+		this.broadcastAddrBook = remotes;
 		this.localAddr = localAddr;
 		this.lClock = lClock;
 	}
@@ -145,38 +145,38 @@ public class GUIClient extends LocalClient implements KeyListener {
 				System.err.println("ERROR: Null pointer accessed.");
 				np.printStackTrace();
 			}
-			broadcastPacket(moveToBroadcast, this.broadcastAddr);
+			broadcastPacket(moveToBroadcast, this.broadcastAddrBook);
 
 			// Up-arrow moves forward.
 		} else if (e.getKeyCode() == KeyEvent.VK_UP) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.MOVE_FORWARD);
-			broadcastPacket(moveToBroadcast, this.broadcastAddr);
+			broadcastPacket(moveToBroadcast, this.broadcastAddrBook);
 			// Down-arrow moves backward.
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.MOVE_BACKWARD);
-			broadcastPacket(moveToBroadcast, this.broadcastAddr);
+			broadcastPacket(moveToBroadcast, this.broadcastAddrBook);
 			// Left-arrow turns left.
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.TURN_LEFT);
-			broadcastPacket(moveToBroadcast, this.broadcastAddr);
+			broadcastPacket(moveToBroadcast, this.broadcastAddrBook);
 			// Right-arrow turns right.
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.TURN_RIGHT);
-			broadcastPacket(moveToBroadcast, this.broadcastAddr);
+			broadcastPacket(moveToBroadcast, this.broadcastAddrBook);
 			// Spacebar fires.
 		} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.FIRE);
-			broadcastPacket(moveToBroadcast, this.broadcastAddr);
+			broadcastPacket(moveToBroadcast, this.broadcastAddrBook);
 
 		} 
 
