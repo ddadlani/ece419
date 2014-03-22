@@ -52,13 +52,13 @@ public class MazePacket implements Serializable{
 	 */
 	private Address clientInfo;
 	private String name;
-	private Integer clientID;
+	private int clientID;
 	private Integer event;
-	private Double lClock;
+	private double lClock;
 	private Integer msgType;
 	private Integer errorCode;
 	public ArrayList<Address> remotes;
-	private Integer numAcks;
+	private int numAcks;
 	//public Collection<Address> addresses;
 	
 	/**
@@ -122,7 +122,7 @@ public class MazePacket implements Serializable{
 		return this.event;
 	}
 	
-	public Double getlamportClock() {
+	public double getlamportClock() {
 		return this.lClock;
 	}
 	
@@ -134,7 +134,7 @@ public class MazePacket implements Serializable{
 		return this.errorCode;
 	}
 	
-	public Integer getclientID() {
+	public int getclientID() {
 		return this.clientID;
 	}
 	
@@ -142,7 +142,7 @@ public class MazePacket implements Serializable{
 		return this.name;
 	}
 	
-	public Integer getnumAcks() {
+	public int getnumAcks() {
 		return this.numAcks;
 	}
 	
@@ -159,7 +159,7 @@ public class MazePacket implements Serializable{
 		this.event = event_;
 	}
 	
-	public void setlamportClock(Double clock_) {
+	public void setlamportClock(double clock_) {
 		this.lClock = clock_;
 	}
 	
@@ -171,7 +171,7 @@ public class MazePacket implements Serializable{
 		this.errorCode = error_;
 	}
 	
-	public void setclientID(Integer cid_) {
+	public void setclientID(int cid_) {
 		this.clientID = cid_;
 	}
 	
@@ -179,7 +179,7 @@ public class MazePacket implements Serializable{
 		this.name = name_;
 	}
 	
-	public void setnumAcks(Integer numAcks_) {
+	public void setnumAcks(int numAcks_) {
 		this.numAcks = numAcks_;
 	}
 	

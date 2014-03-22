@@ -48,9 +48,9 @@ public class Mazewar extends JFrame {
 
 	// LAB3
 	public ArrayList<Address> remotes_addrbook;
-	public Integer pid;
-	public Double lClock;
-	public Integer numPlayers;
+	public int pid;
+	public double lClock;
+	public int numPlayers;
 	public SortedMap<Double, MazePacket> moveQueue;
 	public Address clientAddr;
 	public Integer listenPort;
@@ -338,13 +338,13 @@ public class Mazewar extends JFrame {
 
 			Mazewar mazewar = new Mazewar(listenPort, hostname, hostport);
 			new Thread(new ClientListenerThread(mazewar, listenSocket)).start();
-			new Thread(new ClientExecutionThread(mazewar.moveQueue,	mazewar.numPlayers, mazewar, mazewar.maze, hostname,
+			new Thread(new ClientExecutionThread(mazewar.moveQueue, mazewar, mazewar.maze, hostname,
 					hostport)).start();
 
 			// Send Connection requests to all clients including itself
 
 			// increment clock before sending
-			synchronized (mazewar.lClock) {
+			synchronized (mazewar) {
 				mazewar.lClock++;
 			}
 			

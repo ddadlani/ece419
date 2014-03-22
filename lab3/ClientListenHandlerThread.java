@@ -13,9 +13,10 @@ public class ClientListenHandlerThread extends Thread{
 	ArrayList<Address> remote_addresses;
 	// Integer numPlayers;
 	// Integer pid;
-	Double lamportClock;
+	//double lamportClock;
 	// String name;
 	Address address;
+	Mazewar mazewar;
 
 	public ClientListenHandlerThread(Socket socket_, Mazewar mazewar_) {
 		synchronized (mazewar_) {
@@ -25,8 +26,9 @@ public class ClientListenHandlerThread extends Thread{
 			// May be needed for heart beats? Not sure
 			// this.numPlayers = mazewar_.numPlayers;
 			// this.pid = mazewar_.pid;
-			this.lamportClock = mazewar_.lClock;
+			//this.lamportClock = mazewar_.lClock;
 			this.address = new Address(mazewar_.clientAddr);
+			this.mazewar = mazewar_;
 			//this.address.name = mazewar_.clientAddr.name;
 			//this.address.id = mazewar_.pid;
 		}
@@ -93,13 +95,13 @@ public class ClientListenHandlerThread extends Thread{
 						// of player sending the ack
 					case (MazePacket.CONNECTION_REQUEST): {
 						// Update Lamport clock
-						synchronized (lamportClock) {
-							if (lamportClock < packetFromClient.getlamportClock()) {
-								lamportClock = packetFromClient.getlamportClock();
-								lamportClock -= (packetFromClient.getclientID()/10);
-								lamportClock += (address.id/10);
+						synchronized (mazewar) {
+							if (mazewar.lClock < packetFromClient.getlamportClock()) {
+								mazewar.lClock = packetFromClient.getlamportClock();
+								mazewar.lClock -= (packetFromClient.getclientID()/10);
+								mazewar.lClock += (address.id/10);
 							}
-							lamportClock++;
+							mazewar.lClock++;
 						}
 						MazePacket Ack = new MazePacket(packetFromClient);
 						Ack.setmsgType(MazePacket.ACK);
@@ -115,6 +117,9 @@ public class ClientListenHandlerThread extends Thread{
 								remote_addresses.clear();
 								remote_addresses.addAll(packetFromClient.remotes);
 							}
+							synchronized (mazewar) {
+								mazewar.numPlayers++;
+							}
 						}
 						broadcastPacket(Ack, remote_addresses);
 						localQueue.put(packetFromClient.getlamportClock(), packetFromClient);
@@ -123,13 +128,13 @@ public class ClientListenHandlerThread extends Thread{
 					case (MazePacket.MOVE_REQUEST):
 					case (MazePacket.DISCONNECT_REQUEST): {
 						// Update Lamport Clock
-						synchronized (lamportClock) {
-							if (lamportClock < packetFromClient.getlamportClock()) {
-								lamportClock = packetFromClient.getlamportClock();
-								lamportClock -= (packetFromClient.getclientID()/10);
-								lamportClock += (address.id/10);
+						synchronized (mazewar) {
+							if (mazewar.lClock < packetFromClient.getlamportClock()) {
+								mazewar.lClock = packetFromClient.getlamportClock();
+								mazewar.lClock -= (packetFromClient.getclientID()/10);
+								mazewar.lClock += (address.id/10);
 							}
-							lamportClock++;
+							mazewar.lClock++;
 						}
 						MazePacket Ack = new MazePacket(packetFromClient);
 						Ack.setmsgType(MazePacket.ACK);

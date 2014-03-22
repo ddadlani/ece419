@@ -8,7 +8,7 @@ public class Address implements Serializable {
 
 	/* Identification parameters */
 	public String name;
-	public Integer id;
+	public int id;
 	
 	/* Connection parameters */
 	public String hostname;

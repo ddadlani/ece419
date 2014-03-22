@@ -8,16 +8,14 @@ import javax.swing.JTable;
 
 class ClientExecutionThread extends Thread {
 	private SortedMap<Double, MazePacket> localQueue;
-	private Integer numPlayers;
 	private Maze maze;
 	private Mazewar mazewar;
 	private String lookupHostName;
 	private Integer lookupPort;
 
-	public ClientExecutionThread(SortedMap<Double, MazePacket> localQueue, Integer numPlayers, Mazewar mazewar,
+	public ClientExecutionThread(SortedMap<Double, MazePacket> localQueue, Mazewar mazewar,
 			Maze maze, String hostname, Integer port) {
 		this.localQueue = localQueue;
-		this.numPlayers = numPlayers;
 		this.maze = maze;
 		this.mazewar = mazewar;
 		this.lookupHostName = hostname;
@@ -38,7 +36,7 @@ class ClientExecutionThread extends Thread {
 						Double lclock = localQueue.firstKey();
 						move = localQueue.get(lclock);
 					}
-				} while (!(move.getnumAcks()).equals(numPlayers));
+				} while (move.getnumAcks() != mazewar.numPlayers);
 
 				synchronized (localQueue) {
 					// remove head of the queue
@@ -80,9 +78,7 @@ class ClientExecutionThread extends Thread {
 							// Another player is joining the game
 							remoteClient = new RemoteClient(move.getclientInfo().name);
 							maze.addClient(remoteClient);
-							synchronized (numPlayers) {
-								numPlayers++;
-							}
+							
 							// ADD POSITION AND ORIENTATION ? maybe not needed
 							// due to sync
 						}
@@ -179,8 +175,8 @@ class ClientExecutionThread extends Thread {
 								Mazewar.quit();
 							} else {
 								synchronized (mazewar) {
-									this.numPlayers--;
-									this.mazewar.remotes_addrbook.remove(move.getclientInfo());
+									mazewar.numPlayers--;
+									mazewar.remotes_addrbook.remove(move.getclientInfo());
 								}
 								maze.removeClient(remoteClient);
 							}
