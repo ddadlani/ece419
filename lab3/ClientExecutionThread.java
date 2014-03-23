@@ -55,12 +55,14 @@ class ClientExecutionThread extends Thread {
 							maze.addMazeListener(scoreModel);
 							// Your own connection has been approved
 							// add yourself
-							mazewar.guiClient = new GUIClient(move.getclientInfo().name, move.remotes,
-									move.getclientInfo(), this.lookupHostName, this.lookupPort, this.mazewar.lClock);
-
+							synchronized(mazewar) {
+							mazewar.guiClient = new GUIClient(move.getclientInfo().name,
+									move.getclientInfo(), lookupHostName, lookupPort, mazewar);
+							}
 							maze.addClient(mazewar.guiClient);
 							mazewar.addKeyListener(mazewar.guiClient);
 							Create_game(scoreModel);
+							
 
 							// add everyone else already playing to game(since
 							// dynamic joining)

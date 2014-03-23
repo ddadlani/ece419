@@ -20,24 +20,25 @@ public class GUIClient extends LocalClient implements KeyListener {
 	public Integer lookupPort = 0;
 	public ObjectOutputStream out = null;
 	public ObjectInputStream in = null;
-	public ArrayList<Address> broadcastAddrBook = null;
+	//public ArrayList<Address> broadcastAddrBook = null;
 	public Address localAddr = null;
-	public double lClock = 0.0;
+	//public double lClock = 0.0;
+	public Mazewar mazewar;
 
 	/**
 	 * Create a GUI controlled {@link LocalClient}.
 	 */
-	public GUIClient(String name, ArrayList<Address> remotes,
+	public GUIClient(String name,
 			Address localAddr, String lookupHostName, Integer lookupPort,
-			double lClock) {
+			Mazewar mazewar) {
 
 		super(name);
 		/* variables for hostname/port */
 		this.lookupHostName = lookupHostName;
 		this.lookupPort = lookupPort;
-		this.broadcastAddrBook = remotes;
+		//this.broadcastAddrBook = remotes;
 		this.localAddr = localAddr;
-		this.lClock = lClock;
+		this.mazewar = mazewar;
 	}
 
 	/**
@@ -51,13 +52,13 @@ public class GUIClient extends LocalClient implements KeyListener {
 		/* make a new request packet */
 		MazePacket moveToBroadcast = new MazePacket();
 
-		this.localAddr.name = this.getName();
-		this.localAddr.position = this.getPoint();
-		this.localAddr.orientation = this.getOrientation();
-		moveToBroadcast.setclientInfo(this.localAddr);
-		moveToBroadcast.setName(this.localAddr.name);
-		this.lClock++;
-		moveToBroadcast.setlamportClock(this.lClock);
+		localAddr.name = this.getName();
+		localAddr.position = this.getPoint();
+		localAddr.orientation = this.getOrientation();
+		moveToBroadcast.setclientInfo(localAddr);
+		moveToBroadcast.setName(localAddr.name);
+		mazewar.lClock++;
+		moveToBroadcast.setlamportClock(mazewar.lClock);
 		// If the user pressed Q, invoke the cleanup code and quit.
 		if ((e.getKeyChar() == 'q') || (e.getKeyChar() == 'Q')) {
 
@@ -83,8 +84,8 @@ public class GUIClient extends LocalClient implements KeyListener {
 				MazePacket packetToServer = new MazePacket();
 
 				packetToServer.setmsgType(MazePacket.DISCONNECT_REQUEST);
-				packetToServer.setlamportClock(lClock);
-				packetToServer.setclientInfo(this.localAddr);
+				packetToServer.setlamportClock(mazewar.lClock);
+				packetToServer.setclientInfo(localAddr);
 				packetToServer.setevent(MazePacket.DISCONNECT);
 
 				outstream.writeObject(packetToServer);
@@ -145,38 +146,38 @@ public class GUIClient extends LocalClient implements KeyListener {
 				System.err.println("ERROR: Null pointer accessed.");
 				np.printStackTrace();
 			}
-			broadcastPacket(moveToBroadcast, this.broadcastAddrBook);
+			broadcastPacket(moveToBroadcast, mazewar.remotes_addrbook);
 
 			// Up-arrow moves forward.
 		} else if (e.getKeyCode() == KeyEvent.VK_UP) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.MOVE_FORWARD);
-			broadcastPacket(moveToBroadcast, this.broadcastAddrBook);
+			broadcastPacket(moveToBroadcast, mazewar.remotes_addrbook);
 			// Down-arrow moves backward.
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.MOVE_BACKWARD);
-			broadcastPacket(moveToBroadcast, this.broadcastAddrBook);
+			broadcastPacket(moveToBroadcast, mazewar.remotes_addrbook);
 			// Left-arrow turns left.
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.TURN_LEFT);
-			broadcastPacket(moveToBroadcast, this.broadcastAddrBook);
+			broadcastPacket(moveToBroadcast, mazewar.remotes_addrbook);
 			// Right-arrow turns right.
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.TURN_RIGHT);
-			broadcastPacket(moveToBroadcast, this.broadcastAddrBook);
+			broadcastPacket(moveToBroadcast, mazewar.remotes_addrbook);
 			// Spacebar fires.
 		} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 
 			moveToBroadcast.setmsgType(MazePacket.MOVE_REQUEST);
 			moveToBroadcast.setevent(MazePacket.FIRE);
-			broadcastPacket(moveToBroadcast, this.broadcastAddrBook);
+			broadcastPacket(moveToBroadcast, mazewar.remotes_addrbook);
 
 		} 
 
