@@ -76,6 +76,20 @@ public class Direction implements Serializable{
          */
         public static final Direction West = new Direction(WEST);
         
+        public Direction getDirection() {
+        	 switch(this.direction) {
+             case NORTH:
+                     return North;
+             case EAST:
+                     return East;
+             case SOUTH:
+                     return South;
+             case WEST:
+                     return West;
+        	 }
+        	 return null;
+        	 
+        }
         /**
          * Compare {@link Direction}s for equality.
          */

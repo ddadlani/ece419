@@ -71,6 +71,6 @@ public class DirectedPoint extends Point {
          * @return This {@link DirectedPoint}'s Cardinal {@link Direction}.
          */
         public Direction getDirection(){
-                return direction;
+              return direction.getDirection();
         }
 }

@@ -62,7 +62,7 @@ class ClientExecutionThread extends Thread {
 								move = mazewar.moveQueue.get(lclock);
 							} while (move.getnumposAcks() < (mazewar.numPlayers - 1));
 
-							synchronized (mazewar) {
+							synchronized (mazewar.remotes_addrbook) {
 								System.out.println("Received all n-1 POS acks from remotes");
 								// Add all remote players
 								Iterator<Address> i = mazewar.remotes_addrbook.iterator();
