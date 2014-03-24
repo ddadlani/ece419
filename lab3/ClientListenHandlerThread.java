@@ -9,7 +9,6 @@ import java.util.SortedMap;
 
 public class ClientListenHandlerThread extends Thread {
 	Socket socket;
-	ArrayList<Address> remote_addresses;
 	Address address;
 	Mazewar mazewar;
 	SortedMap<Double, Integer> ackQueue;
@@ -28,7 +27,6 @@ public class ClientListenHandlerThread extends Thread {
 	public ClientListenHandlerThread(Socket socket_, Mazewar mazewar_, SortedMap<Double, Integer> ackQueue_) {
 		synchronized (mazewar_) {
 			this.socket = socket_;
-			this.remote_addresses = mazewar_.remotes_addrbook;
 			this.address = new Address(mazewar_.clientAddr);
 			this.mazewar = mazewar_;
 			this.ackQueue = ackQueue_;
@@ -53,30 +51,10 @@ public class ClientListenHandlerThread extends Thread {
 
 							System.out.println("ACK from " + packetFromClient.getlamportClock() + " in " + address.name
 									+ " for " + packetFromClient.getevent());
-							// synchronized (mazewar.moveQueue) {
 							gotNewAck = mazewar.moveQueue.get(packetFromClient.getlamportClock());
-							// }
+
 							if (gotNewAck != null) {
 								gotNewAck.incrementAcks();
-								// If received ACK for own connection, add
-								// player name in ACK to
-								// remotes so that we can add GUIClient later
-								if (packetFromClient.getevent() == MazePacket.CONNECT) {
-									// ADD name of clients in remote
-									synchronized (remote_addresses) {
-										Iterator<Address> itr = remote_addresses.iterator();
-										while (itr.hasNext()) {
-											Address addr = itr.next();
-											if (addr.equals(packetFromClient.getclientInfo())) {
-												addr.name = packetFromClient.getName();
-												addr.id = packetFromClient.getclientID();
-												// TODO: Set position and
-												// orientation
-												break;
-											}
-										}
-									}
-								}
 
 							} else if (gotNewAck == null) {
 								// Packet with this Lamport clock not found.
@@ -101,11 +79,44 @@ public class ClientListenHandlerThread extends Thread {
 								ackQueue.put(packetFromClient.getlamportClock(), currentAcks);
 								// }
 							}
-						}
-							break;
 
-						// for connect ACK, send back position, orientation and
-						// name of player sending the ack
+							// If received ACK for own connection, add player
+							// name in ACK to
+							// remotes so that we can add GUIClient later
+							//if ((packetFromClient.getevent() == MazePacket.CONNECT)
+							//		&& (((packetFromClient.getlamportClock() * 10) % 10) == address.id)) {
+								// Add synchronization info for this
+								// remoteclient
+							break;
+						}
+							
+						case (MazePacket.POSITION): {
+							System.out.println("Received POS from " + packetFromClient.getlamportClock());
+							// Increment number of ACKs
+							double key = mazewar.moveQueue.firstKey();
+							MazePacket connectFirst  = mazewar.moveQueue.get(key);
+							connectFirst.incrementAcks();
+							
+							// Set the position and orientation and score in remote addresses
+							Address pktAddr = packetFromClient.getclientInfo();
+							synchronized (mazewar.remotes_addrbook) {
+								Iterator<Address> i = mazewar.remotes_addrbook.iterator();
+								while (i.hasNext()) {
+									Address remoteAddr = i.next();
+									if (remoteAddr.equals(pktAddr)) {
+										remoteAddr.name = pktAddr.name;
+										remoteAddr.id = pktAddr.id;
+										remoteAddr.position = pktAddr.position;
+										remoteAddr.orientation = pktAddr.orientation;
+										remoteAddr.score = pktAddr.score;
+									}
+								}
+							}
+							break;
+						}
+
+						// for connect ACK, send back position, orientation
+						// name and address of player sending the ack
 						case (MazePacket.CONNECTION_REQUEST): {
 							System.out.println("Connect request from " + packetFromClient.getlamportClock() + " in "
 									+ address.name);
@@ -131,21 +142,22 @@ public class ClientListenHandlerThread extends Thread {
 							MazePacket Ack = new MazePacket(packetFromClient);
 							Ack.setmsgType(MazePacket.ACK);
 							// Send own client details so new connection can add
-							// to
-							// their address book
+							// to their address book
 							Ack.setclientID(address.id);
 							Ack.setName(address.name);
+							Ack.setclientInfo(address);
 							// Handle Position and orientation
 							if (!(packetFromClient.getclientInfo().equals(address))) {
 								// received connect_req from another person
 								// add address of new member
-								synchronized (remote_addresses) {
-									remote_addresses.clear();
-									remote_addresses.addAll(packetFromClient.remotes);
+								synchronized (mazewar.remotes_addrbook) {
+									mazewar.remotes_addrbook.clear();
+									mazewar.remotes_addrbook.addAll(packetFromClient.remotes);
 								}
 								synchronized (mazewar) {
 									mazewar.numPlayers++;
 								}
+
 							}
 
 							// synchronized (mazewar.moveQueue) {
@@ -153,9 +165,10 @@ public class ClientListenHandlerThread extends Thread {
 							mazewar.moveQueue.put(packetFromClient.getlamportClock(), packetFromClient);
 							System.out.println("Local queue size after adding = " + mazewar.moveQueue.size());
 							// }
-							System.out.println("Broadcasting ACK for connect req from "
-									+ packetFromClient.getlamportClock());
-							broadcastPacket(Ack, remote_addresses);
+							//if (!(packetFromClient.getclientInfo().equals(address))) {
+							System.out.println("Broadcasting ACK for connect req from "	+ packetFromClient.getlamportClock());
+								broadcastPacket(Ack, mazewar.remotes_addrbook);
+							//}
 
 							break;
 						}
@@ -195,14 +208,11 @@ public class ClientListenHandlerThread extends Thread {
 							// }
 							System.out.println("Broadcasting ACK for connect req from "
 									+ packetFromClient.getlamportClock());
-							broadcastPacket(Ack, remote_addresses);
+							broadcastPacket(Ack, mazewar.remotes_addrbook);
 
 							break;
 						}
 
-						// TODO: case (MazePacket.HEARTBEAT) -- count heart
-						// beats
-						// received for each player
 						default:
 							// A wrong packet was received
 							System.err.println("ERROR: A packet with invalid type was received.");

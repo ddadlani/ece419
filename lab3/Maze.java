@@ -57,6 +57,15 @@ public abstract class Maze {
      * @param client {@link Client} to be added to the {@link Maze}.
      */
     public abstract void addClient(Client client);
+    
+    /**
+     * Add a {@link Client} at a given position and direction in the 
+     * {@link Maze}
+     * @param client {@link Client} to be added to the {@link Maze}.
+     * @param point {@link Point} at which the {@link Client} must be added to the {@link Maze}.
+     * @param direction {@link Direction in which {@Client will be facing.
+     */
+    public abstract void addGivenClient(Client client, Point point, Direction direction);
 
     /** 
      * Create a new {@link Projectile} from the specified {@link Client}

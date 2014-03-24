@@ -1,5 +1,8 @@
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.*;
 
 import javax.swing.BorderFactory;
@@ -11,24 +14,28 @@ class ClientExecutionThread extends Thread {
 	private Mazewar mazewar;
 	private String lookupHostName;
 	private Integer lookupPort;
+	private ScoreTableModel scoreModel;
 
-	public ClientExecutionThread(Mazewar mazewar,
-			Maze maze, String hostname, Integer port) {
+	public ClientExecutionThread(Mazewar mazewar, Maze maze, String hostname, Integer port, ScoreTableModel scoremodel) {
 		this.maze = maze;
 		this.mazewar = mazewar;
 		this.lookupHostName = hostname;
 		this.lookupPort = port;
+		this.scoreModel = scoremodel;
+		// ScoreModel initialization now done in Mazewar constructor
+		assert (scoreModel != null);
 	}
 
 	public void run() {
-
+		boolean created = false;
 		while (true) {
 			MazePacket move = new MazePacket();
 			boolean local = false;
 			LocalClient localClient = null;
 			RemoteClient remoteClient = null;
-			// Check if ACKs have been received for the move at the top
 			
+
+			// Check if ACKs have been received for the move at the top
 			if (mazewar.moveQueue != null && mazewar.moveQueue.size() > 0) {
 				System.out.println("In CEX, Local queue size  = " + mazewar.moveQueue.size());
 				do {
@@ -36,59 +43,107 @@ class ClientExecutionThread extends Thread {
 						double lclock = mazewar.moveQueue.firstKey();
 						move = mazewar.moveQueue.get(lclock);
 					}
-					//System.out.println("Move's numAcks = " + move.getfnumAcks());
-				} while (move.getnumAcks() != mazewar.numPlayers);
-
-				synchronized (mazewar.moveQueue) {
-					// remove head of the queue
-					mazewar.moveQueue.remove(mazewar.moveQueue.firstKey());
-				}
+				} while (move.getnumAcks() < mazewar.numPlayers);
+				
 				// Execute move that was at head of queue
 				if (move != null) {
 					// Connection Request packet
 					if (move.getmsgType() == MazePacket.CONNECTION_REQUEST) {
 
+						// This is our connection move
 						if (move.getclientInfo().equals(mazewar.clientAddr)) {
-
-							ScoreTableModel scoreModel = new ScoreTableModel();
-							assert (scoreModel != null);
-							maze.addMazeListener(scoreModel);
-							// Your own connection has been approved
-							// add yourself
-							synchronized(mazewar) {
-							mazewar.guiClient = new GUIClient(move.getclientInfo().name,
-									move.getclientInfo(), lookupHostName, lookupPort, mazewar);
-							}
-							maze.addClient(mazewar.guiClient);
-							mazewar.addKeyListener(mazewar.guiClient);
-							Create_game(scoreModel);
+							// Wait for other position packets
+							while (move.getnumAcks() < (2*(mazewar.numPlayers)-1));
 							
+							synchronized (mazewar.clientAddr) {
+								// Add all remote players
+								Iterator<Address> i = mazewar.remotes_addrbook.iterator();
+								while (i.hasNext()) {
+									Address remoteAddr = i.next();
 
-							// add everyone else already playing to game(since
-							// dynamic joining)
-
-							Iterator<Address> itr = move.remotes.iterator();
-							while (itr.hasNext()) {
-								Address addr = itr.next();
-								if (!(addr.name.equals(move.getclientInfo().name))) {// don't add yourself as remote
-									RemoteClient remclient = new RemoteClient(addr.name);
-									maze.addClient(remclient);
-									// ADD POSITION AND ORIENTATION
+									// Don't add yourself as remote
+									if (!(remoteAddr.equals(mazewar.clientAddr))) {
+										remoteClient = new RemoteClient(remoteAddr.name);
+										maze.addGivenClient(remoteClient, remoteAddr.position, remoteAddr.orientation);
+										scoreModel.setScore(remoteClient, remoteAddr.score);
+									}
 								}
 							}
+							// Create yourself
+							synchronized (mazewar) {
+								mazewar.guiClient = new GUIClient(move.getclientInfo().name, move.getclientInfo(),
+										lookupHostName, lookupPort, mazewar);
 
-						} else {
-							// Another player is joining the game
-							remoteClient = new RemoteClient(move.getclientInfo().name);
-							maze.addClient(remoteClient);
+								maze.addClient(mazewar.guiClient);
+								mazewar.addKeyListener(mazewar.guiClient);
+							}
+							// Update your position and direction in your
+							// clientAddr
+							synchronized (mazewar.clientAddr) {
+								mazewar.clientAddr.position = mazewar.guiClient.getPoint();
+								mazewar.clientAddr.orientation = mazewar.guiClient.getOrientation();
+								mazewar.clientAddr.score = 0;
+							}
+
+							// Now send your ACK so everyone (including you) can
+							// add you to the game
+							MazePacket Ack = new MazePacket();
+							Ack.setmsgType(MazePacket.POSITION);
+							Ack.setName(mazewar.clientAddr.name);
+							Ack.setclientID(mazewar.clientAddr.id);
+							Ack.setclientInfo(mazewar.clientAddr);
+
+							broadcastPacket(Ack, mazewar.remotes_addrbook);
 							
-							// ADD POSITION AND ORIENTATION ? maybe not needed
-							// due to sync
+							while (move.getnumAcks() < (2*(mazewar.numPlayers)));
+							
+							Create_game(scoreModel);
+							
+						} else {
+							// Setting position and orientation and score for new client
+							mazewar.clientAddr.position = mazewar.guiClient.getPoint();
+							mazewar.clientAddr.orientation = mazewar.guiClient.getOrientation();
+							mazewar.clientAddr.score = mazewar.scoreModel.getScore(mazewar.guiClient);
+							
+							// Send these to the new client
+							MazePacket positionAck = new MazePacket();
+							positionAck.setmsgType(MazePacket.POSITION);
+							positionAck.setclientID(mazewar.clientAddr.id);
+							positionAck.setName(mazewar.clientAddr.name);
+							positionAck.setclientInfo(mazewar.clientAddr);
+							try {
+								Socket sendPos = new Socket(move.getclientInfo().hostname, move.getclientInfo().port);
+								ObjectOutputStream out = new ObjectOutputStream(sendPos.getOutputStream());
+								out.writeObject(positionAck);
+							} catch (IOException ioe) {
+								System.err.println("ERROR: Could not send position to new client.");
+								ioe.printStackTrace();
+								System.exit(1);
+							}
+							while(move.getnumAcks() < (mazewar.numPlayers + 1));
+							
+							// Another player is joining the game
+							//synchronized (mazewar.remotes_addrbook) {
+								Iterator<Address> i = mazewar.remotes_addrbook.iterator();
+								while (i.hasNext()) {
+									Address remoteAddr = i.next();
+									if (remoteAddr.equals(move.getclientInfo())) {
+										remoteClient = new RemoteClient(remoteAddr.name);
+										Point position = remoteAddr.position;
+										Direction orientation = remoteAddr.orientation;
+										// Add client to maze at given position and orientation
+										maze.addGivenClient(remoteClient, position, orientation);
+										// Update score of remote client
+										scoreModel.setScore(remoteClient, move.getclientInfo().score);
+									}
+								}
+							//}
+							
 						}
-					}
 
-					// Other than connection request packet
-					else {
+					} else {
+						// Other than connection request packet
+						
 						if (move.getclientInfo().equals(mazewar.clientAddr)) {
 							local = true;
 							Iterator i = maze.getClients();
@@ -123,16 +178,6 @@ class ClientExecutionThread extends Thread {
 									remoteClient = (RemoteClient) o;
 									if (move.getName().equals(remoteClient.getName()))
 										found = true;
-									// Integer count;
-									// synchronized (map) {
-									// for (count = 0; count < map.size();
-									// count++)
-									// if
-									// (remoteClient.getName().equals(map.get(count)))
-									// {
-									// found = true;
-									// break;
-									// }
 								}
 								if (found)
 									break;
@@ -142,7 +187,9 @@ class ClientExecutionThread extends Thread {
 						}
 
 						if ((remoteClient == null) && (!local)) {
-							System.out.println("Can't find the remote client in listener queue of local machine!");
+							System.err
+									.println("ERROR: Can't find the remote client in listener queue of local machine!");
+							System.exit(1);
 						}
 
 						if (move.getmsgType() == MazePacket.MOVE_REQUEST) {
@@ -184,6 +231,11 @@ class ClientExecutionThread extends Thread {
 								maze.removeClient(remoteClient);
 							}
 						}
+					}
+					// We can now proceed with the game
+					synchronized (mazewar.moveQueue) {
+						// remove head of the queue
+						mazewar.moveQueue.remove(mazewar.moveQueue.firstKey());
 					}
 				}
 			}
@@ -249,5 +301,31 @@ class ClientExecutionThread extends Thread {
 		mazewar.setVisible(true);
 		mazewar.overheadPanel.repaint();
 		mazewar.requestFocusInWindow();
+	}
+
+	public void broadcastPacket(MazePacket outPacket, ArrayList<Address> addressBook) {
+		Socket clientsocket = null;
+		ObjectOutputStream out = null;
+		synchronized (addressBook) {
+			// If nothing has been added to the address book yet, nothing to do
+			if ((addressBook != null) && (addressBook.isEmpty())) {
+				return;
+			}
+			try {
+				for (int i = 0; i < addressBook.size(); i++) {
+					clientsocket = new Socket(addressBook.get(i).hostname, addressBook.get(i).port);
+					out = new ObjectOutputStream(clientsocket.getOutputStream());
+					out.writeObject(outPacket);
+					out.close();
+					clientsocket.close();
+				}
+			} catch (NullPointerException npe) {
+				System.err.println("Error: A null pointer was accessed in broadcastPacket.");
+				npe.printStackTrace();
+			} catch (IOException e) {
+				System.err.println("Error: IOException thrown in broadcastPacket.");
+				e.printStackTrace();
+			}
+		}
 	}
 }

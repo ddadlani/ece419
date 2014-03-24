@@ -55,6 +55,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 		localAddr.name = this.getName();
 		localAddr.position = this.getPoint();
 		localAddr.orientation = this.getOrientation();
+		localAddr.score = mazewar.scoreModel.getScore(this);
 		moveToBroadcast.setclientInfo(localAddr);
 		moveToBroadcast.setName(localAddr.name);
 		mazewar.lClock++;
@@ -121,13 +122,8 @@ public class GUIClient extends LocalClient implements KeyListener {
 						System.out.println("DISCONNECTED FROM LOOKUP SERVER");
 					}
 
-				} while (packetFromServer.getmsgType() != MazePacket.ACK); // Do
-																			// we
-																			// need
-																			// the
-																			// do
-																			// while
-																			// loop?
+				} while (packetFromServer.getmsgType() != MazePacket.ACK); 
+
 
 				outstream.close();
 				instream.close();

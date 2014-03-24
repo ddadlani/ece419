@@ -206,6 +206,25 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 addClient(client, point);
         }
         
+        /**
+         * Adds a remote client with given direction and position
+         * to the maze.
+         * @param client The {@link Client} to be added.
+         * @param point The location the {@link Client} should be added.
+         * @param direction The direction in which the {@link Client} is facing.
+         */
+        public synchronized void addGivenClient (Client client, Point point, Direction direction) {
+        	assert(client != null);
+            assert(checkBounds(point));
+            CellImpl cell = getCellImpl(point);
+            cell.setContents(client);
+            clientMap.put(client, new DirectedPoint (point, direction));
+            client.registerMaze(this);
+            client.addClientListener(this);
+            update();
+            notifyClientAdd(client);
+        }
+        
         public synchronized Point getClientPoint(Client client) {
                 assert(client != null);
                 Object o = clientMap.get(client);
@@ -424,16 +443,10 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 assert(client != null);
                 assert(checkBounds(point));
                 CellImpl cell = getCellImpl(point);
-                Direction d = Direction.East;//Direction.random();
-                int count = 0;
+                Direction d = Direction.random();
+                //int count = 0;
                 while(cell.isWall(d)) {
-                	if (count == 0)
-                		d = Direction.North;
-                	if (count == 1)
-                		d = Direction.West;
-                	if (count == 2)
-                		d = Direction.South;
-                  count ++;
+                	d = Direction.random();
                 }
                 cell.setContents(client);
                 clientMap.put(client, new DirectedPoint(point, d));
@@ -442,6 +455,8 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 update();
                 notifyClientAdd(client);
         }
+        
+        
         
         /**
          * Internal helper for handling the death of a {@link Client}.
@@ -609,6 +624,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                         ml.clientAdded(c);
                 } 
         }
+     
         
         /**
          * Generate a notification to listeners that a 

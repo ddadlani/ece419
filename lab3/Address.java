@@ -18,13 +18,17 @@ public class Address implements Serializable {
 	public Point position;
 	public Direction orientation;
 	
+	/* Score value */
+	int score;
+	
 	
 	/* Constructor */
 	public Address() {
 		this.name = null;
-	//	this.id = 0;
+		this.id = 0;
 		this.hostname = null;
 		this.port = 0;
+		this.score = 0;
 	}
 	
 	/* Copy constructor */
@@ -35,6 +39,7 @@ public class Address implements Serializable {
 		this.port = toCopy.port;
 		this.position = toCopy.position;
 		this.orientation = toCopy.orientation;
+		this.score = toCopy.score;
 	}
 
 	@Override

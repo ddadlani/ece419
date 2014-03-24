@@ -25,6 +25,7 @@ public class MazePacket implements Serializable{
 	public static final int MOVE_REQUEST = 103;
 	public static final int DISCONNECT_REQUEST = 104;
 	public static final int HEARTBEAT = 105;
+	public static final int POSITION = 106;
 	
 	/**
 	 * Event constants
@@ -59,6 +60,7 @@ public class MazePacket implements Serializable{
 	private Integer errorCode;
 	public ArrayList<Address> remotes;
 	private int numAcks;
+	//private Integer score;
 	//public Collection<Address> addresses;
 	
 	/**
@@ -74,17 +76,19 @@ public class MazePacket implements Serializable{
 		this.errorCode = MAZE_NULL;
 		this.remotes = new ArrayList<Address> ();
 		this.numAcks = MAZE_NULL;
+		//this.score = 0;
 	}
 	
 	public MazePacket(MazePacket toCopy) {
 		this.name = toCopy.name;
-		this.clientID = toCopy.clientID;
+		this.clientID = toCopy.getclientID();
 		this.clientInfo = new Address(toCopy.clientInfo);
-		this.event = toCopy.event;
-		this.lClock = toCopy.lClock;
-		this.msgType = toCopy.msgType;
-		this.errorCode = toCopy.errorCode;
-		this.numAcks = toCopy.numAcks;
+		this.event = toCopy.getevent();
+		this.lClock = toCopy.getlamportClock();
+		this.msgType = toCopy.getmsgType();
+		this.errorCode = toCopy.geterrorCode();
+		this.numAcks = toCopy.getnumAcks();
+		//this.score = toCopy.getScore();
 		this.remotes = new ArrayList<Address> (); 
 		// Deep copy of remotes;
 		for(int i = 0; i < toCopy.remotes.size(); i++) {
@@ -146,6 +150,9 @@ public class MazePacket implements Serializable{
 		return this.numAcks;
 	}
 	
+	//public Integer getScore() {
+	//	return this.score;
+	//}
 	/**
 	 * Setter functions
 	 * Used to set particular values of the MazePacket
@@ -186,5 +193,8 @@ public class MazePacket implements Serializable{
 	public void incrementAcks() {
 		this.numAcks++;
 	}
+	//public void setScore(Integer score_) {
+	//	this.score = score_;
+	//}
 	
 }

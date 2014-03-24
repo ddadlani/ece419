@@ -53,6 +53,7 @@ public class Mazewar extends JFrame {
 	public SortedMap<Double, MazePacket> moveQueue;
 	public Address clientAddr;
 	public Integer listenPort;
+	public ScoreTableModel scoreModel;
 	/**
 	 * The default width of the {@link Maze}.
 	 */
@@ -153,9 +154,9 @@ public class Mazewar extends JFrame {
 
 		// Have the ScoreTableModel listen to the maze to find
 		// out how to adjust scores.
-/*		ScoreTableModel scoreModel = new ScoreTableModel();
+		scoreModel = new ScoreTableModel();
 		assert (scoreModel != null);
-		maze.addMazeListener(scoreModel);*/
+		maze.addMazeListener(scoreModel);
 
 		// Throw up a dialog to get the GUIClient name.
 		String name = JOptionPane.showInputDialog("Enter your name");
@@ -338,7 +339,7 @@ public class Mazewar extends JFrame {
 			Mazewar mazewar = new Mazewar(listenPort, hostname, hostport);
 			new Thread(new ClientListenerThread(mazewar, listenSocket)).start();
 			new Thread(new ClientExecutionThread(mazewar, mazewar.maze, hostname,
-					hostport)).start();
+					hostport, mazewar.scoreModel)).start();
 
 			// Send Connection requests to all clients including itself
 

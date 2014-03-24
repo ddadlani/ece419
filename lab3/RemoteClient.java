@@ -24,13 +24,15 @@ USA.
  */
 
 public class RemoteClient extends Client {
-        
+        String name;
+        Address address;
         /**
          * Create a remotely controlled {@link Client}.
          * @param name Name of this {@link RemoteClient}.
          */
-        public RemoteClient(String name) {
-                super(name);
+        public RemoteClient(String name_) {
+                super(name_);
+                this.name = name_;
                 Mazewar.consolePrintLn("Remote client \"" + name + "\" activated.");
         }
 
