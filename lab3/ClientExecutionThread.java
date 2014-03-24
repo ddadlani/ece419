@@ -33,23 +33,22 @@ class ClientExecutionThread extends Thread {
 			boolean local = false;
 			LocalClient localClient = null;
 			RemoteClient remoteClient = null;
-			
 
 			// Check if ACKs have been received for the move at the top
 			if (mazewar.moveQueue != null && mazewar.moveQueue.size() > 0) {
 				System.out.println("In CEX, Local queue size  = " + mazewar.moveQueue.size());
-				
+
 				do {
 					int count = 10000;
 					while (count > 0)
-						count --;
+						count--;
 					synchronized (mazewar.moveQueue) {
 						double lclock = mazewar.moveQueue.firstKey();
 						move = mazewar.moveQueue.get(lclock);
 					}
-					
+
 				} while (move.getnumAcks() < mazewar.numPlayers);
-				
+
 				// Execute move that was at head of queue
 				if (move != null) {
 					// Connection Request packet
@@ -61,8 +60,8 @@ class ClientExecutionThread extends Thread {
 							do {
 								double lclock = mazewar.moveQueue.firstKey();
 								move = mazewar.moveQueue.get(lclock);
-							} while (move.getnumposAcks() < (mazewar.numPlayers-1));
-							
+							} while (move.getnumposAcks() < (mazewar.numPlayers - 1));
+
 							synchronized (mazewar) {
 								System.out.println("Received all n-1 POS acks from remotes");
 								// Add all remote players
@@ -77,11 +76,11 @@ class ClientExecutionThread extends Thread {
 										scoreModel.setScore(remoteClient, remoteAddr.score);
 									}
 								}
-							
-							// Create yourself
-							
-								mazewar.guiClient = new GUIClient(move.getclientInfo().name, move.getclientInfo(),
-										lookupHostName, lookupPort, mazewar);
+
+								// Create yourself
+
+								mazewar.guiClient = new GUIClient(move.getclientInfo().name, move.getclientInfo(), lookupHostName,
+										lookupPort, mazewar);
 
 								maze.addClient(mazewar.guiClient);
 								mazewar.addKeyListener(mazewar.guiClient);
@@ -89,9 +88,11 @@ class ClientExecutionThread extends Thread {
 							// Update your position and direction in your
 							// clientAddr
 							synchronized (mazewar.clientAddr) {
-								mazewar.clientAddr.position = mazewar.guiClient.getPoint();
-								mazewar.clientAddr.orientation = mazewar.guiClient.getOrientation();
+								mazewar.clientAddr.position = new Point(mazewar.guiClient.getPoint());
+								mazewar.clientAddr.orientation = mazewar.guiClient.getOrientation().createNewDirection();
 								mazewar.clientAddr.score = 0;
+								System.out.println("Your position X = " + mazewar.clientAddr.position.getX());
+								System.out.println("Your position Y = " + mazewar.clientAddr.position.getY());
 							}
 
 							// Now send your ACK so everyone (including you) can
@@ -104,7 +105,7 @@ class ClientExecutionThread extends Thread {
 
 							broadcastPacket(Ack, mazewar.remotes_addrbook);
 							System.out.println("Broadcasted new client pos info");
-							//wait for ack from yourself
+							// wait for ack from yourself
 							do {
 								double lclock = mazewar.moveQueue.firstKey();
 								move = mazewar.moveQueue.get(lclock);
@@ -112,13 +113,14 @@ class ClientExecutionThread extends Thread {
 
 							System.out.println("Received POS ack from myself");
 							Create_game(scoreModel);
-							
+
 						} else {
-							// Setting position and orientation and score for new client
-							mazewar.clientAddr.position = mazewar.guiClient.getPoint();
-							mazewar.clientAddr.orientation = mazewar.guiClient.getOrientation();
+							// Setting position and orientation and score for
+							// new client
+							mazewar.clientAddr.position = new Point(mazewar.guiClient.getPoint());
+							mazewar.clientAddr.orientation = mazewar.guiClient.getOrientation().createNewDirection();
 							mazewar.clientAddr.score = mazewar.scoreModel.getScore(mazewar.guiClient);
-							
+
 							// Send these to the new client
 							MazePacket positionAck = new MazePacket();
 							positionAck.setmsgType(MazePacket.POSITION);
@@ -140,7 +142,7 @@ class ClientExecutionThread extends Thread {
 								double lclock = mazewar.moveQueue.firstKey();
 								move = mazewar.moveQueue.get(lclock);
 							} while (move.getnumposAcks() < 1);
-							
+
 							System.out.println("Received POS ack from new client");
 							// Another player is joining the game
 							synchronized (mazewar.remotes_addrbook) {
@@ -149,20 +151,23 @@ class ClientExecutionThread extends Thread {
 								while (i.hasNext()) {
 									Address remoteAddr = i.next();
 									if (remoteAddr.equals(move.getclientInfo())) {
+										System.out.println("Adding remote client at posX = " + remoteAddr.position.getX() + " "
+												+ remoteAddr.position.getY());
 										remoteClient = new RemoteClient(remoteAddr.name);
-										// Add client to maze at given position and orientation
+										// Add client to maze at given position
+										// and orientation
 										maze.addGivenClient(remoteClient, remoteAddr.position, remoteAddr.orientation);
 										// Update score of remote client
 										scoreModel.setScore(remoteClient, move.getclientInfo().score);
 									}
 								}
 							}
-							
+
 						}
 
 					} else {
 						// Other than connection request packet
-						
+
 						if (move.getclientInfo().equals(mazewar.clientAddr)) {
 							local = true;
 							Iterator i = maze.getClients();
@@ -206,8 +211,7 @@ class ClientExecutionThread extends Thread {
 						}
 
 						if ((remoteClient == null) && (!local)) {
-							System.err
-									.println("ERROR: Can't find the remote client in listener queue of local machine!");
+							System.err.println("ERROR: Can't find the remote client in listener queue of local machine!");
 							System.exit(1);
 						}
 

@@ -184,4 +184,14 @@ public class Direction implements Serializable{
                 /* Impossible */
                 return null;
         }
+        
+      //  private int getIntDirection(Direction direct) {
+       // 	return direct.direction;
+      //  }
+        
+        public Direction createNewDirection() {
+        	int temp = this.direction;
+        	Direction d = new Direction(temp);
+        	return d;
+        }
 }
