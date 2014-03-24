@@ -91,7 +91,7 @@ public class ClientListenHandlerThread extends Thread {
 						}
 							
 						case (MazePacket.POSITION): {
-							System.out.println("Received POS from " + packetFromClient.getlamportClock());
+							System.out.println("Received POS from pid " + packetFromClient.getclientID());
 							// Increment number of ACKs
 							double key = mazewar.moveQueue.firstKey();
 							MazePacket connectFirst  = mazewar.moveQueue.get(key);

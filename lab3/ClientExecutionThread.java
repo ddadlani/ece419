@@ -38,11 +38,16 @@ class ClientExecutionThread extends Thread {
 			// Check if ACKs have been received for the move at the top
 			if (mazewar.moveQueue != null && mazewar.moveQueue.size() > 0) {
 				System.out.println("In CEX, Local queue size  = " + mazewar.moveQueue.size());
+				
 				do {
+					int count = 10000;
+					while (count > 0)
+						count --;
 					synchronized (mazewar.moveQueue) {
 						double lclock = mazewar.moveQueue.firstKey();
 						move = mazewar.moveQueue.get(lclock);
 					}
+					
 				} while (move.getnumAcks() < mazewar.numPlayers);
 				
 				// Execute move that was at head of queue
@@ -55,7 +60,8 @@ class ClientExecutionThread extends Thread {
 							// Wait for other position packets
 							while (move.getnumAcks() < (2*(mazewar.numPlayers)-1));
 							
-							synchronized (mazewar.clientAddr) {
+							synchronized (mazewar) {
+								System.out.println("Received all n-1 POS acks from remotes");
 								// Add all remote players
 								Iterator<Address> i = mazewar.remotes_addrbook.iterator();
 								while (i.hasNext()) {
@@ -68,9 +74,9 @@ class ClientExecutionThread extends Thread {
 										scoreModel.setScore(remoteClient, remoteAddr.score);
 									}
 								}
-							}
+							
 							// Create yourself
-							synchronized (mazewar) {
+							
 								mazewar.guiClient = new GUIClient(move.getclientInfo().name, move.getclientInfo(),
 										lookupHostName, lookupPort, mazewar);
 
@@ -94,9 +100,10 @@ class ClientExecutionThread extends Thread {
 							Ack.setclientInfo(mazewar.clientAddr);
 
 							broadcastPacket(Ack, mazewar.remotes_addrbook);
-							
+							System.out.println("Broadcasted new client pos info");
+							//wait for ack from yourself
 							while (move.getnumAcks() < (2*(mazewar.numPlayers)));
-							
+							System.out.println("Received POS ack from myself");
 							Create_game(scoreModel);
 							
 						} else {
@@ -111,6 +118,7 @@ class ClientExecutionThread extends Thread {
 							positionAck.setclientID(mazewar.clientAddr.id);
 							positionAck.setName(mazewar.clientAddr.name);
 							positionAck.setclientInfo(mazewar.clientAddr);
+
 							try {
 								Socket sendPos = new Socket(move.getclientInfo().hostname, move.getclientInfo().port);
 								ObjectOutputStream out = new ObjectOutputStream(sendPos.getOutputStream());
@@ -120,10 +128,11 @@ class ClientExecutionThread extends Thread {
 								ioe.printStackTrace();
 								System.exit(1);
 							}
+							System.out.println("Sent my POS ack to new client");
 							while(move.getnumAcks() < (mazewar.numPlayers + 1));
-							
+							System.out.println("Received POS ack from new client");
 							// Another player is joining the game
-							//synchronized (mazewar.remotes_addrbook) {
+							synchronized (mazewar.remotes_addrbook) {
 								Iterator<Address> i = mazewar.remotes_addrbook.iterator();
 								while (i.hasNext()) {
 									Address remoteAddr = i.next();
@@ -137,7 +146,7 @@ class ClientExecutionThread extends Thread {
 										scoreModel.setScore(remoteClient, move.getclientInfo().score);
 									}
 								}
-							//}
+							}
 							
 						}
 

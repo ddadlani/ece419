@@ -350,6 +350,7 @@ public class Mazewar extends JFrame {
 			
 			MazePacket toPlayers = new MazePacket();
 			toPlayers.setclientInfo(mazewar.clientAddr);
+			toPlayers.setclientID(mazewar.clientAddr.id);
 			toPlayers.setmsgType(MazePacket.CONNECTION_REQUEST);
 			toPlayers.setevent(MazePacket.CONNECT);
 			toPlayers.remotes = mazewar.remotes_addrbook;

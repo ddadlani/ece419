@@ -41,7 +41,8 @@ public class Address implements Serializable {
 		this.orientation = toCopy.orientation;
 		this.score = toCopy.score;
 	}
-
+	
+	//checks if hostname and port are equal
 	@Override
 	public boolean equals(Object other) {
 		if ((other == null)||(this == null))
