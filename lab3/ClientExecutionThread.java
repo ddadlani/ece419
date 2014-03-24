@@ -58,7 +58,10 @@ class ClientExecutionThread extends Thread {
 						// This is our connection move
 						if (move.getclientInfo().equals(mazewar.clientAddr)) {
 							// Wait for other position packets
-							while (move.getnumAcks() < (2*(mazewar.numPlayers)-1));
+							do {
+								double lclock = mazewar.moveQueue.firstKey();
+								move = mazewar.moveQueue.get(lclock);
+							} while (move.getnumposAcks() < (mazewar.numPlayers-1));
 							
 							synchronized (mazewar) {
 								System.out.println("Received all n-1 POS acks from remotes");
@@ -102,7 +105,11 @@ class ClientExecutionThread extends Thread {
 							broadcastPacket(Ack, mazewar.remotes_addrbook);
 							System.out.println("Broadcasted new client pos info");
 							//wait for ack from yourself
-							while (move.getnumAcks() < (2*(mazewar.numPlayers)));
+							do {
+								double lclock = mazewar.moveQueue.firstKey();
+								move = mazewar.moveQueue.get(lclock);
+							} while (move.getnumposAcks() < (mazewar.numPlayers));
+
 							System.out.println("Received POS ack from myself");
 							Create_game(scoreModel);
 							
@@ -128,20 +135,23 @@ class ClientExecutionThread extends Thread {
 								ioe.printStackTrace();
 								System.exit(1);
 							}
-							System.out.println("Sent my POS ack to new client");
-							while(move.getnumAcks() < (mazewar.numPlayers + 1));
+							System.out.println("Sent my POS ack to new client. Pos ack should be 0: " + move.getnumposAcks());
+							do {
+								double lclock = mazewar.moveQueue.firstKey();
+								move = mazewar.moveQueue.get(lclock);
+							} while (move.getnumposAcks() < 1);
+							
 							System.out.println("Received POS ack from new client");
 							// Another player is joining the game
 							synchronized (mazewar.remotes_addrbook) {
+								System.out.println("Acquired remotes_addrbook in client exec while adding new client as remote");
 								Iterator<Address> i = mazewar.remotes_addrbook.iterator();
 								while (i.hasNext()) {
 									Address remoteAddr = i.next();
 									if (remoteAddr.equals(move.getclientInfo())) {
 										remoteClient = new RemoteClient(remoteAddr.name);
-										Point position = remoteAddr.position;
-										Direction orientation = remoteAddr.orientation;
 										// Add client to maze at given position and orientation
-										maze.addGivenClient(remoteClient, position, orientation);
+										maze.addGivenClient(remoteClient, remoteAddr.position, remoteAddr.orientation);
 										// Update score of remote client
 										scoreModel.setScore(remoteClient, move.getclientInfo().score);
 									}

@@ -60,6 +60,7 @@ public class MazePacket implements Serializable{
 	private Integer errorCode;
 	public ArrayList<Address> remotes;
 	private int numAcks;
+	private int numposAcks;
 	//private Integer score;
 	//public Collection<Address> addresses;
 	
@@ -76,6 +77,7 @@ public class MazePacket implements Serializable{
 		this.errorCode = MAZE_NULL;
 		this.remotes = new ArrayList<Address> ();
 		this.numAcks = MAZE_NULL;
+		this.numposAcks = MAZE_NULL;
 		//this.score = 0;
 	}
 	
@@ -88,6 +90,7 @@ public class MazePacket implements Serializable{
 		this.msgType = toCopy.getmsgType();
 		this.errorCode = toCopy.geterrorCode();
 		this.numAcks = toCopy.getnumAcks();
+		this.numposAcks = toCopy.numposAcks;
 		//this.score = toCopy.getScore();
 		this.remotes = new ArrayList<Address> (); 
 		// Deep copy of remotes;
@@ -150,6 +153,10 @@ public class MazePacket implements Serializable{
 		return this.numAcks;
 	}
 	
+	public int getnumposAcks(){
+		return this.numposAcks;
+	}
+	
 	//public Integer getScore() {
 	//	return this.score;
 	//}
@@ -190,8 +197,16 @@ public class MazePacket implements Serializable{
 		this.numAcks = numAcks_;
 	}
 	
+	public void setnumposAcks(int numposAcks_) {
+		this.numposAcks = numposAcks_;
+	}
+	
 	public void incrementAcks() {
 		this.numAcks++;
+	}
+	
+	public void incrementposAcks() {
+		this.numposAcks++;
 	}
 	//public void setScore(Integer score_) {
 	//	this.score = score_;

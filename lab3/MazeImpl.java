@@ -878,6 +878,12 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
          */
         private CellImpl getCellImpl(Point point) {
                 assert(point != null);
+                if (mazeVector == null)
+                {
+                	System.err.println("mazeVector null");
+                	System.exit(1);
+                }
+                
                 Object o1 = mazeVector.get(point.getX());
                 assert(o1 instanceof Vector);
                 Vector v1 = (Vector)o1;

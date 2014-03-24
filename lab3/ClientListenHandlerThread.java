@@ -95,11 +95,13 @@ public class ClientListenHandlerThread extends Thread {
 							// Increment number of ACKs
 							double key = mazewar.moveQueue.firstKey();
 							MazePacket connectFirst  = mazewar.moveQueue.get(key);
-							connectFirst.incrementAcks();
-							
+							System.out.println("Posacks before: " + connectFirst.getnumposAcks());
+							connectFirst.incrementposAcks();
+							System.out.println("Posacks after: " + connectFirst.getnumposAcks());
 							// Set the position and orientation and score in remote addresses
 							Address pktAddr = packetFromClient.getclientInfo();
 							synchronized (mazewar.remotes_addrbook) {
+								System.out.println("Acquired remotes_addrbook");
 								Iterator<Address> i = mazewar.remotes_addrbook.iterator();
 								while (i.hasNext()) {
 									Address remoteAddr = i.next();
