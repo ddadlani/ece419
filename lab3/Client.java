@@ -77,6 +77,10 @@ public abstract class Client {
                 return maze.getClientOrientation(this);
         }
        
+        public void setPointOrientation(Point p, Direction d) {
+        	assert (maze != null);
+        	maze.setPointAndOrientation(this, p, d);
+        }
         /**
          * Add an object to be notified when this {@link Client} performs an 
          * action.

@@ -93,6 +93,7 @@ public abstract class Maze {
      */
     public abstract Direction getClientOrientation(Client client);
 
+    public abstract void setPointAndOrientation(Client client, Point newpoint, Direction direction);
     /** 
      * Attempt to move a {@link Client} in the {@link Maze} forward.
      * @param client {@link Client} to move.

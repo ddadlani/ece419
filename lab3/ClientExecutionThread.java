@@ -228,6 +228,8 @@ class ClientExecutionThread extends Thread {
 								else if (move.getevent() == MazePacket.FIRE)
 									localClient.fire();
 							} else {
+								
+								remoteClient.setPointOrientation(move.getclientInfo().position, move.getclientInfo().orientation);
 								if (move.getevent() == MazePacket.MOVE_FORWARD)
 									remoteClient.forward();
 								else if (move.getevent() == MazePacket.MOVE_BACKWARD)

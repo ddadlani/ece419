@@ -240,6 +240,22 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
                 DirectedPoint dp = (DirectedPoint)o;
                 return dp.getDirection();
         }
+        
+        public synchronized void setPointAndOrientation(Client client, Point newpoint, Direction direction) {
+        	assert(client != null);
+        	assert(newpoint != null);
+        	
+        	Object o = clientMap.remove(client);        	
+            assert(o instanceof Point);
+            Point point = (Point)o;
+            CellImpl cell = getCellImpl(point);
+            cell.setContents(null);
+            cell = getCellImpl(newpoint);
+         
+            cell.setContents(client);
+            clientMap.put(client, new DirectedPoint(newpoint, direction));
+            update();
+        }
        
         public synchronized void removeClient(Client client) {
                 assert(client != null);
