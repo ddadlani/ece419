@@ -6,7 +6,7 @@ public class Address implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	/* Identification parameters */
+	/* Identification parameters*/
 	public String name;
 	public int id;
 	
