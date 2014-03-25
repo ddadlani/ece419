@@ -357,7 +357,7 @@ public class Mazewar extends JFrame {
 			toPlayers.setlamportClock(mazewar.lClock);
 			toPlayers.setName(mazewar.clientAddr.name);
 
-			System.out.println("Broadcasting connect req from " + toPlayers.getlamportClock());
+			//System.out.println("Broadcasting connect req from " + toPlayers.getlamportClock());
 
 			mazewar.broadcastPacket(toPlayers, toPlayers.remotes);
 

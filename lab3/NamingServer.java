@@ -30,7 +30,7 @@ public class NamingServer {
         //playerList = new ArrayList<Address>();
         //serverPort = 6000;
         //clientID = 0;
-        String hostname = InetAddress.getLocalHost().getHostAddress();
+        String hostname = InetAddress.getLocalHost().getHostName();
         System.out.println("Naming service for Mazewar active on host " + hostname + " port 6000.");
         try {
         	serverSocket = new ServerSocket(nServer.serverPort);	

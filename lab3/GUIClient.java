@@ -119,7 +119,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 					}
 					if ((packetFromServer.getmsgType() == MazePacket.ACK)
 							&& (packetFromServer.getevent() == MazePacket.DISCONNECT)) {
-						System.out.println("DISCONNECTED FROM LOOKUP SERVER");
+						//System.out.println("DISCONNECTED FROM LOOKUP SERVER");
 					}
 
 				} while (packetFromServer.getmsgType() != MazePacket.ACK); 
@@ -208,7 +208,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 			return;
 		}
 		try {
-			System.out.println("Broadcasting packet " + outPacket.getlamportClock());
+			//System.out.println("Broadcasting packet " + outPacket.getlamportClock());
 			for (int i = 0; i < addressBook.size(); i++) {
 				clientsocket = new Socket(addressBook.get(i).hostname,
 						addressBook.get(i).port);
