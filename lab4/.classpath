@@ -1,6 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="code/passwordhacker"/>
+	<classpathentry kind="src" path="code/example1"/>
+	<classpathentry kind="src" path="code/example2"/>
+	<classpathentry kind="src" path="code/md5"/>
+	<classpathentry kind="src" path="zookeeper/contrib/bookkeeper/benchmark"/>
+	<classpathentry kind="src" path="zookeeper/contrib/bookkeeper/src/java"/>
+	<classpathentry kind="src" path="zookeeper/contrib/bookkeeper/test"/>
+	<classpathentry kind="src" path="zookeeper/contrib/fatjar/src/java"/>
+	<classpathentry kind="src" path="zookeeper/contrib/ZooInspector/src/java"/>
+	<classpathentry kind="src" path="zookeeper/recipes/lock/src/java"/>
+	<classpathentry kind="src" path="zookeeper/recipes/lock/test"/>
+	<classpathentry kind="src" path="zookeeper/recipes/queue/src/java"/>
+	<classpathentry kind="src" path="zookeeper/recipes/queue/test"/>
+	<classpathentry kind="src" path="zookeeper/src/contrib/bookkeeper/benchmark"/>
+	<classpathentry kind="src" path="zookeeper/src/contrib/bookkeeper/src/java"/>
+	<classpathentry kind="src" path="zookeeper/src/contrib/bookkeeper/test"/>
+	<classpathentry kind="src" path="zookeeper/src/contrib/fatjar/src/java"/>
+	<classpathentry kind="src" path="zookeeper/src/contrib/rest/src/java"/>
+	<classpathentry kind="src" path="zookeeper/src/contrib/rest/src/test"/>
+	<classpathentry kind="src" path="zookeeper/src/contrib/zooinspector/src/java"/>
+	<classpathentry kind="src" path="zookeeper/src/java/generated"/>
+	<classpathentry kind="src" path="zookeeper/src/java/main"/>
+	<classpathentry kind="src" path="zookeeper/src/java/systest"/>
+	<classpathentry kind="src" path="zookeeper/src/java/test"/>
+	<classpathentry kind="src" path="zookeeper/src/recipes/lock/src/java"/>
+	<classpathentry kind="src" path="zookeeper/src/recipes/lock/test"/>
+	<classpathentry kind="src" path="zookeeper/src/recipes/queue/src/java"/>
+	<classpathentry kind="src" path="zookeeper/src/recipes/queue/test"/>
+	<classpathentry kind="lib" path="zookeeper/contrib/bookkeeper/zookeeper-3.3.2-bookkeeper.jar"/>
+	<classpathentry kind="lib" path="zookeeper/contrib/fatjar/zookeeper-3.3.2-fatjar.jar"/>
+	<classpathentry kind="lib" path="zookeeper/contrib/rest/zookeeper-3.3.2-rest.jar"/>
+	<classpathentry kind="lib" path="zookeeper/contrib/ZooInspector/lib/jtoaster-1.0.4.jar"/>
+	<classpathentry kind="lib" path="zookeeper/contrib/ZooInspector/zookeeper-3.3.2-ZooInspector.jar"/>
+	<classpathentry kind="lib" path="zookeeper/dist-maven/zookeeper-3.3.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="zookeeper/dist-maven/zookeeper-3.3.2-sources.jar"/>
+	<classpathentry kind="lib" path="zookeeper/dist-maven/zookeeper-3.3.2.jar"/>
+	<classpathentry kind="lib" path="zookeeper/lib/jline-0.9.94.jar"/>
+	<classpathentry kind="lib" path="zookeeper/lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="zookeeper/src/contrib/zooinspector/lib/jtoaster-1.0.4.jar"/>
+	<classpathentry kind="lib" path="zookeeper/zookeeper-3.3.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
