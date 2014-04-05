@@ -12,7 +12,7 @@ public abstract class Packet {
 	public static final int ACK = 101;
 	public static final int QUERY = 102;
 	public static final int REPLY = 103;
-	
+	public static final int DONE = 104;
 	/**
 	 * Error codes
 	 */
