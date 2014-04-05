@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="code/passwordhacker"/>
-	<classpathentry kind="src" path="code/example1"/>
-	<classpathentry kind="src" path="code/example2"/>
-	<classpathentry kind="src" path="code/md5"/>
+	<classpathentry kind="src" path="code"/>
 	<classpathentry kind="src" path="zookeeper/contrib/bookkeeper/benchmark"/>
 	<classpathentry kind="src" path="zookeeper/contrib/bookkeeper/src/java"/>
 	<classpathentry kind="src" path="zookeeper/contrib/bookkeeper/test"/>
