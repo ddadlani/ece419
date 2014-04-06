@@ -49,6 +49,29 @@ public class ZkConnector implements Watcher {
 			e.printStackTrace();
 		}
     }
+    
+    /**
+     * Gets data from node
+     */
+    public byte[] getData(String path, Watcher watch){
+
+    	Stat stat = null;
+        try {
+        	byte[] dataExtracted = null;
+			
+				dataExtracted = zooKeeper.getData(path, watch, stat);
+		
+        	return dataExtracted;
+        
+		} catch (KeeperException e) {
+			e.printStackTrace();
+			System.exit(0);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+        return null;
+    }
 
     /**
      * Closes connection with ZooKeeper

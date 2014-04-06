@@ -38,5 +38,17 @@
 	<classpathentry kind="lib" path="zookeeper/src/contrib/zooinspector/lib/jtoaster-1.0.4.jar"/>
 	<classpathentry kind="lib" path="zookeeper/zookeeper-3.3.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/nfs/ug/homes-0/d/dadlanid/ece419/lab4/zookeeper/dist-maven/zookeeper-3.3.2.jar"/>
+	<classpathentry kind="lib" path="/nfs/ug/homes-0/d/dadlanid/ece419/lab4/zookeeper/dist-maven/zookeeper-3.3.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="/nfs/ug/homes-0/d/dadlanid/ece419/lab4/zookeeper/dist-maven/zookeeper-3.3.2-sources.jar"/>
+	<classpathentry kind="lib" path="/nfs/ug/homes-0/d/dadlanid/ece419/lab4/zookeeper/zookeeper-3.3.2.jar"/>
+	<classpathentry kind="lib" path="/nfs/ug/homes-0/d/dadlanid/ece419/lab4/zookeeper/contrib/bookkeeper/zookeeper-3.3.2-bookkeeper.jar"/>
+	<classpathentry kind="lib" path="/nfs/ug/homes-0/d/dadlanid/ece419/lab4/zookeeper/contrib/fatjar/zookeeper-3.3.2-fatjar.jar"/>
+	<classpathentry kind="lib" path="/nfs/ug/homes-0/d/dadlanid/ece419/lab4/zookeeper/contrib/rest/zookeeper-3.3.2-rest.jar"/>
+	<classpathentry kind="lib" path="/nfs/ug/homes-0/d/dadlanid/ece419/lab4/zookeeper/contrib/ZooInspector/lib/jtoaster-1.0.4.jar"/>
+	<classpathentry kind="lib" path="/nfs/ug/homes-0/d/dadlanid/ece419/lab4/zookeeper/contrib/ZooInspector/zookeeper-3.3.2-ZooInspector.jar"/>
+	<classpathentry kind="lib" path="/nfs/ug/homes-0/d/dadlanid/ece419/lab4/zookeeper/lib/jline-0.9.94.jar"/>
+	<classpathentry kind="lib" path="/nfs/ug/homes-0/d/dadlanid/ece419/lab4/zookeeper/lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="/nfs/ug/homes-0/d/dadlanid/ece419/lab4/zookeeper/src/contrib/zooinspector/lib/jtoaster-1.0.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
