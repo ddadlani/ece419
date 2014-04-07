@@ -18,11 +18,13 @@ public class FileServerHandlerThread extends Thread implements Runnable {
 	}
 	
 	public void run() {
-		
+		//System.out.println("Created new FileServerHandlerThread");
+		boolean done = false;
 		try {
 			ObjectInputStream in = null;
 			in = new ObjectInputStream(workerSocket.getInputStream());
-		
+			ObjectOutputStream out = new ObjectOutputStream(workerSocket.getOutputStream());
+			//System.out.println("Created objinput");
 			Object o = in.readObject();
 			assert(o instanceof FileServerPacket);
 			FileServerPacket packetFromClient = (FileServerPacket) o;
@@ -32,8 +34,9 @@ public class FileServerHandlerThread extends Thread implements Runnable {
 				System.err.println("ERROR: Worker thread sent something other than a QUERY?");
 				return;
 			} else {
-				boolean done = false;
-				ObjectOutputStream out = new ObjectOutputStream(workerSocket.getOutputStream());
+				//System.out.println("Received a packet of type QUERY");
+				
+				
 				do {
 					if (packetFromClient.type == FileServerPacket.DONE) {
 						done = true;
@@ -57,15 +60,27 @@ public class FileServerHandlerThread extends Thread implements Runnable {
 				} while(!done);
 				
 				// By now the work is done. Send ACK?
+				FileServerPacket ackPacket = new FileServerPacket();
+				ackPacket.type = FileServerPacket.ACK;
+				out.writeObject(ackPacket);
+				
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {}
 			}
 			workerSocket.close();
+			
 		} catch (IOException e) {
-			System.err.println("ERROR: Connection from worker thread lost.");
-			e.printStackTrace();
+			if (!done) {
+				System.err.println("Connection from worker thread lost. Returning");
+			}
+			//e.printStackTrace();
 			return;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
+			return;
 		}
+		return;
 	}
 	
 }

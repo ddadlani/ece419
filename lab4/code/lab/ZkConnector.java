@@ -102,22 +102,26 @@ public class ZkConnector implements Watcher {
         return stat;
     }
 
-    protected KeeperException.Code create(String path, String data, CreateMode mode) {
+    protected String create(String path, String data, CreateMode mode) {
         
         try {
             byte[] byteData = null;
             if(data != null) {
                 byteData = data.getBytes();
             }
-            zooKeeper.create(path, byteData, acl, mode);
+            return zooKeeper.create(path, byteData, acl, mode);
             
         } catch(KeeperException e) {
-            return e.code();
+            System.out.println("Exception 1");
+            return null;
+            //return e.code();
         } catch(Exception e) {
-            return KeeperException.Code.SYSTEMERROR;
+            System.out.println("Exception 2");
+            return null;
+            //return KeeperException.Code.SYSTEMERROR;
         }
         
-        return KeeperException.Code.OK;
+        //return KeeperException.Code.OK;
     }
 
     public void process(WatchedEvent event) {

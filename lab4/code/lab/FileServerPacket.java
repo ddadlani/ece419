@@ -1,7 +1,8 @@
 import java.util.ArrayList;
+import java.io.Serializable;
 
 
-public class FileServerPacket extends Packet {
+public class FileServerPacket extends Packet implements Serializable {
 
 	public FileServerPacket() {
 		type = NULL_VALUE;

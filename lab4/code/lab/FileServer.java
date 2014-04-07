@@ -125,11 +125,11 @@ public class FileServer {
 		Stat stat = zkc.exists(myPath, watcher);
 		if (stat == null) { // znode doesn't exist; let's try creating it
 			System.out.println("Creating " + myPath);
-			Code ret = zkc.create(myPath, // Path of znode
+			String name = zkc.create(myPath, // Path of znode
 					null, // Data not needed.
 					CreateMode.EPHEMERAL // Znode type, set to EPHEMERAL.
 					);
-			if (ret == Code.OK) {
+			//if (ret == Code.OK) {
 				System.out.println("Primary FileServer");
 				String listenPort = String.valueOf(listenSocket.getLocalPort());
 				String listenAddress = listenSocket.getInetAddress().getHostAddress();
@@ -149,7 +149,7 @@ public class FileServer {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} 
-			}
+			
 			return true;
 		}
 		return false;
