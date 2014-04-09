@@ -136,6 +136,7 @@ public class FileServer {
 			String listenAddress = listenSocket.getInetAddress().getHostAddress();
 			
 			System.out.println("listenAddress = " + listenAddress);
+			System.out.println("listenPort = " + listenPort);
 			
 			String addr = listenPort + " " + listenAddress;
 			String name = zkc.create(myPath, addr, CreateMode.EPHEMERAL); // Znode type, set to EPHEMERAL.
