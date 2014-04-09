@@ -47,7 +47,7 @@ public class JobTracker {
             //Listening for connections from ClientDriver
             System.out.println("Listening for connections from ClientDriver");
             try {
-                new Thread (new JobTrackerHandlerThread(jt.listenSocket.accept())).start();
+                new Thread (new JobTrackerHandlerThread(jt.listenSocket.accept(), jt.zkc, jt.watcher)).start();
             } catch (IOException e) {
                 //System.err.println("ERROR: Could not accept connection from client driver thread.");
                 //e.printStackTrace();
@@ -97,11 +97,11 @@ public class JobTracker {
             System.out.println("listenAddress = " + listenAddress + "listenPort = " + listenPort);
             String addr = listenPort + " " + listenAddress;
 
-            Code ret = zkc.create(myPath, // Path of znode
+            String ret = zkc.create(myPath, // Path of znode
                     addr, // IP addr and port
                     CreateMode.EPHEMERAL // Znode type, set to EPHEMERAL.
                     );
-            if (ret == Code.OK) {
+            if (ret != null) {
                 System.out.println("Primary JobTracker");
                 this.is_p = true;
                 return true;

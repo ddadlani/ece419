@@ -32,7 +32,7 @@ public class ZkConnector implements Watcher {
 
         zooKeeper = new ZooKeeper(
                 hosts, // ZooKeeper service hosts
-                500,  // Session timeout in milliseconds
+                5000,  // Session timeout in milliseconds
                 this); // watcher - see process method for callbacks
 	    connectedSignal.await();
     }
@@ -51,15 +51,15 @@ public class ZkConnector implements Watcher {
     }
     
     /**
-     * Gets data from node
-     */
-    public byte[] getData(String path, Watcher watch){
+    * Gets data from node
+    */
+    public byte[] getData(String path, Watcher watcher){
 
     	Stat stat = null;
         try {
         	byte[] dataExtracted = null;
 			
-				dataExtracted = zooKeeper.getData(path, watch, stat);
+				dataExtracted = zooKeeper.getData(path, watcher, stat);
 		
         	return dataExtracted;
         
@@ -112,16 +112,12 @@ public class ZkConnector implements Watcher {
             return zooKeeper.create(path, byteData, acl, mode);
             
         } catch(KeeperException e) {
-            System.out.println("Exception 1");
             return null;
             //return e.code();
         } catch(Exception e) {
-            System.out.println("Exception 2");
             return null;
             //return KeeperException.Code.SYSTEMERROR;
         }
-        
-        //return KeeperException.Code.OK;
     }
 
     public void process(WatchedEvent event) {

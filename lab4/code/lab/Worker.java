@@ -72,7 +72,7 @@ public class Worker {
 		this.fsAddress = null;
 
 		this.firstPartition = 0;
-		this.lastPartition = 265;
+		this.lastPartition = 3;
 
 		this.passwordHash = null;
 		this.dataPartitions = null;
@@ -118,9 +118,9 @@ public class Worker {
 		if (myID == null) {
 			System.err.println("ERROR: Something went wrong with node creation. Terminating.");
 			System.exit(1);
-		} else {
-		  	System.out.println("My path = "+ myID);
-		  }
+		} //else {
+		  //	System.out.println("My path = "+ myID);
+		  //}
 
 	}
 
@@ -134,82 +134,61 @@ public class Worker {
 		Worker worker = new Worker(args[0]);
 
 		// Retrieve partitions from FileServer
-		System.out.println("fsAddress = " + worker.fsAddress);
+		//System.out.println("fsAddress = " + worker.fsAddress);
 		String[] host_port = worker.fsAddress.split(" ");
 		assert (host_port.length == 2);
 		Integer num = worker.lastPartition - worker.firstPartition + 1;
 
 		worker.dataPartitions = new ArrayList<ArrayList<String>>(num);
-		System.out.println("Attempting to connect to FileServer");
-		System.out.println("Address " + host_port[1] + " port " + host_port[0]);
-
-		ObjectOutputStream out = null;
-		ObjectInputStream in = null;
+		//System.out.println("Attempting to connect to FileServer");
+		//System.out.println("Address " + host_port[1] + " port " + host_port[0]);
 		try {
 
 			Socket socket = new Socket(host_port[1],
 					Integer.parseInt(host_port[0]));
 
-			System.out.println("Created socket");
-			out = new ObjectOutputStream(socket.getOutputStream());
-			System.out.println("Created objout");
-			in = new ObjectInputStream(socket.getInputStream());
+			//System.out.println("Created socket");
+			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+			//System.out.println("Created objout");
+			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+			
+			
+
+			//System.out.println("About to send to fileServer");
+			for (Integer i = worker.firstPartition; i <= worker.lastPartition; i++) {
+				FileServerPacket outPacket = new FileServerPacket();
+				outPacket.type = FileServerPacket.QUERY;
+				outPacket.value = new Integer(i);
+				out.writeObject(outPacket);
+				//System.out.println("Just sent packet");
+				FileServerPacket inPacket = (FileServerPacket) in.readObject();
+				worker.dataPartitions.add(inPacket.partition);
+				//System.out.println("First word in partition: "
+				//		+ worker.dataPartitions.get(i - worker.firstPartition)
+				//				.get(0));
+				//System.out.println("Last word in partition: "
+				//		+ worker.dataPartitions.get(i - worker.firstPartition)
+				//				.get(worker.dataPartitions.get(i - worker.firstPartition).size() -1));
+			}
+
+			FileServerPacket donePacket = new FileServerPacket();
+			donePacket.type = FileServerPacket.DONE;
+			out.writeObject(donePacket);
+
+			// Wait for ACK
+			FileServerPacket ackPacket = (FileServerPacket) in.readObject();
+			assert (ackPacket.type == FileServerPacket.ACK);
+
+			//System.out.println("Done. Returning");
+			return;
 		} catch (IOException e) {
 			System.out.println("ERROR: A connection error occurred.");
 			e.printStackTrace();
 			System.exit(1);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return;
 		}
-			
-
-			System.out.println("About to send to fileServer");
-			for (Integer i = worker.firstPartition; i <= worker.lastPartition; i++) {
-				try {
-					FileServerPacket outPacket = new FileServerPacket();
-					outPacket.type = FileServerPacket.QUERY;
-					outPacket.value = new Integer(i);
-					//Thread.sleep(500);
-					out.writeObject(outPacket);
-					System.out.println("Just sent packet");
-					//Thread.sleep(500);
-					FileServerPacket inPacket = (FileServerPacket) in.readObject();
-					worker.dataPartitions.add(inPacket.partition);
-					System.out.println("First word in partition: "
-						+ worker.dataPartitions.get(i - worker.firstPartition)
-								.get(0));
-					System.out.println("Last word in partition: "
-						+ worker.dataPartitions.get(i - worker.firstPartition)
-								.get(worker.dataPartitions.get(i - worker.firstPartition).size() -1));
-				} catch (IOException e) {
-					i--;
-					try {
-						Thread.sleep(5000);
-					}catch (InterruptedException ie) {}
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-					return;
-				} 
-			}
-
-			try {
-				FileServerPacket donePacket = new FileServerPacket();
-				donePacket.type = FileServerPacket.DONE;
-				out.writeObject(donePacket);
-
-				// Wait for ACK
-				FileServerPacket ackPacket = (FileServerPacket) in.readObject();
-				assert (ackPacket.type == FileServerPacket.ACK);
-
-				System.out.println("Done. Returning");
-				return;
-			} catch (IOException e) {
-				System.out.println("ERROR: A connection error occurred.");
-				e.printStackTrace();
-				System.exit(1);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-				return;
-			}
-		 //catch (InterruptedException ie) {}
 	}
 
 	public static String getHash(String word) {
@@ -248,7 +227,7 @@ public class Worker {
 				byte[] data = zkc.getData(fspath, watcher);
 				// Record the new primary file server information
 				this.fsAddress = new String(data, "UTF-8");
-				System.out.println("New FileServer located at " + this.fsAddress);
+				//System.out.println("New FileServer located at " + this.fsAddress);
 			} catch (UnsupportedEncodingException uee) {
 				uee.printStackTrace();
 			}
