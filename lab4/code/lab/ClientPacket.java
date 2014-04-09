@@ -13,6 +13,8 @@ public class ClientPacket extends Packet implements Serializable {
 	{
 		msgType = Packet.NULL_VALUE;
 		finish = false;
+		hash = null;
+		word = null;
 	}
 	
 }

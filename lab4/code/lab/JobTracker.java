@@ -8,6 +8,13 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.data.Stat;
 import org.apache.zookeeper.Watcher.Event.EventType;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.ServerSocket;
+import java.util.ArrayList;
+
 import java.io.IOException;
 
 public class JobTracker {
@@ -15,6 +22,8 @@ public class JobTracker {
     String myPath = "/jobtracker";
     ZkConnector zkc;
     Watcher watcher;
+    ServerSocket listenSocket;
+    boolean is_p;
 
     public static void main(String[] args) {
       
@@ -26,33 +35,33 @@ public class JobTracker {
         JobTracker jt = new JobTracker(args[0]);   
 
         boolean primary = jt.checkpath();
-
-        if (!primary) {
-            try {
-                while (true) {
-                    Thread.sleep(500);
-                }
-            } catch (InterruptedException e) {}
-        }
-        assert(primary == true);
+        jt.is_p = primary;
         
-        while (primary) {
+        try {
+            while (!jt.is_p) {
+                Thread.sleep(500);
+            }
+        } catch (InterruptedException e) {}
+        
+        while(jt.is_p) {
             //Listening for connections from ClientDriver
             System.out.println("Listening for connections from ClientDriver");
-            /*try {
-                new Thread(new JobTrackerHandlerThread(fs.listenSocket.accept(), fs.dataPartitions)).start();
+            try {
+                new Thread (new JobTrackerHandlerThread(jt.listenSocket.accept())).start();
             } catch (IOException e) {
-                System.err.println("ERROR: Could not accept connection from client driver thread.");
-                e.printStackTrace();
-                System.exit(1);
-            }*/
-
+                //System.err.println("ERROR: Could not accept connection from client driver thread.");
+                //e.printStackTrace();
+                //System.exit(1);
+                //
+            }
         }
+
+        
         
     }
 
     public JobTracker(String hosts) {
-
+        is_p = false;
         System.out.println("Entered ClientDriver constructor");
         // Start listening port
         try {
@@ -85,29 +94,22 @@ public class JobTracker {
             System.out.println("Creating " + myPath);
             String listenPort = String.valueOf(listenSocket.getLocalPort());
             String listenAddress = listenSocket.getInetAddress().getHostAddress();
-            System.out.println("listenAddress = " + listenAddress);
+            System.out.println("listenAddress = " + listenAddress + "listenPort = " + listenPort);
             String addr = listenPort + " " + listenAddress;
-            byte[] data = null;
-            try {
-                data = addr.getBytes("UTF-8"); 
-            } catch (UnsupportedEncodingException e1) {
-                e1.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } 
 
             Code ret = zkc.create(myPath, // Path of znode
-                    data, // IP addr and port
+                    addr, // IP addr and port
                     CreateMode.EPHEMERAL // Znode type, set to EPHEMERAL.
                     );
             if (ret == Code.OK) {
                 System.out.println("Primary JobTracker");
+                this.is_p = true;
                 return true;
             }
-            else
-                return false;
+            else { 
+                    System.out.println("CODE NOT OK!!"); 
+                    System.exit(0); 
+            }
         }
         return false;
     }

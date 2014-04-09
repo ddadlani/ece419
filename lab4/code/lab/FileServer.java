@@ -24,6 +24,7 @@ public class FileServer {
 	Watcher watcher;
 	ServerSocket listenSocket;
 	ArrayList <ArrayList<String>> dataPartitions;
+	boolean primary;
 
 	public static void main(String[] args) {
 
@@ -34,19 +35,21 @@ public class FileServer {
 		// TAKE IN FILE NAME TOO?
 		FileServer fs = new FileServer(args[0], args[1]);
 
-		boolean primary = fs.checkpath();
+		fs.primary = fs.checkpath();
 
-		if (!primary) {
-			try {
-				while (true) {
-					Thread.sleep(500);
-				}
-			} catch (InterruptedException e) {}
+		try {
+			while (!(fs.primary)) {
+				System.out.println("Sleeping...");
+				Thread.sleep(500);
+			}
+		} catch (InterruptedException e) {
+
 		}
-		assert(primary == true);
+		//assert(primary == true);
 		
-		while (primary) {
+		while (fs.primary) {
 			// Listen for connections
+			System.out.println("Listening");
 			try {
 				new Thread(new FileServerHandlerThread(fs.listenSocket.accept(), fs.dataPartitions)).start();
 			} catch (IOException e) {
@@ -102,6 +105,7 @@ public class FileServer {
 		}
 		
 		// Election of primary
+		primary = false;
 		System.out.println("Checking to see if primary exists");
 		zkc = new ZkConnector();
 		try {
@@ -122,37 +126,22 @@ public class FileServer {
 
 	private boolean checkpath() {
 		System.out.println("Entered checkpath()");
+		
 		Stat stat = zkc.exists(myPath, watcher);
 		if (stat == null) { // znode doesn't exist; let's try creating it
 			System.out.println("Creating " + myPath);
-			String name = zkc.create(myPath, // Path of znode
-					null, // Data not needed.
-					CreateMode.EPHEMERAL // Znode type, set to EPHEMERAL.
-					);
-			//if (ret == Code.OK) {
-				System.out.println("Primary FileServer");
-				String listenPort = String.valueOf(listenSocket.getLocalPort());
-				String listenAddress = listenSocket.getInetAddress().getHostAddress();
-				System.out.println("listenAddress = " + listenAddress);
-				String addr = listenPort + " " + listenAddress;
-				byte[] data = null;
-				try {
-					data = addr.getBytes("UTF-8"); 
-					zkc.setData(myPath, data);
-				} catch (UnsupportedEncodingException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
+			System.out.println("Primary FileServer");
+
+			String listenPort = String.valueOf(listenSocket.getLocalPort());
+			String listenAddress = listenSocket.getInetAddress().getHostAddress();
 			
-			return true;
+			System.out.println("listenAddress = " + listenAddress);
+			
+			String addr = listenPort + " " + listenAddress;
+			String name = zkc.create(myPath, addr, CreateMode.EPHEMERAL); // Znode type, set to EPHEMERAL.
+			primary = true;
 		}
-		return false;
+		return primary;
 	}
 
 	private void handleEvent(WatchedEvent event) {
@@ -161,15 +150,19 @@ public class FileServer {
 		if (path.equalsIgnoreCase(myPath)) {
 			if (type == EventType.NodeDeleted) {
 				System.out.println(myPath + " deleted! Let's go!");
-				checkpath(); // try to become the boss
+				System.out.println("Primary before1: " + primary);
+				this.primary = checkpath(); // try to become the boss
+				System.out.println("Primary after1: " + primary);
 			}
-			if (type == EventType.NodeCreated) {
+			if ((type == EventType.NodeCreated)&&(!primary)) {
 				System.out.println(myPath + " created!");
 				/*try {
 					Thread.sleep(5000);
 				} catch (Exception e) {
 				}*/
-				checkpath(); // re-enable the watch
+				System.out.println("Primary before2: " + primary);
+				this.primary = checkpath(); // re-enable the watch
+				System.out.println("Primary after2: " + primary);
 			}
 		}
 	}
