@@ -4,11 +4,9 @@ import java.util.ArrayList;
 public class JobNode implements Serializable{
 
 	public ArrayList <Task> workerJobs;
-	public String workerPath;
 
-	public JobNode (String workerPath_) {
+	public JobNode () {
 		workerJobs = new ArrayList <Task> ();
-		workerPath = workerPath_;
 	}
 
 	//JT Handler calls to add 
@@ -21,8 +19,10 @@ public class JobNode implements Serializable{
 		for (int i = 0; i < workerJobs.size(); i++)
 		{
 			Task t = new Task(workerJobs.get(i));
-			if (t.result == Task.IN_PROGRESS)
+			if (t.result == Task.NOT_STARTED) {
+				t.result = Task.IN_PROGRESS;
 				return t;
+			}
 		}	
 		return null;
 	} 
@@ -36,6 +36,17 @@ public class JobNode implements Serializable{
 				return t;
 		}	
 		return null;
+	}
+
+	public int getTaskIndex (String hash_) {
+		for (int i = 0; i < workerJobs.size(); i++)
+		{
+			Task t = new Task(workerJobs.get(i));
+			if (t.hash.equals(hash_))
+				return i;
+		}	
+		return -1;
+		
 	}
 
 }

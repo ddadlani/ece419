@@ -8,7 +8,12 @@ public class Task implements Serializable{
 	public int first_partition;
 	public int last_partition;
 	public int result;
-	public static final int IN_PROGRESS = -1;
+
+	/*
+	 * Constants
+	 */
+	public static final int IN_PROGRESS = 2;
+	public static final int NOT_STARTED = -1;
 	public static final int NOT_FOUND = 0;
 	public static final int FOUND = 1;
 
@@ -17,7 +22,7 @@ public class Task implements Serializable{
 		hash = hash_;
 		first_partition = start_p;
 		last_partition = end_p;
-		result = Task.IN_PROGRESS;
+		result = Task.NOT_STARTED;
 		word = null;
 	}
 
