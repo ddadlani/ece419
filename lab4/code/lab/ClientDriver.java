@@ -145,9 +145,16 @@ public class ClientDriver {
 
                     if (fromPacket.msgType == ClientPacket.REPLY)
                     {   
-                        System.out.println("Result = " + fromPacket.finish);
+                        
                         if (fromPacket.finish)
-                            System.out.println("Word = " + fromPacket.word);
+                        {
+                            if (fromPacket.found)
+                                System.out.println("Word = " + fromPacket.word);
+                            else
+                                System.out.println("Word not found");
+                        }
+                        else
+                            System.out.println("Query in progress");
                     }
                     else
                     {
@@ -205,8 +212,11 @@ public class ClientDriver {
     {
         String Addr = null;
         try {
-            Addr = new String(unparsed, "UTF-8");
+            Object o = Serializer.deserialize(unparsed);
+            Addr = (String) o;
         } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         String[] hostname_port = Addr.split(" ");

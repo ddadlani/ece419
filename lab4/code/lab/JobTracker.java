@@ -14,16 +14,26 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Iterator;
 
 import java.io.IOException;
+
+
 
 public class JobTracker {
     
     String myPath = "/jobtracker";
+    String jobs_root = "/jobs";
+    String workers_root = "/workers";
     ZkConnector zkc;
     Watcher watcher;
     ServerSocket listenSocket;
     boolean is_p;
+    int num_workers;
 
     public static void main(String[] args) {
       
@@ -42,12 +52,16 @@ public class JobTracker {
                 Thread.sleep(500);
             }
         } catch (InterruptedException e) {}
-        
+
+        if (jt.zkc.exists(jt.jobs_root, null) == null)
+            jt.zkc.create(jt.jobs_root, null, CreateMode.PERSISTENT);
+            
+
         while(jt.is_p) {
             //Listening for connections from ClientDriver
             System.out.println("Listening for connections from ClientDriver");
             try {
-                new Thread (new JobTrackerHandlerThread(jt.listenSocket.accept(), jt.zkc, jt.watcher)).start();
+                new Thread (new JobTrackerHandlerThread(jt.listenSocket.accept(), jt.zkc, jt.watcher, jt)).start();
             } catch (IOException e) {
                 //System.err.println("ERROR: Could not accept connection from client driver thread.");
                 //e.printStackTrace();
@@ -61,6 +75,7 @@ public class JobTracker {
     }
 
     public JobTracker(String hosts) {
+        num_workers = 0;
         is_p = false;
         System.out.println("Entered ClientDriver constructor");
         // Start listening port
@@ -114,6 +129,80 @@ public class JobTracker {
         return false;
     }
 
+    private void handleDeletion(ZooKeeper zk, List<String> workers)
+    {
+        List<String> jobs = null;
+        try {
+            jobs = zk.getChildren(jobs_root, null);
+        } catch (KeeperException k) {
+            System.out.println("Keeper Exception at getChildren");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } 
+        /*for (int i = 0; i < workers.size(); i++) {
+            for (int j = 0; j < jobs.size(); j++) {
+                if(workers.get(i).equals(jobs.get(j)))
+                    break;
+            }
+        }*/
+        Serializer s = new Serializer();
+        Collection<String> unassigned_jobs = new HashSet<String>();
+        Collection<String> assigned_jobs = new HashSet<String>( jobs );
+        unassigned_jobs.addAll(jobs);
+        unassigned_jobs.addAll(workers);
+        assigned_jobs.retainAll(workers);
+        unassigned_jobs.removeAll(assigned_jobs);
+
+        Iterator<String> itr = unassigned_jobs.iterator();
+
+        while (itr.hasNext()){
+            String temp = itr.next();
+            System.out.println(temp);
+        }
+
+        Iterator<String> i = unassigned_jobs.iterator();
+        int index = 0;
+        while(i.hasNext())
+        {
+
+            String u_job = i.next();
+            int worker_index = workers.size()-1-index;
+
+            String u_jobs_path = jobs_root + "/" + u_job;
+            String jobs_path = jobs_root + "/" + workers.get(worker_index);
+
+            byte[] tasks_b_in = zkc.getData(jobs_path, null);
+            byte[] unassigned_tasks_b = zkc.getData(u_jobs_path, null);
+
+            JobNode tasks = null;
+            JobNode unassigned = null;
+            try {
+                tasks = (JobNode) s.deserialize(tasks_b_in);
+                unassigned = (JobNode) s.deserialize(unassigned_tasks_b);
+            } catch (IOException io) {}
+            catch (ClassNotFoundException c) {}
+
+            for (int j = 0; j < unassigned.workerJobs.size(); j ++) {
+                tasks.reassignTask(unassigned.workerJobs.get(j)); //new Task??
+            }
+
+            byte[] tasks_b = null;
+            try {
+                    tasks_b = s.serialize((Object)tasks);
+            }catch (IOException io) {}
+
+
+            try {
+                zkc.setData(jobs_path,tasks_b);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (IOException io) {}
+            index ++;
+        }
+
+
+    }
+
     private void handleEvent(WatchedEvent event) {
         String path = event.getPath();
         EventType type = event.getType();
@@ -128,6 +217,38 @@ public class JobTracker {
                 checkpath(); // re-enable the watch
             }
         }
+        else if (path.equals(workers_root))
+        {
+            System.out.println("I'M HERE IN THE HANDLER!");
+            if (type == EventType.NodeChildrenChanged) {
+
+                ZooKeeper zookeeper = zkc.getZooKeeper();
+                //re-enable watch
+                List<String> workers = null;
+                try {
+                    workers = zookeeper.getChildren(workers_root, watcher);
+                } catch (KeeperException k) {
+                    System.out.println("Keeper Exception at getChildren");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } 
+
+                if (num_workers == workers.size())
+                    System.out.println("Same number of workers?");
+                else if (num_workers > workers.size())
+                {
+                    System.out.println("Worker deleted");
+                    handleDeletion(zookeeper,workers);
+                }
+                else
+                {
+                    System.out.println("Worker added");
+                }       
+
+                num_workers = workers.size();
+            }
+        }
+
     }
 
 }

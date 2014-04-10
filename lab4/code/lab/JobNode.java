@@ -14,28 +14,33 @@ public class JobNode implements Serializable{
 		workerJobs.add(new Task(hash_, start_p, end_p));
 	}
 
+	//JT Handler calls when reassigning tasks
+	public void reassignTask(Task t) {
+		workerJobs.add(new Task(t));
+	}
+
 	//Worker calls to get latest task that needs to be processed
 	public Task getFirstIncompleteTask () {
 		for (int i = 0; i < workerJobs.size(); i++)
 		{
 			Task t = new Task(workerJobs.get(i));
-			if (t.result == Task.NOT_STARTED) {
-				t.result = Task.IN_PROGRESS;
+			if (t.result == Task.NOT_STARTED)
 				return t;
-			}
 		}	
 		return null;
 	} 
 
-	//JobTracker calls to get task with given hash when Queried about Progress.
-	public Task getTask (String hash_) {
+	//JobTracker calls to get tasks with given hash when Queried about Progress.
+	public ArrayList<Task> getTasks (String hash_) {
+
+		ArrayList<Task> t = new ArrayList<Task> ();
 		for (int i = 0; i < workerJobs.size(); i++)
 		{
-			Task t = new Task(workerJobs.get(i));
-			if (t.hash.equals(hash_))
-				return t;
+			Task task = new Task(workerJobs.get(i));
+			if (task.hash.equals(hash_))
+				t.add(task);
 		}	
-		return null;
+		return t;
 	}
 
 	public int getTaskIndex (String hash_) {
