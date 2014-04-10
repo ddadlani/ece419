@@ -94,6 +94,7 @@ public class Worker {
 		this.watcher = new Watcher() { // Anonymous Watcher
 			@Override
 			public void process(WatchedEvent event) {
+				System.out.println("Created watcher");
 				handleEvent(event);
 			}
 		};
@@ -173,6 +174,7 @@ public class Worker {
 			try {
 				// Dequeue one task
 				while ((curTask = worker.jobQueue.poll()) == null) {
+					System.out.println("Sleeping...");
 					Thread.sleep(500);
 				} 
 			} catch (InterruptedException ie) {}
@@ -198,7 +200,9 @@ public class Worker {
 				ArrayList curPartition = dataPartitions.get(i);
 				// Iterate through each individual partition
 				for (Integer j = 0; j < curPartition.size(); j++) {
-					System.out.println("Current iteration value: " + curPartition.get(j));
+					if ((i == num - 1) && (j == 744))
+						break;
+					//System.out.println("Current iteration value: "+ i + " j: " + j + " " + curPartition.get(j));
 					wordHash = getHash((String) curPartition.get(j));
 					if (taskHash.equals(wordHash)) {
 						cracked = (String) curPartition.get(j);
@@ -295,6 +299,9 @@ public class Worker {
 		// Partitions to send back to the worker thread
 		ArrayList<ArrayList<String>> dataPartitions = new ArrayList<ArrayList<String>>(num);
 		
+		// Connect to file server
+		connectToFileServer();
+
 		System.out.println("About to send to fileServer");
 			for (Integer i = firstPartition; i <= lastPartition; i++) {
 				try {
@@ -303,16 +310,16 @@ public class Worker {
 					outPacket.type = FileServerPacket.QUERY;
 					outPacket.value = new Integer(i);				
 					this.out.writeObject(outPacket);
-					System.out.println("Just sent packet");
+					//System.out.println("Just sent packet");
 				
 					// Receive reply packet with information
 					FileServerPacket inPacket = (FileServerPacket) this.in.readObject();
 					dataPartitions.add(inPacket.partition);
 
-					System.out.println("First word in partition: "
-						+ dataPartitions.get(i).get(0));
-					System.out.println("Last word in partition: "
-						+ dataPartitions.get(i).get(dataPartitions.get(i).size() -1));
+					//System.out.println("First word in partition: "
+					//	+ dataPartitions.get(i).get(0));
+					//System.out.println("Last word in partition: "
+					//	+ dataPartitions.get(i).get(dataPartitions.get(i).size() -1));
 
 				} catch (IOException e) {
 					// File server died, connection unexpectedly lost
@@ -392,11 +399,15 @@ public class Worker {
 			} else if (type == EventType.NodeCreated) {
 				System.out.println(fspath + " created!");
 				checkpath();
-			} else if (type == EventType.NodeDataChanged) {
+			} else {
+				System.out.println("An unexpected event received");
+			}
+		} else if(path.equalsIgnoreCase(myJobID)) {
+			if (type == EventType.NodeDataChanged) {
 				System.out.println("Data has been changed");
 				byte[] data = zkc.getData(myJobID, watcher);
 				try {
-					Object o = Serializer.serialize(data);
+					Object o = Serializer.deserialize(data);
 					JobNode jn = (JobNode) o;
 					Task newTask = jn.getFirstIncompleteTask();
 					jobQueue.add(newTask);
@@ -405,6 +416,8 @@ public class Worker {
 					e.printStackTrace();
 					System.exit(1);
 				}
+			} else {
+				System.out.println("An unexpected event received here");
 			}
 		}
 	}
