@@ -26,7 +26,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.ArrayList;
 
 import java.util.List;
-import java.io.IOException;
 
 public class ClientDriver {
 
@@ -56,7 +55,7 @@ public class ClientDriver {
         try {
             zkc.connect(hosts);
         } catch(Exception e) {
-            System.out.println("Zookeeper connect "+ e.getMessage());
+            //System.out.println("Zookeeper connect "+ e.getMessage());
         }
  
         watcher = new Watcher() { // Anonymous Watcher
@@ -85,7 +84,7 @@ public class ClientDriver {
         String[] hostname_port = parseAddressFromBytes(jtAddr_bytes);
         c.hostname_jt = hostname_port[1];
         c.port_jt = Integer.parseInt(hostname_port[0]);
-        System.out.println("Jobtracker exists! hostname: " + c.hostname_jt + " port: " + c.port_jt);
+        //System.out.println("Jobtracker exists! hostname: " + c.hostname_jt + " port: " + c.port_jt);
 
         //Create socket
         try {
@@ -94,7 +93,7 @@ public class ClientDriver {
             c.in = new ObjectInputStream(c.CSocket.getInputStream());
         } catch (IOException e)
         {
-            System.out.println("IO EXCEPTION");
+            //System.out.println("IO EXCEPTION");
             System.exit(0);
         }
             
@@ -120,7 +119,7 @@ public class ClientDriver {
                 */   
                 toPacket = new ClientPacket();
                 fromPacket = new ClientPacket();
-
+                
                 if (input.equals("Q"))
                 {
                     toPacket.msgType = ClientPacket.QUERY;
@@ -128,20 +127,31 @@ public class ClientDriver {
                     System.out.print("> ");
                     input = stdIn.readLine();
                     toPacket.hash = input; 
-                    System.out.println("Sending Q packet to JT...");
+                    //System.out.println("Sending Q packet to JT...");
 
-                    if (c.primary_failed)
-                        Thread.sleep(5000);
-                    c.out.writeObject(toPacket);
-                    
+                    try {
+                        c.out.writeObject(toPacket);
+                    } catch (IOException e) {
+                        try {
+                            Thread.sleep(7500);
+                        } catch (InterruptedException ie) {}
+                        c.out.writeObject(toPacket);
+                    }
                     //Receive result :finish = false OR (finish = true and word)
-                    System.out.println("Receiving REPLY packet from JT...");
+                    //System.out.println("Receiving REPLY packet from JT...");
 
-                    if (c.primary_failed)
-                        Thread.sleep(5000);
-                    fromPacket = (ClientPacket) c.in.readObject();
-
-                    System.out.println("PACKET RECEIVED, type: " + fromPacket.msgType);
+                    //if (c.primary_failed)
+                    //   Thread.sleep(5000);
+                    try {
+                        fromPacket = (ClientPacket) c.in.readObject();
+                     } catch (IOException e) {
+                        try {
+                            Thread.sleep(7500);
+                        } catch (InterruptedException ie) {}
+                        c.out.writeObject(toPacket);
+                        fromPacket = (ClientPacket) c.in.readObject();
+                    }
+                    //System.out.println("PACKET RECEIVED, type: " + fromPacket.msgType);
 
                     if (fromPacket.msgType == ClientPacket.REPLY)
                     {   
@@ -158,7 +168,7 @@ public class ClientDriver {
                     }
                     else
                     {
-                        System.out.println("Wrong packet type received, needed Reply");
+                        //System.out.println("Wrong packet type received, needed Reply");
                         System.exit(-1);
                     }
                 }
@@ -171,38 +181,50 @@ public class ClientDriver {
                     //Send hash
                     toPacket.msgType = ClientPacket.FIND_HASH;
                     toPacket.hash = input;
-                    System.out.println("Sending F packet to JT...");
+                    //System.out.println("Sending F packet to JT...");
 
-                    if (c.primary_failed)
-                        Thread.sleep(5000);
-                    c.out.writeObject(toPacket);
-                    
+                    //if (c.primary_failed)
+                     //   Thread.sleep(5000);
+                    try {
+                        c.out.writeObject(toPacket);
+                    } catch (IOException e) {
+                        try {
+                            Thread.sleep(7500);
+                        } catch (InterruptedException ie) {}
+                        c.out.writeObject(toPacket);
+                    }
                     //Receive ack saying got sent
-                    System.out.println("Receiving ACK packet from JT...");
+                    //System.out.println("Receiving ACK packet from JT...");
 
-                    if (c.primary_failed)
-                        Thread.sleep(5000);
-                    fromPacket = (ClientPacket) c.in.readObject();
+                   // if (c.primary_failed)
+                    //    Thread.sleep(5000);
+                    try {
+                        fromPacket = (ClientPacket) c.in.readObject();
+                    } catch (IOException e) {
+                        try {
+                            Thread.sleep(7500);
+                        } catch (InterruptedException ie) {}
+                        c.out.writeObject(toPacket);
+                        fromPacket = (ClientPacket) c.in.readObject();
+                    }
 
                     if (fromPacket.msgType == ClientPacket.ACK)
                         System.out.println("Your request has been sent.");
                     else
                     {
-                        System.out.println("Wrong packet type received, needed Ack");
+                        //System.out.println("Wrong packet type received, needed Ack");
                         System.exit(-1);
                     }
                 }
                 System.out.println("> What do you want to do? find_password (F) / Query progress (Q) / exit(x) ?");
                 System.out.print("> ");
-                 
-   
-            }       
-
+       
+            }
             stdIn.close();
 
             
-        } catch(Exception e) {
-            System.out.println(e.getMessage());
+        }  catch(Exception e) {
+            //System.out.println(e.getMessage());
         } 
        
     }
@@ -225,14 +247,14 @@ public class ClientDriver {
 
     //jtcreate_waits till node is created
     public void jtcreate_wait() {
-        System.out.println("waiting for jobtracker node to be created...");
+        //System.out.println("waiting for jobtracker node to be created...");
         nodeCreatedSignal.add(new CountDownLatch(1));
         try{       
                 nodeCreatedSignal.get(i).await();
                 i++;
-                System.out.println("AFTER wait IS OVER " + i);
+                //System.out.println("AFTER wait IS OVER " + i);
         } catch(Exception e) {
-            System.out.println(e.getMessage());
+            //System.out.println(e.getMessage());
         }
     }
     
@@ -286,14 +308,14 @@ public class ClientDriver {
         
         if (event.getType().equals(EventType.NodeCreated))
         {
-            System.out.println("Node got created after deletion...");
+            //System.out.println("Node got created after deletion...");
             //boolean exists = this.checkpath();
             //if (exists)
             //{
-                System.out.println("BEFORE COUNTING DOWN " + i);
+                //System.out.println("BEFORE COUNTING DOWN " + i);
                 if (!primary_failed)
                     nodeCreatedSignal.get(i).countDown();
-                System.out.println(primary_failed);
+                //System.out.println(primary_failed);
                 if (primary_failed)
                 {
                     //set hostname and port
@@ -301,32 +323,32 @@ public class ClientDriver {
                     String[] hostname_port = parseAddressFromBytes(jtAddr_bytes);
                     hostname_jt = hostname_port[1];
                     port_jt = Integer.parseInt(hostname_port[0]);
-                    System.out.println("Jobtracker exists! hostname: " + hostname_jt + " port: " + port_jt);
+                    //System.out.println("Jobtracker exists! hostname: " + hostname_jt + " port: " + port_jt);
                     try {
                         this.CSocket = new Socket(hostname_jt, port_jt);
                         out = new ObjectOutputStream(this.CSocket.getOutputStream());
                         in = new ObjectInputStream(this.CSocket.getInputStream());
                     } catch (IOException e)
                     {
-                        System.out.println("IO EXCEPTION");
+                        //System.out.println("IO EXCEPTION");
                         System.exit(0);
                     }
                 }
                 primary_failed = false;
                 // verify if this is the defined znode
-                //System.out.println("New Socket connection port: " + port_jt + " and hostname: " + hostname_jt );  
+                ////System.out.println("New Socket connection port: " + port_jt + " and hostname: " + hostname_jt );  
             //}
         }
         if (event.getType().equals(EventType.NodeDeleted))
         {
-            System.out.println("NODE DELETED EVENT TYPE");
+            //System.out.println("NODE DELETED EVENT TYPE");
             try {
-                out.close();
-                in.close();
+                //out.close();
+                //in.close();
                 CSocket.close();
             } catch (IOException e)
             {
-                System.out.println("IO EXCEPTION");
+                //System.out.println("IO EXCEPTION");
                 System.exit(0);
             }
             primary_failed = true;
@@ -334,11 +356,9 @@ public class ClientDriver {
         }
         if (event.getType().equals(EventType.NodeDataChanged))
         {
-            System.out.println("Why did anyone change data (address of JT)??");
+            //System.out.println("Why did anyone change data (address of JT)??");
             System.exit(-1);
         }
     }
 
 }
-
-

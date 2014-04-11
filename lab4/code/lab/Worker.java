@@ -26,7 +26,6 @@ public class Worker {
 	String mypath = "/workers/worker";
 	String jobpath = "/jobs";
 
-
 	/**
 	 * Host name and port of the File Server
 	 */
@@ -94,7 +93,7 @@ public class Worker {
 		this.watcher = new Watcher() { // Anonymous Watcher
 			@Override
 			public void process(WatchedEvent event) {
-				System.out.println("Created watcher");
+				//System.out.println("Created watcher");
 				handleEvent(event);
 			}
 		};
@@ -119,10 +118,10 @@ public class Worker {
 			System.err.println("ERROR: Something went wrong with node creation. Terminating.");
 			System.exit(1);
 		} else {
-		  	//System.out.println("My path = "+ myID);
+		  	////System.out.println("My path = "+ myID);
 		  	String[] splitID = myID.split("/");
 		  	myID = new String(splitID[2]);
-		  	//System.out.println("My ID " + myID);
+		  	////System.out.println("My ID " + myID);
 		}
 
 		// Create a persistent node with your name under /jobs
@@ -131,14 +130,14 @@ public class Worker {
 		if (stat == null) {
 			String name = zkc.create(jobpath, null, CreateMode.PERSISTENT);
 			if (name != null) {
-				System.out.println("jobpath created");
+				//System.out.println("jobpath created");
 			} else {
-				System.out.println("???");
+				//System.out.println("???");
 			}
 		}
 		String str = new String(jobpath);
 		myJobID = jobpath + "/" + myID;
-		System.out.println("my job id " + myJobID);
+		//System.out.println("my job id " + myJobID);
 		JobNode jn = new JobNode();
 		//byte[] stuff = Serializer.serialize(jn);
 		str = zkc.create(myJobID, jn, CreateMode.PERSISTENT);
@@ -149,7 +148,7 @@ public class Worker {
 			// Set a watch
 		  	byte[] data = zkc.getData(myJobID, watcher);
 		  	if (data == null) {
-		  		System.out.println("Waiting for data");
+		  		//System.out.println("Waiting for data");
 		  	} 
 		}
 
@@ -174,9 +173,10 @@ public class Worker {
 			try {
 				// Dequeue one task
 				while ((curTask = worker.jobQueue.poll()) == null) {
-					System.out.println("Sleeping...");
+					//System.out.println("Sleeping...");
 					Thread.sleep(500);
 				} 
+				//System.out.println ("curTask after queue empty check: " + curTask.hash + " " + curTask.first_partition + " " + curTask.last_partition);
 			} catch (InterruptedException ie) {}
 
 			// curTask should not be null here. Gather required parameters
@@ -227,18 +227,31 @@ public class Worker {
 				Object o = Serializer.deserialize(putBack);	
 				JobNode jn = (JobNode) o;
 				
-				boolean removed = jn.workerJobs.remove(curTask);
-				if (!removed) {
-					System.out.println("Job wasnt found, what?");
+				int index = jn.getFirstTaskIndex(curTask.hash);
+				//System.out.println("index of task to be deleted from node: " + index);
+
+				Task removed_t = null;
+				try {
+					removed_t = jn.workerJobs.remove(index);
+				} catch(Exception e) {
+					//System.out.println("exception removing from arraylist");
+				}
+
+				if (removed_t == null) {
+					//System.out.println("Job wasnt found, what?");
+				}
+				else
+				{
+					//System.out.println("Task with hash: " + removed_t.hash + " and partitions " + removed_t.first_partition + "  " + removed_t.last_partition + " removed from jobs node.");
 				}
 				jn.workerJobs.add(doneTask);
-				System.out.println("done task added to arraylist");
+				//System.out.println("done task added to arraylist");
 				putBack = null;
 				putBack = Serializer.serialize(jn);
 				if (putBack != null) {
 					worker.zkc.setData(worker.myJobID, putBack);
 				} else {
-					System.out.println("putback was null?");
+					//System.out.println("putback was null?");
 				}
 			} catch (IOException e) {
 				System.err.println("ERROR: Could not serialize/deserialize");
@@ -264,12 +277,12 @@ public class Worker {
 	 * Function to connect to the fileserver
 	 */
 	private boolean connectToFileServer() {
-		System.out.println("fsAddress = " + this.fsAddress);
+		//System.out.println("fsAddress = " + this.fsAddress);
 		String[] host_port = this.fsAddress.split(" ");
 		assert (host_port.length == 2);
 		
-		System.out.println("Attempting to connect to FileServer");
-		System.out.println("Address " + host_port[1] + " port " + host_port[0]);
+		//System.out.println("Attempting to connect to FileServer");
+		//System.out.println("Address " + host_port[1] + " port " + host_port[0]);
 
 		this.out = null;
 		this.in = null;
@@ -278,14 +291,14 @@ public class Worker {
 
 			this.socket = new Socket(host_port[1], Integer.parseInt(host_port[0]));
 
-			System.out.println("Created socket");
+			//System.out.println("Created socket");
 			this.out = new ObjectOutputStream(this.socket.getOutputStream());
-			System.out.println("Created objout");
+			//System.out.println("Created objout");
 			this.in = new ObjectInputStream(this.socket.getInputStream());
 
 			return true;
 		} catch (IOException e) {
-			System.out.println("ERROR: A connection error occurred.");
+			//System.out.println("ERROR: A connection error occurred.");
 			return false;
 		}
 	}
@@ -302,7 +315,7 @@ public class Worker {
 		// Connect to file server
 		connectToFileServer();
 
-		System.out.println("About to send to fileServer");
+		//System.out.println("About to send to fileServer");
 			for (Integer i = firstPartition; i <= lastPartition; i++) {
 				try {
 					// Send request packet
@@ -355,10 +368,10 @@ public class Worker {
 				FileServerPacket ackPacket = (FileServerPacket) this.in.readObject();
 				assert (ackPacket.type == FileServerPacket.ACK);
 
-				System.out.println("Done. Returning");
+				//System.out.println("Done. Returning");
 				
 			} catch (IOException e) {
-				System.out.println("ERROR: A connection error occurred.");
+				//System.out.println("ERROR: A connection error occurred.");
 				e.printStackTrace();
 				System.exit(1);
 			} catch (ClassNotFoundException e) {
@@ -394,30 +407,35 @@ public class Worker {
 		EventType type = event.getType();
 		if (path.equalsIgnoreCase(fspath)) {
 			if (type == EventType.NodeDeleted) {
-				System.out.println("FileServer dead. Attempting to connect to backup");
+				//System.out.println("FileServer dead. Attempting to connect to backup");
 				checkpath();
 			} else if (type == EventType.NodeCreated) {
-				System.out.println(fspath + " created!");
+				//System.out.println(fspath + " created!");
 				checkpath();
 			} else {
-				System.out.println("An unexpected event received");
+				//System.out.println("An unexpected event received");
 			}
 		} else if(path.equalsIgnoreCase(myJobID)) {
 			if (type == EventType.NodeDataChanged) {
-				System.out.println("Data has been changed");
+				//System.out.println("Data has been changed");
 				byte[] data = zkc.getData(myJobID, watcher);
 				try {
 					Object o = Serializer.deserialize(data);
 					JobNode jn = (JobNode) o;
 					Task newTask = jn.getFirstIncompleteTask();
-					jobQueue.add(newTask);
+					if (newTask != null)
+					{
+						//System.out.println("Adding task: " + newTask.hash + " " + newTask.first_partition + " " + newTask.last_partition);
+						jobQueue.add(newTask);
+						//System.out.println("Queue size after adding " + jobQueue.size());
+					}
 				} catch (Exception e) {
-					System.out.println("Exception thrown in handleEvent");
+					//System.out.println("Exception thrown in handleEvent");
 					e.printStackTrace();
 					System.exit(1);
 				}
 			} else {
-				System.out.println("An unexpected event received here");
+				//System.out.println("An unexpected event received here");
 			}
 		}
 	}
@@ -430,7 +448,7 @@ public class Worker {
 				// Record the new primary file server information
 				Object o = Serializer.deserialize(data);
 				this.fsAddress = (String) o;
-				System.out.println("New FileServer located at " + this.fsAddress);
+				//System.out.println("New FileServer located at " + this.fsAddress);
 			} catch (UnsupportedEncodingException uee) {
 				uee.printStackTrace();
 			} catch (IOException e) {

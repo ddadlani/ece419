@@ -43,7 +43,8 @@ public class JobNode implements Serializable{
 		return t;
 	}
 
-	public int getTaskIndex (String hash_) {
+	//worker calls to find index of first task with given hash
+	public int getFirstTaskIndex (String hash_) {
 		for (int i = 0; i < workerJobs.size(); i++)
 		{
 			Task t = new Task(workerJobs.get(i));

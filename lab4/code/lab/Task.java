@@ -33,4 +33,20 @@ public class Task implements Serializable{
 		last_partition = t.last_partition;
 		result = t.result;
 	}
+
+	/*
+	public boolean equals(Task t) {
+		if (t == null)
+			return false;
+		else
+		{
+			if (t.hash.equals(hash) 
+				&& (t.first_partition == first_partition) 
+				&& (t.last_partition == last_partition) 
+				&& (t.result == result))
+				return true;
+			else
+				return false;
+		}
+	}*/
 }

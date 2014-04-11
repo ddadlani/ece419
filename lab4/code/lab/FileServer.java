@@ -39,7 +39,7 @@ public class FileServer {
 
 		try {
 			while (!(fs.primary)) {
-				System.out.println("Sleeping...");
+				//System.out.println("Sleeping...");
 				Thread.sleep(500);
 			}
 		} catch (InterruptedException e) {
@@ -49,7 +49,7 @@ public class FileServer {
 		
 		while (fs.primary) {
 			// Listen for connections
-			System.out.println("Listening");
+			//System.out.println("Listening");
 			try {
 				new Thread(new FileServerHandlerThread(fs.listenSocket.accept(), fs.dataPartitions)).start();
 			} catch (IOException e) {
@@ -63,7 +63,7 @@ public class FileServer {
 	}
 
 	public FileServer(String hosts, String filename) {
-		System.out.println("Entered FileServer constructor");
+		//System.out.println("Entered FileServer constructor");
 		// Start listening port
 		try {
 			listenSocket = new ServerSocket(0);
@@ -74,7 +74,7 @@ public class FileServer {
 		}
 
 		// Load the file into memory
-		System.out.println("Searching for data file...");
+		//System.out.println("Searching for data file...");
 		this.datafile = new String(filename);
 		FileReader fr = null;
 		BufferedReader getData = null;
@@ -82,7 +82,7 @@ public class FileServer {
 		try {
 			fr = new FileReader(datafile);
 			getData = new BufferedReader(fr);
-			System.out.println("Loading data file into memory...");
+			//System.out.println("Loading data file into memory...");
 			dataPartitions = new ArrayList<ArrayList<String>>(numPartitions);
 			for (int partition = 0; partition < numPartitions; partition++) {
 				temp = new ArrayList<String>(partitionSize);
@@ -99,19 +99,19 @@ public class FileServer {
 		} catch (IOException e) {
 			if (temp.size() == 744) {/* do nothing */}
 			else {
-				System.err.println("ERROR: getData threw IOException before eof. Terminating.");
+				//System.err.println("ERROR: getData threw IOException before eof. Terminating.");
 				System.exit(1);
 			}
 		}
 		
 		// Election of primary
 		primary = false;
-		System.out.println("Checking to see if primary exists");
+		//System.out.println("Checking to see if primary exists");
 		zkc = new ZkConnector();
 		try {
 			zkc.connect(hosts);
 		} catch (Exception e) {
-			System.out.println("Zookeeper connect in FileServer " + e.getMessage());
+			//System.out.println("Zookeeper connect in FileServer " + e.getMessage());
 		}
 
 		watcher = new Watcher() { // Anonymous Watcher
@@ -125,18 +125,18 @@ public class FileServer {
 	}
 
 	private boolean checkpath() {
-		System.out.println("Entered checkpath()");
+		//System.out.println("Entered checkpath()");
 		
 		Stat stat = zkc.exists(myPath, watcher);
 		if (stat == null) { // znode doesn't exist; let's try creating it
-			System.out.println("Creating " + myPath);
-			System.out.println("Primary FileServer");
+			//System.out.println("Creating " + myPath);
+			//System.out.println("Primary FileServer");
 
 			String listenPort = String.valueOf(listenSocket.getLocalPort());
 			String listenAddress = listenSocket.getInetAddress().getHostAddress();
 			
-			System.out.println("listenAddress = " + listenAddress);
-			System.out.println("listenPort = " + listenPort);
+			//System.out.println("listenAddress = " + listenAddress);
+			//System.out.println("listenPort = " + listenPort);
 			
 			String addr = listenPort + " " + listenAddress;
 			String name = zkc.create(myPath, addr, CreateMode.EPHEMERAL); // Znode type, set to EPHEMERAL.
@@ -150,20 +150,20 @@ public class FileServer {
 		EventType type = event.getType();
 		if (path.equalsIgnoreCase(myPath)) {
 			if (type == EventType.NodeDeleted) {
-				System.out.println(myPath + " deleted! Let's go!");
-				System.out.println("Primary before1: " + primary);
+				//System.out.println(myPath + " deleted! Let's go!");
+				//System.out.println("Primary before1: " + primary);
 				this.primary = checkpath(); // try to become the boss
-				System.out.println("Primary after1: " + primary);
+				//System.out.println("Primary after1: " + primary);
 			}
 			if ((type == EventType.NodeCreated)&&(!primary)) {
-				System.out.println(myPath + " created!");
+				//System.out.println(myPath + " created!");
 				/*try {
 					Thread.sleep(5000);
 				} catch (Exception e) {
 				}*/
-				System.out.println("Primary before2: " + primary);
+				//System.out.println("Primary before2: " + primary);
 				this.primary = checkpath(); // re-enable the watch
-				System.out.println("Primary after2: " + primary);
+				//System.out.println("Primary after2: " + primary);
 			}
 		}
 	}

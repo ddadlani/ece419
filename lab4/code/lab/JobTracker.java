@@ -59,7 +59,7 @@ public class JobTracker {
 
         while(jt.is_p) {
             //Listening for connections from ClientDriver
-            System.out.println("Listening for connections from ClientDriver");
+            //System.out.println("Listening for connections from ClientDriver");
             try {
                 new Thread (new JobTrackerHandlerThread(jt.listenSocket.accept(), jt.zkc, jt.watcher, jt)).start();
             } catch (IOException e) {
@@ -77,7 +77,7 @@ public class JobTracker {
     public JobTracker(String hosts) {
         num_workers = 0;
         is_p = false;
-        System.out.println("Entered ClientDriver constructor");
+        //System.out.println("Entered ClientDriver constructor");
         // Start listening port
         try {
             listenSocket = new ServerSocket(0);
@@ -91,7 +91,7 @@ public class JobTracker {
         try {
             zkc.connect(hosts);
         } catch(Exception e) {
-            System.out.println("Zookeeper connect "+ e.getMessage());
+            //System.out.println("Zookeeper connect "+ e.getMessage());
         }
  
         watcher = new Watcher() { // Anonymous Watcher
@@ -103,13 +103,13 @@ public class JobTracker {
     }
     
     private boolean checkpath() {
-        System.out.println("Entered checkpath()");
+        //System.out.println("Entered checkpath()");
         Stat stat = zkc.exists(myPath, watcher);
         if (stat == null) { // znode doesn't exist; let's try creating it
-            System.out.println("Creating " + myPath);
+            //System.out.println("Creating " + myPath);
             String listenPort = String.valueOf(listenSocket.getLocalPort());
             String listenAddress = listenSocket.getInetAddress().getHostAddress();
-            System.out.println("listenAddress = " + listenAddress + "listenPort = " + listenPort);
+            //System.out.println("listenAddress = " + listenAddress + "listenPort = " + listenPort);
             String addr = listenPort + " " + listenAddress;
 
             String ret = zkc.create(myPath, // Path of znode
@@ -117,12 +117,12 @@ public class JobTracker {
                     CreateMode.EPHEMERAL // Znode type, set to EPHEMERAL.
                     );
             if (ret != null) {
-                System.out.println("Primary JobTracker");
+                //System.out.println("Primary JobTracker");
                 this.is_p = true;
                 return true;
             }
             else { 
-                    System.out.println("CODE NOT OK!!"); 
+                    //System.out.println("CODE NOT OK!!"); 
                     System.exit(0); 
             }
         }
@@ -135,7 +135,7 @@ public class JobTracker {
         try {
             jobs = zk.getChildren(jobs_root, null);
         } catch (KeeperException k) {
-            System.out.println("Keeper Exception at getChildren");
+            //System.out.println("Keeper Exception at getChildren");
         } catch (InterruptedException e) {
             e.printStackTrace();
         } 
@@ -157,7 +157,7 @@ public class JobTracker {
 
         while (itr.hasNext()){
             String temp = itr.next();
-            System.out.println(temp);
+            //System.out.println(temp);
         }
 
         Iterator<String> i = unassigned_jobs.iterator();
@@ -186,6 +186,14 @@ public class JobTracker {
                 tasks.reassignTask(unassigned.workerJobs.get(j)); //new Task??
             }
 
+            try {
+                //remove u_job node
+                //System.out.println("Deleting " + u_jobs_path);
+                zk.delete(u_jobs_path, -1);
+            } catch (Exception ie) {
+                ie.printStackTrace();
+            }
+
             byte[] tasks_b = null;
             try {
                     tasks_b = s.serialize((Object)tasks);
@@ -208,18 +216,18 @@ public class JobTracker {
         EventType type = event.getType();
         if(path.equalsIgnoreCase(myPath)) {
             if (type == EventType.NodeDeleted) {
-                System.out.println(myPath + " deleted! Let's go!");       
+                //System.out.println(myPath + " deleted! Let's go!");       
                 checkpath(); // try to become the boss
             }
             if (type == EventType.NodeCreated) {
-                System.out.println(myPath + " created!");       
+                //System.out.println(myPath + " created!");       
                 /*try{ Thread.sleep(5000); } catch (Exception e) {}*/
                 checkpath(); // re-enable the watch
             }
         }
         else if (path.equals(workers_root))
         {
-            System.out.println("I'M HERE IN THE HANDLER!");
+            //System.out.println("I'M HERE IN THE HANDLER!");
             if (type == EventType.NodeChildrenChanged) {
 
                 ZooKeeper zookeeper = zkc.getZooKeeper();
@@ -228,22 +236,22 @@ public class JobTracker {
                 try {
                     workers = zookeeper.getChildren(workers_root, watcher);
                 } catch (KeeperException k) {
-                    System.out.println("Keeper Exception at getChildren");
+                    //System.out.println("Keeper Exception at getChildren");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } 
 
-                if (num_workers == workers.size())
-                    System.out.println("Same number of workers?");
-                else if (num_workers > workers.size())
+                //if (num_workers == workers.size())
+                    //System.out.println("Same number of workers?");
+                 if (num_workers > workers.size())
                 {
-                    System.out.println("Worker deleted");
+                    //System.out.println("Worker deleted");
                     handleDeletion(zookeeper,workers);
                 }
-                else
-                {
-                    System.out.println("Worker added");
-                }       
+                //else
+                //{
+                    //System.out.println("Worker added");
+               // }       
 
                 num_workers = workers.size();
             }
